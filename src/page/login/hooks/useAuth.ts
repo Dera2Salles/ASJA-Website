@@ -20,7 +20,7 @@ export const useAuth = () => {
       return toast.error(translate('loginPage.erreur'), {
         description: translate('loginPage.erreurMessage'),
       });
-    navigate(isAdmin ? '/admin' : '/student-space');
+    navigate(isAdmin ? '/admin ' : '/student-space');
   };
 
   const toggleIsAdmin = () => setIsAdmin((value) => !value);

@@ -15,6 +15,7 @@ export class AuthRepositoryImpl implements AuthRepository {
       return failure(Error());
     }
   }
+
   async logOut(): Promise<Result<void>> {
     try {
       await this.service.logOut();

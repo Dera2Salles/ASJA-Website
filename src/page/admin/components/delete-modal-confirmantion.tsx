@@ -3,13 +3,13 @@ import { Card } from '@/components/ui/card';
 import { MdWarning } from 'react-icons/md';
 
 export const DeleteModalConfirmation = ({
-  confirm,
-  cancel,
   text,
+  cancel,
+  confirm,
 }: {
-  confirm: () => Promise<void>;
-  cancel: () => void;
   text: string;
+  cancel: () => void;
+  confirm: () => Promise<void>;
 }) => {
   return (
     <div className=" flex flex-col gap-5 w-1/3">

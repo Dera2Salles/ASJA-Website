@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const DropButton = ({ name }: { name: string }) => {
   return (
-    <div className="flex rounded-2xl  py-2 w-full justify-between gap-2 items-center">
+    <div className=" flex rounded-2xl  py-2 w-full justify-between gap-2 items-center">
       {' '}
       <Avatar className=" size-11 ">
         <AvatarFallback className="dark:text-white  dark:bg-zinc-600">

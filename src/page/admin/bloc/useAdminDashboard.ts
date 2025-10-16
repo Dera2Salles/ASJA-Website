@@ -22,6 +22,8 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
 export const useAdminDashboard = () => {
+  const [userMatricule, setUserMatricule] = useState<number>();
+
   const [postTitle, setPostTitle] = useState<string>('');
   const [description, setDescription] = useState<string>('');
 
@@ -47,7 +49,7 @@ export const useAdminDashboard = () => {
   const [studentPage, setStudentPage] = useState<number>(1);
   const [hasReachedMaxPage, setHasReachedMaxPage] = useState<boolean>(false);
 
-  const [docList, setDoclist] = useState<DocDto[]>([]);
+  const [docList, setDoclist] = useState<DocEntity[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasReachedMax, setHasReachedMax] = useState<boolean>(false);
   const [userData, setUserData] = useState<UserDto>();
@@ -79,7 +81,7 @@ export const useAdminDashboard = () => {
     const result = await mentionRepository.deleteStudent(id, fileName);
 
     if (result.status === 'success') {
-      toast.success('Succes', {
+      toast.success('Success', {
         description: 'Student deleted',
       });
       await fetchDashboardData();
@@ -89,38 +91,6 @@ export const useAdminDashboard = () => {
     } else {
       toast.error('Error', {
         description: 'Failed to delete student',
-      });
-    }
-  };
-
-  const deletePost = async (id: string, fileName: string) => {
-    const result = await postRepo.delete(id, fileName);
-
-    if (result.status === 'success') {
-      toast.success('Succes', {
-        description: 'post deleted',
-      });
-      const newPostList = post.filter((item) => item.id != id);
-      setPostList(newPostList);
-    } else {
-      toast.error('Error', {
-        description: 'Failed to delete post',
-      });
-    }
-  };
-
-  const deleteDoc = async (id: string, fileName: string) => {
-    const result = await docRepo.delete(id, fileName);
-
-    if (result.status === 'success') {
-      toast.success('Succes', {
-        description: 'Document deleted',
-      });
-      const newDocList = docList.filter((item) => item.id != id);
-      setDoclist(newDocList);
-    } else {
-      toast.error('Error', {
-        description: 'Failed to delete document',
       });
     }
   };
@@ -148,7 +118,7 @@ export const useAdminDashboard = () => {
       clean();
 
       toast.success('Success', {
-        description: 'Post added',
+        description: 'Post addee',
         className: 'animate-fade animate-once animate-ease-out',
       });
     } else {
@@ -191,6 +161,33 @@ export const useAdminDashboard = () => {
     }
   };
 
+  const updateUserInformation = async () => {
+    const result = await userRepository.update({
+      name: name.replace(/\s+/g, ''),
+      lastName: lastName.replace(/\s+/g, ''),
+      imageUrl: selectedFile?.name as string,
+      branche:
+        !branche || level == 'L1' || level == 'L2'
+          ? 'COMMUN'
+          : (branche.replace(/_/g, ' ') as Branche),
+      level: level as Level,
+      mention: mention.replace(/_/g, ' ') as Mention,
+      contact,
+      identifier: userMatricule as number,
+    });
+
+    if (result.status === 'success') {
+      toast.success('Succes', {
+        description: 'Student information updated',
+        className: 'animate-fade animate-once animate-ease-out',
+      });
+    } else {
+      toast.error('Error', {
+        description: 'Failed to update user information',
+      });
+    }
+  };
+
   const sendStudentInformation = async () => {
     const student: UserEntity = {
       name: name.replace(/\s+/g, ''),
@@ -204,6 +201,7 @@ export const useAdminDashboard = () => {
           : (branche.replace(/_/g, ' ') as Branche),
       level: level as Level,
       mention: mention.replace(/_/g, ' ') as Mention,
+      role: 'Student',
       Premier: isPremierPaid,
       Deuxieme: isDeuxiemePaid,
       Troisieme: isTroisiemePaid,
@@ -380,7 +378,7 @@ export const useAdminDashboard = () => {
   };
 
   const addDocMetaData = async () => {
-    const doc: DocEntity = {
+    const doc: DocDto = {
       fileName: selectedFile?.name as string,
       fileSize: selectedFile?.size as number,
       branche:
@@ -394,7 +392,6 @@ export const useAdminDashboard = () => {
 
     const result = await docRepo.sendMetaData(doc);
     if (result.status === 'success') {
-      setDoclist((item) => [...item, ...[result.data]]);
       toast.success('Succes', {
         description: 'Product added',
         className: 'animate-fade animate-once animate-ease-out',
@@ -431,15 +428,35 @@ export const useAdminDashboard = () => {
     if (selectedFile) await handleUpload();
   };
 
-  const logOut = async (navigate: (path: string) => void) => {
-    const result = await authRepository.logOut();
+  const deleteDoc = async (id: string, fileName: string) => {
+    const result = await docRepo.delete(id, fileName);
     if (result.status == 'failure')
       return toast.error('Error', {
-        description: 'something went wrong',
+        description: 'Failed to delete document',
       });
-    toast.success('Success', {
-      description: 'Deconnecter',
-      className: 'animate-fade animate-once animate-ease-out',
+    const newDocList = docList.filter((item) => item.id != id);
+    setDoclist(newDocList);
+  };
+
+  const deletePost = async (id: string, fileName: string) => {
+    const result = await postRepo.delete(id, fileName);
+    if (result.status == 'failure')
+      return toast.error('Error', {
+        description: 'Failed to delete post',
+      });
+    const newPostList = post.filter((item) => item.id != id);
+    setPostList(newPostList);
+  };
+
+  const logOut = async (navigate: (path: string) => void) => {
+    const result = await authRepository.logOut();
+
+    if (result.status == 'failure')
+      return toast.error('Error', {
+        description: 'Error on logged out',
+      });
+    toast.success('Succes', {
+      description: 'Logged out',
     });
     navigate('/login');
   };
@@ -454,12 +471,12 @@ export const useAdminDashboard = () => {
   }, []);
 
   return {
-    addDocFile: addDocMetaData,
+    addDocMetaData,
+    userData,
     docList,
     setPage,
     fetchDocList,
     hasReachedMax,
-    userData,
     handleCancel,
     handleUpload,
     handleFileChange,
@@ -518,5 +535,8 @@ export const useAdminDashboard = () => {
     logOut,
     deleteDoc,
     lessonTitle,
+    setImage,
+    setUserMatricule,
+    updateUserInformation,
   };
 };

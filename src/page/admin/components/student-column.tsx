@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { classes, mentions } from '@/core/types';
+import { UpdateUserButton } from './edit-user-button';
 import { DeleteUserButton } from './delete-user-button';
 
 export const columns: ColumnDef<UserDto>[] = [
@@ -294,6 +295,14 @@ export const columns: ColumnDef<UserDto>[] = [
         trancheId={row.original.trancheId}
       />
     ),
+  },
+  {
+    accessorKey: 'id',
+    header: () => {},
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <UpdateUserButton user={row.original} />;
+    },
   },
   {
     accessorKey: 'mentionId',

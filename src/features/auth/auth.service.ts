@@ -17,6 +17,7 @@ export class AuthServiceImpl implements AuthService {
     );
     if (response.status != 200) throw new Error();
   }
+
   async logOut(): Promise<void> {
     const response = await this.api.post(`${ApiSource.url}/auth/logout`);
     if (response.status != 200) throw new Error();

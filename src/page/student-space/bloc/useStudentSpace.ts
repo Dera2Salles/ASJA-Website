@@ -63,9 +63,8 @@ export const useStudentSpace = () => {
       return toast.error('Error', {
         description: 'something went wrong',
       });
-    toast.success('Success', {
-      description: 'Deconnecter',
-      className: 'animate-fade animate-once animate-ease-out',
+    toast.success('Succes', {
+      description: 'Logged out',
     });
     navigate('/login');
   };

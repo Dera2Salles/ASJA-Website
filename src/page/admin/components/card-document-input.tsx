@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { MdCancel } from 'react-icons/md';
 import { useModalContext } from '../bloc/useModalContext';
 
-export const AddDocCard = () => {
+export const CardAddDoc = () => {
   const {
     setLessonTitle,
     sendToServer,
@@ -26,7 +26,6 @@ export const AddDocCard = () => {
     setLevel,
     setBranche,
     mention,
-    lessonTitle,
   } = useAdminDashboardContext();
 
   const { closeAddDoc } = useModalContext();
@@ -53,7 +52,6 @@ export const AddDocCard = () => {
                 </Label>
                 <Input
                   className="bg-gray-200"
-                  value={lessonTitle.toLocaleUpperCase()}
                   onChange={(e) => setLessonTitle(e.target.value)}
                 />
               </div>
