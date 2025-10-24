@@ -41,7 +41,7 @@ export const CardUpdateUser = () => {
 
   return (
     <div className=" flex flex-col gap-5 w-1/2">
-      <Card className="transition-all duration-500 p-5">
+      <Card className="transition-all duration-500 p-5 border-t-5 border-t-green-600">
         <CardContent>
           <MdCancel
             onClick={() => {
@@ -49,6 +49,10 @@ export const CardUpdateUser = () => {
               setLastName('');
               setContact('');
               setImage('');
+              setImage('');
+              setLevel('');
+              setBranche('');
+              setMention('');
               closeUpdateUser();
             }}
             className=" text-green-600 dark:text-white text-4xl cursor-pointer absolute  hover:scale-125 transition-all duration-300"
@@ -168,7 +172,17 @@ export const CardUpdateUser = () => {
         <CardFooter className="p-0">
           <Button
             className=" bg-green-700 hover:bg-green-900 flex w-full cursor-pointer p-6"
-            onClick={updateUserInformation}
+            onClick={async () => {
+              await updateUserInformation();
+              setName('');
+              setLastName('');
+              setContact('');
+              setImage('');
+              setLevel('');
+              setBranche('');
+              setMention('');
+              closeUpdateUser();
+            }}
           >
             <p className=" text-xl">Modifier</p>
           </Button>

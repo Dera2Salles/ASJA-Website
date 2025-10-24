@@ -63,122 +63,20 @@ export const Navbar = () => {
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuTrigger>
-                {translate('navBar.accueil')}
-              </NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <NavigationMenuLink>
-                  <Link
-                    to="description"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={500}
-                    activeClass="text-green-700 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.description')}
-                  </Link>
-                  <Link
-                    to="mission"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.mission')}
-                  </Link>
-                  <Link
-                    to="filiere"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.filieres')}
-                  </Link>
-                  <Link
-                    to="events"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.events')}
-                  </Link>
-                  <Link
-                    to="systeme"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.systeme')}
-                  </Link>
-                  <Link
-                    to="temoignages"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.temoignages')}
-                  </Link>
-                  <Link
-                    to="FAQ"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.FAQ')}
-                  </Link>
-                  <Link
-                    to="map"
-                    spy={true}
-                    smooth={true}
-                    offset={-50}
-                    duration={300}
-                    activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                    className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                  >
-                    {translate('sectionAccueilNavbar.map')}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-        <NavigationMenu>
-          <NavigationMenuList>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>
                 {translate('navBar.filieres')}
               </NavigationMenuTrigger>
               <NavigationMenuContent>
                 <NavigationMenuLink>
                   <Link
                     to="AGRO"
-                    onClick={() => (window.location.href = '/agroPage')}
                     className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
                   >
                     {translate('filiereSection.AGRO.name')}
                   </Link>
                   <Link
                     to="INFO"
-                    onClick={() => (window.location.href = '/infoPage')}
                     className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
+                    onClick={() => (window.location.href = '/agroPage')}
                   >
                     {translate('filiereSection.INFO.name')}
                   </Link>
@@ -267,107 +165,6 @@ export const Navbar = () => {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <NavigationMenuTrigger>
-                  {translate('navBar.accueil')}
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <NavigationMenuLink>
-                    <Link
-                      to="description"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={500}
-                      activeClass="text-green-700 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.description')}
-                    </Link>
-                    <Link
-                      to="mission"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.mission')}
-                    </Link>
-                    <Link
-                      to="filiere"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.filieres')}
-                    </Link>
-                    <Link
-                      to="events"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.events')}
-                    </Link>
-                    <Link
-                      to="systeme"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.systeme')}
-                    </Link>
-                    <Link
-                      to="temoignages"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.temoignages')}
-                    </Link>
-                    <Link
-                      to="FAQ"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.FAQ')}
-                    </Link>
-                    <Link
-                      to="map"
-                      spy={true}
-                      smooth={true}
-                      offset={-50}
-                      duration={300}
-                      activeClass="text-green-700 m-1 bg-green-50 dark:bg-green-950 font-medium px-4 py-2 rounded"
-                      className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
-                    >
-                      {translate('sectionAccueilNavbar.map')}
-                    </Link>
-                  </NavigationMenuLink>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <NavigationMenuTrigger>
                   {translate('navBar.filieres')}
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
@@ -381,8 +178,8 @@ export const Navbar = () => {
                     </Link>
                     <Link
                       to="INFO"
-                      onClick={() => (window.location.href = '/infoPage')}
                       className="text-gray-800 dark:text-white hover:text-stone-500 px-4 py-2 rounded transition-all duration-500"
+                      onClick={() => (window.location.href = '/infoPage')}
                     >
                       {translate('filiereSection.INFO.name')}
                     </Link>
@@ -444,7 +241,7 @@ export const Navbar = () => {
           </NavigationMenu>
           <a onClick={() => (window.location.href = '/Login')}>
             <div
-              className="px-4 py-2  text-white font-bold bg-green-700
+              className="px-4 py-2 my-1 ml-3 text-white font-bold bg-green-700
                            rounded-full cursor-pointer hover:bg-green-800
                            hover:scale-105 duration-300"
             >

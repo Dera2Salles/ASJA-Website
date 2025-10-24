@@ -13,7 +13,7 @@ export class UserRepositoryImpl implements UserRepository {
       const result = await this.service.get();
       const userData: UserDto = {
         imageUrl: result.imageUrl
-          ? `${ApiSource.url}/mention/stream/${result.imageUrl}`
+          ? `${ApiSource.url}/student/stream/${result.imageUrl}`
           : undefined,
         identifier: result.identifier,
         name: result.name,
@@ -33,10 +33,22 @@ export class UserRepositoryImpl implements UserRepository {
     }
   }
 
-  async update(user: UpdateDto): Promise<Result<void>> {
+  async update(user: UpdateDto): Promise<Result<UpdateDto>> {
     try {
       await this.service.update(user);
-      return success(undefined);
+      const userInformationUpdate: UpdateDto = {
+        name: user.name,
+        lastName: user.lastName,
+        imageUrl: user.imageUrl
+          ? `${ApiSource.url}/mention/stream/${user.imageUrl}`
+          : undefined,
+        branche: user.branche,
+        level: user.level,
+        mention: user.mention,
+        contact: user.contact,
+        identifier: user.identifier,
+      };
+      return success(userInformationUpdate);
     } catch (error) {
       console.error(error);
       return failure(new Error());
