@@ -1,6 +1,45 @@
 export class ApiSource {
   static PORT: number = 3000;
-  static url: string = '__BACKEND_URL__';
-  static strapiUrl: string = '__STRAPI_URL__';
-  static botUrl: string = '__BOT_URL';
+
+  private static getConfig(key: string): string {
+    if (typeof window !== 'undefined' && (window as unknown)._env_) {
+      return (window as any)._env_[key];
+    }
+
+    if (import.meta.env[key]) {
+      return import.meta.env[key] as string;
+    }
+
+    console.warn(`Configuration ${key} not found`);
+    return '';
+  }
+
+  static get url(): string {
+    return this.getConfig('VITE_BACKEND_URL');
+  }
+
+  static get strapiUrl(): string {
+    return this.getConfig('VITE_STRAPI_URL');
+  }
+
+  static get botUrl(): string {
+    return this.getConfig('VITE_BOT_URL');
+  }
+
+  static get environment(): string {
+    return this.getConfig('VITE_APP_ENV');
+  }
+
+  // Méthode utilitaire pour vérifier la configuration
+  static validateConfig(): boolean {
+    const required = ['VITE_BACKEND_URL', 'VITE_STRAPI_URL'];
+    const missing = required.filter((key) => !this.getConfig(key));
+
+    if (missing.length > 0) {
+      console.error('Missing required configuration:', missing);
+      return false;
+    }
+
+    return true;
+  }
 }

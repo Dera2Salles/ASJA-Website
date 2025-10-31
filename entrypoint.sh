@@ -1,23 +1,40 @@
 #!/bin/sh
+set -e
 
-# Le répertoire où Vite place les fichiers construits
-ASSETS_DIR=/usr/share/nginx/html
+echo "🚀 Initializing React application..."
 
-# Backend par défaut si la variable d'environnement n'est pas définie
-DEFAULT_BACKEND_URL="http://localhost:3000"
+# Variables avec valeurs par défaut
+export VITE_BACKEND_URL=${VITE_BACKEND_URL:-"http://localhost:3000"}
+export VITE_STRAPI_URL=${VITE_STRAPI_URL:-"http://localhost:1337"}
+export VITE_BOT_URL=${VITE_BOT_URL:-"http://localhost:3001"}
+export VITE_APP_ENV=${VITE_APP_ENV:-"development"}
 
-# Utiliser la variable d'environnement BACKEND_URL si définie, sinon la valeur par défaut
-TARGET_URL=${BACKEND_URL:-$DEFAULT_BACKEND_URL}
+# Créer un fichier de configuration JavaScript dynamique
+cat > /usr/share/nginx/html/env-config.js << EOF
+window._env_ = {
+  VITE_BACKEND_URL: "${VITE_BACKEND_URL}",
+  VITE_STRAPI_URL: "${VITE_STRAPI_URL}",
+  VITE_BOT_URL: "${VITE_BOT_URL}",
+  VITE_APP_ENV: "${VITE_APP_ENV}"
+};
+EOF
 
-echo "Using BACKEND_URL: $TARGET_URL"
+# Injecter aussi dans un fichier JSON pour un accès facile
+cat > /usr/share/nginx/html/env.json << EOF
+{
+  "VITE_BACKEND_URL": "${VITE_BACKEND_URL}",
+  "VITE_STRAPI_URL": "${VITE_STRAPI_URL}",
+  "VITE_BOT_URL": "${VITE_BOT_URL}",
+  "VITE_APP_ENV": "${VITE_APP_ENV}"
+}
+EOF
 
-# Remplacer le placeholder dans tous les fichiers .js du répertoire et sous-répertoires
-find "$ASSETS_DIR" -type f -name "*.js" | while read -r file; do
-  echo "Processing $file..."
-  # Utiliser un fichier temporaire pour sed afin de garantir la compatibilité
-  sed "s|__BACKEND_URL__|$TARGET_URL|g" "$file" > "$file.tmp" && mv "$file.tmp" "$file"
-  echo "Replaced placeholder in $file with $TARGET_URL"
-done
+# Log de configuration
+echo "📋 React App Configuration:"
+echo "   Backend URL: $VITE_BACKEND_URL"
+echo "   Strapi URL: $VITE_STRAPI_URL"
+echo "   Bot URL: $VITE_BOT_URL"
+echo "   Environment: $VITE_APP_ENV"
 
-# Lancer la commande CMD du Dockerfile (par exemple nginx)
+echo "✅ Configuration completed. Starting nginx..."
 exec "$@"
