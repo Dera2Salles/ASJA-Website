@@ -2,12 +2,9 @@ export class ApiSource {
   static PORT: number = 3000;
 
   private static getConfig(key: string): string {
-    if (typeof window !== 'undefined' && (window as unknown)._env_) {
-      return (window as any)._env_[key];
-    }
-
-    if (import.meta.env[key]) {
-      return import.meta.env[key] as string;
+    const env = (window as any)._env_;
+    if (env && env[key]) {
+      return env[key];
     }
 
     console.warn(`Configuration ${key} not found`);
