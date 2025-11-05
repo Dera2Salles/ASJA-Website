@@ -12,6 +12,8 @@ RUN yarn build
 # Stage 2: Serve the application
 FROM nginx:stable-alpine
 
+RUN apk add --no-cache jq
+
 # Copy built assets from the build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
