@@ -15,6 +15,9 @@ export const Footer = () => {
         <h1 className=" flex text-center items-center justify-center text-xl text-gray-900 transition-all duration-500 dark:text-white font-bold">
           Université ASJA
         </h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm transition-all duration-500">
+          © {new Date().getFullYear()}. Tous droits réservés.
+        </p>
       </div>
       <div className="flex lg:flex-row flex-col items-center justify-center gap-10 lg:gap-50 ">
         <div className="flex h-full md:justify-center md:items-center">
@@ -23,9 +26,9 @@ export const Footer = () => {
             <li className=" flex items-center gap-1">
               <MdPhone className="size-6" /> 034 49 483 19
             </li>
-            <li className=" flex items-center gap-1">
-              <MdEmail className="size-6" /> example@gmail.com
-            </li>
+            <a href="https://asja@moov.mg" className=" flex items-center gap-1">
+              <MdEmail className="size-6" /> asja@moov.mg
+            </a>
             <li className=" flex items-center gap-1">
               {' '}
               <MdLocationOn className="size-6" /> Antsaha, Antsirabe, Madagascar
