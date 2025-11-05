@@ -27,6 +27,10 @@ export class ApiSource {
     return this.getConfig('VITE_APP_ENV');
   }
 
+  static get geminiApiKey(): string {
+    return this.getConfig('VITE_GEMINI_API_KEY');
+  }
+
   // Méthode utilitaire pour vérifier la configuration
   static validateConfig(): boolean {
     const required = ['VITE_BACKEND_URL', 'VITE_STRAPI_URL'];
