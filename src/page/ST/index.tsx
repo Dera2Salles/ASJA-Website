@@ -1,6 +1,7 @@
 import ST from '@/assets/Mentions/SienceDeLaTerre/St.jpg';
-import Image2 from '@/assets/Mentions/SienceDeLaTerre/event-prime_master.jpg';
-import Image1 from '@/assets/Mentions/SienceDeLaTerre/event-reboisement-2.jpg';
+import stEvent1 from '@/assets/ST-event-1.jpg';
+import stEvent2 from '@/assets/ST-event-2.jpg';
+
 import { DispositionAboutFiliere } from '../../page/landing/components/disposition-about-filiere';
 
 const mention = {
@@ -35,14 +36,14 @@ const descriptionParcours = [
 
 const shortDescriptionList = [
   {
-    titleEvent: 'Visite PAMF',
-    descriptionEvent: 'Renforcement de la collaboration.',
-    RandomImage: Image1,
+    titleEvent: 'Visite sur Terrain',
+    descriptionEvent: '',
+    RandomImage: stEvent1,
   },
   {
-    titleEvent: 'Viavy Tech',
-    descriptionEvent: 'Girl tech hackathon',
-    RandomImage: Image2,
+    titleEvent: 'Visite sur Terrain',
+    descriptionEvent: '',
+    RandomImage: stEvent2,
   },
 ];
 
