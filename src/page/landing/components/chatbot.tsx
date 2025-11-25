@@ -88,7 +88,7 @@ const Chatbot: React.FC = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform duration-300 animate-pulse"
+          className="cursor-pointer bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-full p-4 shadow-lg hover:scale-110 transition-transform duration-300 animate-pulse"
         >
           <Bot size={32} />
         </button>
@@ -104,7 +104,7 @@ const Chatbot: React.FC = () => {
           ${keyboardVisible ? 'pb-0' : ''}
         `}
         >
-          <div className="flex-shrink-0 flex dark:text-white text-gray-100 w-full justify-between items-center px-4 py-3 bg-gradient-to-r from-green-600 to-teal-500 rounded-t-2xl">
+          <div className="flex-shrink-0 flex dark:text-white text-gray-100 w-full justify-between items-center px-4 py-3 bg-gradient-to-r from-green-600 to-teal-500 sm:rounded-t-2xl">
             <section className="flex gap-2 items-center">
               <div className="relative">
                 <Bot className="p-1 bg-white/20 rounded-full" size={35} />

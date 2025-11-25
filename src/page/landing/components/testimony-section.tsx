@@ -47,7 +47,7 @@ const temoignages: Temoin[] = [
     name: 'Randriamanapaka Manantena Toditsara Jencia',
     status: 'Étudiante en Droit',
     description:
-      "Stages aux Ministères (Affaires Étrangères, Fonction Publique): l'ASJA a nourri mon expertise publique et mon leadership.",
+      'Étudiante en Master 1 de Droit à l’ASJA et Présidente de la Mention Droit, j’ai pu renforcer mon leadership et mon dynamisme grâce aux opportunités offertes par l’université, notamment un stage au Ministère des affaires étrangères et au ministère de la fonction publique dès ma 2ᵉ année.',
     image: genciaImage,
   },
   {
@@ -61,7 +61,7 @@ const temoignages: Temoin[] = [
     name: 'Dadare Raoul',
     status: 'Étudiant en Langue Étrangère Appliquée',
     description:
-      "Ma formation en Langue Étrangère Appliquée à l'ASJA m'a ouvert les portes du monde professionnel international. J'ai développé des compétences linguistiques et interculturelles essentielles pour ma carrière.",
+      "Ma formation en Langue Étrangère Appliquée à l'ASJA m'a ouvert les portes du monde professionnel international. J'ai développé des compétences linguistiques et interculturelles essentielles pour préparer ma carrière.",
     image: Raoul,
   },
   {
@@ -75,21 +75,21 @@ const temoignages: Temoin[] = [
     name: 'Aina Arthur',
     status: 'Sortant en Droit Processuel',
     description:
-      "L'ASJA m'a aidé à trouver mon parcours professionnel. Les cours de droit des affaires ont été particulièrement pertinents et m'ont permis de me perfectionner et de prendre confiance en mes capacités.",
+      "L'ASJA m'a aidé à trouver mon parcours professionnel. Les cours de droit ont été particulièrement pertinents et m'ont permis de me perfectionner et de prendre confiance en mes capacités.",
     image: ainaImage,
   },
   {
     name: 'Mandimbiharison Miarotiana',
     status: 'Étudiant en Économie',
     description:
-      "Mon parcours en Économie au sein de l’ASJA a été une expérience déterminante. En Master 2, j’ai pu approfondir des compétences essentielles comme l’analyse des politiques économiques, la gestion des ressources et l’étude des dynamiques de marché.",
+      'Mon parcours en Économie au sein de l’ASJA a été une expérience déterminante. En Master 2, j’ai pu approfondir des compétences essentielles comme l’analyse des politiques économiques, la gestion des ressources et l’étude des dynamiques de marché.',
     image: Miarotiana,
   },
   {
     name: 'RAJEMISON Steffy Jachia',
     status: 'Étudiante en Économie',
     description:
-      "L’ASJA m’a offert un cadre stimulant qui a renforcé mon ambition. Je suis prête à relever les défis du monde des affaires.",
+      'L’ASJA m’a offert un cadre stimulant qui a renforcé mon ambition. Je suis prête à relever les défis du monde des affaires.',
     image: RAJEMISON,
   },
   {

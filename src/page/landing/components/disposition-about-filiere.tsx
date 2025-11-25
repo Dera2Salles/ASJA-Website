@@ -1,9 +1,9 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, Briefcase, GraduationCap } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Footer } from './footer';
+import { FooterFiliereSection } from './footer-filiere';
 import { MentionDiapo, type MentionDiapoProps } from './mention-image-diapo';
 import { Navbar } from './nav-bar-filiere';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const TIME = 5000;
 
@@ -73,7 +73,7 @@ export const DispositionAboutFiliere = ({
 
       <main className="flex-grow">
         {descriptionParcours && (
-          <section className="py-16 pt-22 sm:py-20 lg:py-24">
+          <section className="pt-27">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -102,7 +102,7 @@ export const DispositionAboutFiliere = ({
                   >
                     <button
                       onClick={() => setSelectedParcours(parcours)}
-                      className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ease-in-out flex items-center gap-2 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-opacity-75 ${
+                      className={`px-6 py-3 rounded-full cursor-pointer font-semibold transition-all duration-300 ease-in-out flex items-center gap-2 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-opacity-75 w-[200px] lg:w-full ${
                         selectedParcours?.categorieParcours ===
                         parcours.categorieParcours
                           ? 'bg-green-600 text-white shadow-lg scale-105 ring-green-500'
@@ -110,7 +110,7 @@ export const DispositionAboutFiliere = ({
                       }`}
                     >
                       <GraduationCap size={20} />
-                      <span className="truncate">
+                      <span className="truncate overflow-hidden text-ellipsis whitespace-nowrap">
                         {parcours.categorieParcours}
                       </span>
                     </button>
@@ -122,10 +122,8 @@ export const DispositionAboutFiliere = ({
         )}
 
         <section
-          className={`py-12 pt-22 sm:py-16 lg:py-20 ${
-            mention.name === 'LANGUES ÉTRANGÈRES APPLIQUÉES'
-              ? 'md:mt-20'
-              : 'mt-10'
+          className={`py-12 ${
+            mention.name === 'LANGUES ÉTRANGÈRES APPLIQUÉES' ? 'pt-25' : ''
           }`}
         >
           <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -141,7 +139,7 @@ export const DispositionAboutFiliere = ({
                   <BookOpen size={40} className="text-green-500" />{' '}
                   {displayedTitle}
                 </h2>
-                <p className="mt-8 text-xl leading-relaxed text-gray-700 dark:text-gray-300">
+                <p className="mt-8 text-xl text-gray-700 dark:text-gray-300 ">
                   {displayedDescription}
                 </p>
                 {displayedDebouche && (
@@ -211,7 +209,7 @@ export const DispositionAboutFiliere = ({
         )}
       </main>
 
-      <Footer />
+      <FooterFiliereSection />
     </div>
   );
 };

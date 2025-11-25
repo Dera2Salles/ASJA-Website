@@ -56,7 +56,7 @@ export const Description = () => {
           <Button
             onClick={scrollToFiliere}
             size="lg"
-            className="bg-green-700 hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
+            className="bg-green-700 cursor-pointer hover:bg-green-800 dark:bg-green-600 dark:hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
           >
             Découvrir nos formations
             <ArrowDown className="ml-2 h-5 w-5 animate-bounce" />
