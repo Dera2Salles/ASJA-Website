@@ -43,25 +43,25 @@ export function Header({
     const { theme, toggleTheme } = useTheme();
 
     return (
-        <div className="flex flex-col items-start justify-between border-b bg-gradient-to-r from-brand-mint/10 to-white p-3 dark:border-brand-primary/30 dark:from-brand-primary-navy/40 dark:to-brand-primary-dark/40 sm:flex-row sm:items-center">
+        <div className="flex flex-col items-start justify-between border-b bg-gradient-to-r from-green-50/50 to-white p-3 sm:flex-row sm:items-center dark:border-green-900/30 dark:from-zinc-900/40 dark:to-zinc-950/40">
             <div className="mb-2 flex items-center gap-4 sm:mb-0">
                 <div className="flex items-center gap-2">
                     <Badge
                         variant="outline"
-                        className="font-mono dark:border-brand-primary/50 dark:text-brand-mint/80"
+                        className="font-mono dark:border-green-900/50 dark:text-green-400"
                     >
                         {wordCount} mots
                     </Badge>
                     <Badge
                         variant="outline"
-                        className="font-mono dark:border-brand-primary/50 dark:text-brand-mint/80"
+                        className="font-mono dark:border-green-900/50 dark:text-green-400"
                     >
                         {charCount} caractères
                     </Badge>
                     {lastSave && (
                         <Badge
                             variant="secondary"
-                            className="bg-brand-mint/20 text-xs text-brand-primary-dark dark:bg-brand-primary/20 dark:text-brand-mint"
+                            className="bg-green-100/50 text-xs text-green-800 dark:bg-green-900/20 dark:text-green-400"
                         >
                             Sauvegardé: {lastSave}
                         </Badge>

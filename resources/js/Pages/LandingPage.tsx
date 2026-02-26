@@ -14,7 +14,6 @@ import { SystemePedagogiqueSection } from '../page/landing/components/systeme-pe
 import { TestimonySection } from '../page/landing/components/testimony-section';
 import { ThemeProvider } from '../page/theme/useThemeProvider';
 
-// Exported Blog Section to be added to the landing page
 import { BlogSection } from './BlogSection';
 
 export interface LandingPageProps extends PageProps {
@@ -27,7 +26,8 @@ export const CmsContext = createContext<LandingPageProps | null>(null);
 
 export const useCms = () => {
     const context = useContext(CmsContext);
-    if (!context) throw new Error('useCms must be used within CmsContext.Provider');
+    if (!context)
+        throw new Error('useCms must be used within CmsContext.Provider');
     return context;
 };
 

@@ -1,4 +1,4 @@
 export interface ChatDto {
-  message: string;
-  expediteur: 'User' | 'Bot';
+    message: string;
+    expediteur: 'User' | 'Bot';
 }

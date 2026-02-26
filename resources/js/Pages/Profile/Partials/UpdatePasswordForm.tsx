@@ -1,9 +1,9 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
+import { AlertCircle, CheckCircle2, KeyRound, Loader2 } from 'lucide-react';
 import { FormEventHandler, useRef } from 'react';
 
 export default function UpdatePasswordForm({
@@ -50,93 +50,119 @@ export default function UpdatePasswordForm({
 
     return (
         <section className={className}>
-            <header>
-                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-                    Update Password
-                </h2>
+            <form onSubmit={updatePassword} className="max-w-xl space-y-8">
+                <div className="space-y-6">
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="current_password"
+                            className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                        >
+                            Mot de passe actuel
+                        </Label>
+                        <div className="relative">
+                            <Input
+                                id="current_password"
+                                ref={currentPasswordInput}
+                                value={data.current_password}
+                                onChange={(e) =>
+                                    setData('current_password', e.target.value)
+                                }
+                                type="password"
+                                className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
+                                autoComplete="current-password"
+                            />
+                            <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
+                        </div>
+                        {errors.current_password && (
+                            <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
+                                <AlertCircle size={10} />{' '}
+                                {errors.current_password}
+                            </p>
+                        )}
+                    </div>
 
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                    Ensure your account is using a long, random password to stay
-                    secure.
-                </p>
-            </header>
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="password"
+                            className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                        >
+                            Nouveau mot de passe
+                        </Label>
+                        <div className="relative">
+                            <Input
+                                id="password"
+                                ref={passwordInput}
+                                value={data.password}
+                                onChange={(e) =>
+                                    setData('password', e.target.value)
+                                }
+                                type="password"
+                                className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
+                                autoComplete="new-password"
+                            />
+                            <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
+                        </div>
+                        {errors.password && (
+                            <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
+                                <AlertCircle size={10} /> {errors.password}
+                            </p>
+                        )}
+                    </div>
 
-            <form onSubmit={updatePassword} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel
-                        htmlFor="current_password"
-                        value="Current Password"
-                    />
-
-                    <TextInput
-                        id="current_password"
-                        ref={currentPasswordInput}
-                        value={data.current_password}
-                        onChange={(e) =>
-                            setData('current_password', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                    />
-
-                    <InputError
-                        message={errors.current_password}
-                        className="mt-2"
-                    />
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="password_confirmation"
+                            className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                        >
+                            Confirmer le mot de passe
+                        </Label>
+                        <div className="relative">
+                            <Input
+                                id="password_confirmation"
+                                value={data.password_confirmation}
+                                onChange={(e) =>
+                                    setData(
+                                        'password_confirmation',
+                                        e.target.value,
+                                    )
+                                }
+                                type="password"
+                                className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
+                                autoComplete="new-password"
+                            />
+                            <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
+                        </div>
+                        {errors.password_confirmation && (
+                            <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
+                                <AlertCircle size={10} />{' '}
+                                {errors.password_confirmation}
+                            </p>
+                        )}
+                    </div>
                 </div>
 
-                <div>
-                    <InputLabel htmlFor="password" value="New Password" />
-
-                    <TextInput
-                        id="password"
-                        ref={passwordInput}
-                        value={data.password}
-                        onChange={(e) => setData('password', e.target.value)}
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        value={data.password_confirmation}
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                <div className="flex items-center gap-6 pt-4">
+                    <Button
+                        disabled={processing}
+                        className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 flex h-12 gap-2 rounded-xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+                    >
+                        {processing && (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                        )}
+                        Mettre à jour
+                    </Button>
 
                     <Transition
                         show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                        enter="transition ease-in-out duration-300"
+                        enterFrom="opacity-0 translate-x-4"
+                        enterTo="opacity-100 translate-x-0"
+                        leave="transition ease-in-out duration-300"
+                        leaveTo="opacity-0 translate-x-4"
                     >
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Saved.
+                        <p className="text-asja-green-600 dark:text-primary flex items-center gap-2 text-sm font-black">
+                            <CheckCircle2 size={18} />
+                            Mot de passe mis à jour
                         </p>
                     </Transition>
                 </div>

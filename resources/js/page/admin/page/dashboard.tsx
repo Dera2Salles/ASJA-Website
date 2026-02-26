@@ -2,12 +2,12 @@ import { MentionCardList } from '../components/mention-list-card';
 import { ChartPie } from '../components/pie-chart';
 
 export const Dashboard = () => {
-  return (
-    <div className="flex flex-col w-full p-4  bg-white  dark:bg-zinc-800 transition-all h-full duration-500 ">
-      <div className="flex  justify-around gap-5">
-        <MentionCardList />
-        <ChartPie />
-      </div>
-    </div>
-  );
+    return (
+        <div className="flex h-full w-full flex-col bg-white p-4 transition-all duration-500 dark:bg-zinc-800">
+            <div className="flex justify-around gap-5">
+                <MentionCardList />
+                <ChartPie />
+            </div>
+        </div>
+    );
 };

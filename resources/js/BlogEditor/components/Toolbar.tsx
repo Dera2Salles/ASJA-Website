@@ -156,7 +156,7 @@ export function Toolbar({
                 className="hidden"
             />
 
-            <div className="flex flex-wrap items-center gap-1 border-b bg-gradient-to-r from-brand-mint/20 to-white p-3 dark:from-brand-primary-dark/20 dark:to-brand-primary-navy/40">
+            <div className="flex flex-wrap items-center gap-1 border-b bg-gradient-to-r from-green-50/50 to-white p-3 dark:from-zinc-900/40 dark:to-zinc-950/40">
                 {}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -243,7 +243,7 @@ export function Toolbar({
                                 onPressedChange={() =>
                                     editor.chain().focus().toggleBold().run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                             >
                                 <Bold className="h-4 w-4" />
                             </Toggle>
@@ -259,7 +259,7 @@ export function Toolbar({
                                 onPressedChange={() =>
                                     editor.chain().focus().toggleItalic().run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                             >
                                 <Italic className="h-4 w-4" />
                             </Toggle>
@@ -279,7 +279,7 @@ export function Toolbar({
                                         .toggleUnderline()
                                         .run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                             >
                                 <UnderlineIcon className="h-4 w-4" />
                             </Toggle>
@@ -295,7 +295,7 @@ export function Toolbar({
                                 onPressedChange={() =>
                                     editor.chain().focus().toggleStrike().run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                             >
                                 <Strikethrough className="h-4 w-4" />
                             </Toggle>
@@ -317,7 +317,7 @@ export function Toolbar({
                                         .toggleSuperscript()
                                         .run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                             >
                                 <SuperscriptIcon className="h-4 w-4" />
                             </Toggle>
@@ -337,7 +337,7 @@ export function Toolbar({
                                         .toggleSubscript()
                                         .run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                             >
                                 <SubscriptIcon className="h-4 w-4" />
                             </Toggle>

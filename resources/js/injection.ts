@@ -23,29 +23,29 @@ import { UserRepositoryImpl } from './features/user/user.repository.impl';
 import { UserServiceImpl } from './features/user/user.service';
 
 const api = axios.create({
-  timeout: 5000,
-  withCredentials: true,
+    timeout: 5000,
+    withCredentials: true,
 });
 
 api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    if (
-      error.response.status === 401 ||
-      (error.response.status === 403 && !originalRequest._retry)
-    ) {
-      originalRequest._retry = true;
-      try {
-        await api.post(`${ApiSource.url}/auth/refresh`);
-        return api(originalRequest);
-      } catch (error) {
-        window.location.href = '/login';
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (
+            error.response.status === 401 ||
+            (error.response.status === 403 && !originalRequest._retry)
+        ) {
+            originalRequest._retry = true;
+            try {
+                await api.post(`${ApiSource.url}/auth/refresh`);
+                return api(originalRequest);
+            } catch (error) {
+                window.location.href = '/login';
+                return Promise.reject(error);
+            }
+        }
         return Promise.reject(error);
-      }
-    }
-    return Promise.reject(error);
-  }
+    },
 );
 
 const postService = new PostServiceImpl(api);

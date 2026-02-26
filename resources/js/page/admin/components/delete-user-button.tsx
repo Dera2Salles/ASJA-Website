@@ -3,31 +3,31 @@ import { useModalContext } from '../bloc/useModalContext';
 import { DeleteButton } from './delete-button';
 
 export const DeleteUserButton = ({
-  id,
-  fileName,
+    id,
+    fileName,
 }: {
-  id: string;
-  fileName: string;
+    id: string;
+    fileName: string;
 }) => {
-  const { deleteStudent } = useAdminDashboardContext();
+    const { deleteStudent } = useAdminDashboardContext();
 
-  const {
-    openDeleteConfirmation,
-    setCancelCallBack,
-    closeDeleteConfirmation,
-    setDeleteCallBack,
-  } = useModalContext();
+    const {
+        openDeleteConfirmation,
+        setCancelCallBack,
+        closeDeleteConfirmation,
+        setDeleteCallBack,
+    } = useModalContext();
 
-  const callDelete = async () => {
-    await deleteStudent(id, fileName);
-    closeDeleteConfirmation();
-  };
+    const callDelete = async () => {
+        await deleteStudent(id, fileName);
+        closeDeleteConfirmation();
+    };
 
-  const callDeleteStudent = async () => {
-    setDeleteCallBack(() => callDelete);
-    setCancelCallBack(() => closeDeleteConfirmation);
-    openDeleteConfirmation();
-  };
+    const callDeleteStudent = async () => {
+        setDeleteCallBack(() => callDelete);
+        setCancelCallBack(() => closeDeleteConfirmation);
+        openDeleteConfirmation();
+    };
 
-  return <DeleteButton callBack={callDeleteStudent} />;
+    return <DeleteButton callBack={callDeleteStudent} />;
 };

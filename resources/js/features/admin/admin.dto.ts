@@ -1,5 +1,5 @@
 export interface AdminDto {
-  imageUrl: string | undefined;
-  name: string;
-  lastName: string;
+    imageUrl: string | undefined;
+    name: string;
+    lastName: string;
 }

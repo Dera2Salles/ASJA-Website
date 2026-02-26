@@ -6,91 +6,91 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export const useStudentSpace = () => {
-  const [docList, setDoclist] = useState<DocEntity[]>([]);
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(4);
-  const [hasReachedMax, setHasReachedMax] = useState<boolean>(false);
-  const [userData, setUserData] = useState<UserDto>();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [docList, setDoclist] = useState<DocEntity[]>([]);
+    const [page, setPage] = useState<number>(1);
+    const [limit, setLimit] = useState<number>(4);
+    const [hasReachedMax, setHasReachedMax] = useState<boolean>(false);
+    const [userData, setUserData] = useState<UserDto>();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const [postPage, setPostPage] = useState<number>(1);
-  const [post, setPostList] = useState<PostDto[]>([]);
+    const [postPage, setPostPage] = useState<number>(1);
+    const [post, setPostList] = useState<PostDto[]>([]);
 
-  const fetchPostList = async () => {
-    const result = await postRepo.get({ limit: 5, page: postPage });
-    if (result.status === 'success') {
-      if (result.data.length == 0) {
-        setHasReachedMax(true);
-      } else {
-        setPostList((doc) => [...doc, ...result.data]);
-        setPostPage((prev) => prev + 1);
-      }
-    } else {
-      toast.error('Error', {
-        description: 'Failed to load event',
-      });
-    }
-  };
-
-  const fetchDocList = async () => {
-    const result = await docRepo.getFile(page, limit);
-    if (result.status === 'success') {
-      if (result.data.length == 0) {
-        setHasReachedMax(true);
-      } else {
-        setDoclist((doc) => [...doc, ...result.data]);
-        setPage((prev) => prev + 1);
-      }
-    } else {
-      toast.error('Error', {
-        description: 'Failed to load document',
-      });
-    }
-  };
-
-  const fetchUserData = async () => {
-    const result = await userRepository.getData();
-    if (result.status == 'failure')
-      return toast.error('Error', {
-        description: 'Failed to load user data',
-      });
-
-    setUserData(result.data);
-  };
-
-  const logOut = async (navigate: (path: string) => void) => {
-    const result = await authRepository.logOut();
-    if (result.status == 'failure')
-      return toast.error('Error', {
-        description: 'something went wrong',
-      });
-    toast.success('Success', {
-      description: 'Logged out',
-    });
-    navigate('/login');
-  };
-
-  useEffect(() => {
-    const callFetchUserData = async () => {
-      setIsLoading(true);
-      await fetchUserData();
-      await fetchPostList();
-      setIsLoading(false);
+    const fetchPostList = async () => {
+        const result = await postRepo.get({ limit: 5, page: postPage });
+        if (result.status === 'success') {
+            if (result.data.length == 0) {
+                setHasReachedMax(true);
+            } else {
+                setPostList((doc) => [...doc, ...result.data]);
+                setPostPage((prev) => prev + 1);
+            }
+        } else {
+            toast.error('Error', {
+                description: 'Failed to load event',
+            });
+        }
     };
 
-    callFetchUserData();
-  }, []);
+    const fetchDocList = async () => {
+        const result = await docRepo.getFile(page, limit);
+        if (result.status === 'success') {
+            if (result.data.length == 0) {
+                setHasReachedMax(true);
+            } else {
+                setDoclist((doc) => [...doc, ...result.data]);
+                setPage((prev) => prev + 1);
+            }
+        } else {
+            toast.error('Error', {
+                description: 'Failed to load document',
+            });
+        }
+    };
 
-  return {
-    docList,
-    setPage,
-    setLimit,
-    fetchDocList,
-    hasReachedMax,
-    userData,
-    post,
-    fetchPostList,
-    logOut,
-    isLoading,
-  };
+    const fetchUserData = async () => {
+        const result = await userRepository.getData();
+        if (result.status == 'failure')
+            return toast.error('Error', {
+                description: 'Failed to load user data',
+            });
+
+        setUserData(result.data);
+    };
+
+    const logOut = async (navigate: (path: string) => void) => {
+        const result = await authRepository.logOut();
+        if (result.status == 'failure')
+            return toast.error('Error', {
+                description: 'something went wrong',
+            });
+        toast.success('Success', {
+            description: 'Logged out',
+        });
+        navigate('/login');
+    };
+
+    useEffect(() => {
+        const callFetchUserData = async () => {
+            setIsLoading(true);
+            await fetchUserData();
+            await fetchPostList();
+            setIsLoading(false);
+        };
+
+        callFetchUserData();
+    }, []);
+
+    return {
+        docList,
+        setPage,
+        setLimit,
+        fetchDocList,
+        hasReachedMax,
+        userData,
+        post,
+        fetchPostList,
+        logOut,
+        isLoading,
+    };
 };

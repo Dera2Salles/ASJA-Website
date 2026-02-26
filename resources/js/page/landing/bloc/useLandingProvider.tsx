@@ -2,14 +2,14 @@ import { useLanding } from './useLanding';
 import { LandingContext } from './useLandingContext';
 
 export const LandingProvider = ({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) => {
-  const adminDasboard = useLanding();
-  return (
-    <LandingContext.Provider value={adminDasboard}>
-      {children}
-    </LandingContext.Provider>
-  );
+    const adminDasboard = useLanding();
+    return (
+        <LandingContext.Provider value={adminDasboard}>
+            {children}
+        </LandingContext.Provider>
+    );
 };

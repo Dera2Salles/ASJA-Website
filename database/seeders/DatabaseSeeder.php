@@ -12,5 +12,15 @@ class DatabaseSeeder extends Seeder
             ComponentDataSeeder::class,
             DepartmentSeeder::class,
         ]);
+
+        \App\Models\User::updateOrCreate(
+            ['email' => 'admin@asja.mg'],
+            [
+                'name' => 'Admin',
+                'last_name' => 'ASJA',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'role' => 'Admin',
+            ]
+        );
     }
 }

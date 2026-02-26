@@ -1,7 +1,7 @@
-import type { Role } from "@/core/types";
+import type { Role } from '@/core/types';
 
 export interface LoginDto {
-  identifier: number;
-  password: string;
-  role: Role;
+    identifier: number;
+    password: string;
+    role: Role;
 }

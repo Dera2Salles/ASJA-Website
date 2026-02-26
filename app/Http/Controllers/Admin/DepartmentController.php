@@ -86,7 +86,6 @@ class DepartmentController extends Controller
         return redirect()->route('admin.departments.index')->with('success', 'Department deleted.');
     }
 
-    // ── Programs sub-resource ──────────────────────────────────────────────
 
     public function storeProgram(Request $request, Department $department): RedirectResponse
     {

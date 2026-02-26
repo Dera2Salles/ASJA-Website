@@ -12,27 +12,27 @@ import { Loglist } from './page/log-list';
 import { Postlist } from './page/post-list';
 import { Studentlist } from './page/student-list';
 export const AdminDashboardPage = () => {
-  const [index, setIndex] = useState<number>(0);
-  const page: JSX.Element[] = [
-    <Dashboard />,
-    <Studentlist />,
-    <Doclist />,
-    <Postlist />,
-    <Loglist />,
-  ];
-  return (
-    <AdminDashBoardProvider>
-      <Modalprovider>
-        {' '}
-        <SidebarProvider>
-          <AppSidebar changePage={setIndex} />
-          <SidebarInset className=" overflow-hidden hidden md:flex transition-all duration-500">
-            <NavBar />
-            {page[index]}
-          </SidebarInset>
-          <MessageDeveloperScreen />
-        </SidebarProvider>
-      </Modalprovider>
-    </AdminDashBoardProvider>
-  );
+    const [index, setIndex] = useState<number>(0);
+    const page: JSX.Element[] = [
+        <Dashboard />,
+        <Studentlist />,
+        <Doclist />,
+        <Postlist />,
+        <Loglist />,
+    ];
+    return (
+        <AdminDashBoardProvider>
+            <Modalprovider>
+                {' '}
+                <SidebarProvider>
+                    <AppSidebar changePage={setIndex} />
+                    <SidebarInset className="hidden overflow-hidden transition-all duration-500 md:flex">
+                        <NavBar />
+                        {page[index]}
+                    </SidebarInset>
+                    <MessageDeveloperScreen />
+                </SidebarProvider>
+            </Modalprovider>
+        </AdminDashBoardProvider>
+    );
 };

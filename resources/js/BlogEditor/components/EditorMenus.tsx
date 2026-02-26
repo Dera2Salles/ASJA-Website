@@ -30,9 +30,9 @@ export function EditorMenus({
         <>
             <FloatingMenu
                 editor={editor}
-                className="flex flex-col gap-1 rounded-lg border bg-popover p-2 shadow-xl dark:border-brand-primary/30"
+                className="bg-popover flex flex-col gap-1 rounded-lg border p-2 shadow-xl dark:border-green-900/30"
             >
-                <div className="mb-1 text-xs font-medium text-brand-secondary dark:text-brand-mint/60">
+                <div className="mb-1 text-xs font-medium text-zinc-500 dark:text-green-400/60">
                     Insérer
                 </div>
                 <div className="flex gap-1">
@@ -46,7 +46,7 @@ export function EditorMenus({
                                 .toggleHeading({ level: 1 })
                                 .run()
                         }
-                        className="text-lg font-bold text-brand-primary-dark dark:text-brand-mint"
+                        className="text-lg font-bold text-green-900 dark:text-green-400"
                     >
                         H1
                     </Button>
@@ -60,7 +60,7 @@ export function EditorMenus({
                                 .toggleHeading({ level: 2 })
                                 .run()
                         }
-                        className="text-base font-bold text-brand-primary-dark dark:text-brand-mint"
+                        className="text-base font-bold text-green-900 dark:text-green-400"
                     >
                         H2
                     </Button>
@@ -74,7 +74,7 @@ export function EditorMenus({
                                 .toggleHeading({ level: 3 })
                                 .run()
                         }
-                        className="font-bold text-brand-primary-dark dark:text-brand-mint"
+                        className="font-bold text-green-900 dark:text-green-400"
                     >
                         H3
                     </Button>
@@ -82,7 +82,7 @@ export function EditorMenus({
                         size="sm"
                         variant="ghost"
                         onClick={onAddImage}
-                        className="text-brand-primary dark:text-brand-primary-light"
+                        className="text-green-600 dark:text-green-400"
                     >
                         <ImageIcon className="h-4 w-4" />
                     </Button>
@@ -91,7 +91,7 @@ export function EditorMenus({
 
             <BubbleMenu
                 editor={editor}
-                className="flex gap-1 rounded-lg border bg-popover p-2 shadow-xl dark:border-brand-primary/30"
+                className="bg-popover flex gap-1 rounded-lg border p-2 shadow-xl dark:border-green-900/30"
             >
                 <Toggle
                     size="sm"
@@ -99,7 +99,7 @@ export function EditorMenus({
                     onPressedChange={() =>
                         editor.chain().focus().toggleBold().run()
                     }
-                    className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                    className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                 >
                     <Bold className="h-4 w-4" />
                 </Toggle>
@@ -109,7 +109,7 @@ export function EditorMenus({
                     onPressedChange={() =>
                         editor.chain().focus().toggleItalic().run()
                     }
-                    className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                    className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                 >
                     <Italic className="h-4 w-4" />
                 </Toggle>
@@ -119,7 +119,7 @@ export function EditorMenus({
                     onPressedChange={() =>
                         editor.chain().focus().toggleUnderline().run()
                     }
-                    className="h-8 w-8 data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/50"
+                    className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
                 >
                     <UnderlineIcon className="h-4 w-4" />
                 </Toggle>
@@ -127,7 +127,7 @@ export function EditorMenus({
                     size="sm"
                     variant="ghost"
                     onClick={onAddLink}
-                    className="h-8 text-brand-primary dark:text-brand-primary-light"
+                    className="h-8 text-green-600 dark:text-green-400"
                 >
                     <LinkIcon className="h-4 w-4" />
                 </Button>
@@ -135,7 +135,7 @@ export function EditorMenus({
                     size="sm"
                     variant="ghost"
                     onClick={onClearFormatting}
-                    className="h-8 text-brand-secondary"
+                    className="h-8 text-zinc-500"
                 >
                     <Eraser className="h-4 w-4" />
                 </Button>

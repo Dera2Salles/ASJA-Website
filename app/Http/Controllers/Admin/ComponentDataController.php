@@ -11,7 +11,6 @@ use Illuminate\Http\RedirectResponse;
 
 class ComponentDataController extends Controller
 {
-    // Sections that the admin can edit
     protected array $editableSections = [
         'hero',
         'about',

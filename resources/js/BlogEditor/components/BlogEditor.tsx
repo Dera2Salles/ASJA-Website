@@ -331,7 +331,7 @@ function BlogEditorContent({
     return (
         <TooltipProvider>
             <div
-                className={`blog-editor-container overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-2xl transition-all duration-300 dark:border-gray-800 dark:bg-card ${
+                className={`blog-editor-container overflow-hidden rounded-[2.5rem] border border-green-100/30 bg-white shadow-2xl transition-all duration-300 dark:border-green-900/20 dark:bg-zinc-950 ${
                     isFullscreen
                         ? 'fixed inset-0 z-50 m-0 flex flex-col rounded-none'
                         : ''
@@ -381,7 +381,7 @@ function BlogEditorContent({
                     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50">
                         <div className="rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
                             <div className="flex flex-col items-center gap-4">
-                                <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
+                                <div className="border-primary h-12 w-12 animate-spin rounded-full border-b-2"></div>
                                 <p className="font-medium text-gray-700 dark:text-gray-300">
                                     Chargement de l&apos;image...
                                 </p>
@@ -410,7 +410,7 @@ function BlogEditorContent({
                             {Array.from({ length: 30 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="border-t border-brand-mint/10 dark:border-brand-primary-navy/10"
+                                    className="border-t border-green-500/5 dark:border-green-900/5"
                                     style={{
                                         height: `${parseInt(lineHeight) * 24}px`,
                                     }}

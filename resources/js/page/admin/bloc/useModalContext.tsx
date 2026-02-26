@@ -1,13 +1,13 @@
-import { useContext, createContext } from "react";
-import type { useModal } from "../hooks/useModal";
+import { createContext, useContext } from 'react';
+import type { useModal } from '../hooks/useModal';
 
 export const ModalContext = createContext<ReturnType<typeof useModal> | null>(
-  null
+    null,
 );
 
 export const useModalContext = () => {
-  const context = useContext(ModalContext);
-  if (!context) throw new Error("Modal context must be initialized");
+    const context = useContext(ModalContext);
+    if (!context) throw new Error('Modal context must be initialized');
 
-  return context;
+    return context;
 };

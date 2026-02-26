@@ -1,4 +1,4 @@
 export interface AnnonceDto {
-  label: string;
-  date: string;
+    label: string;
+    date: string;
 }

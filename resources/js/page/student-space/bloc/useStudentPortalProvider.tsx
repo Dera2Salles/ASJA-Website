@@ -2,14 +2,14 @@ import { useStudentSpace } from './useStudentSpace';
 import { StudentPortalContext } from './useStudentSpaceContext';
 
 export const StudentPortalProvider = ({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) => {
-  const docBloc = useStudentSpace();
-  return (
-    <StudentPortalContext.Provider value={docBloc}>
-      {children}
-    </StudentPortalContext.Provider>
-  );
+    const docBloc = useStudentSpace();
+    return (
+        <StudentPortalContext.Provider value={docBloc}>
+            {children}
+        </StudentPortalContext.Provider>
+    );
 };

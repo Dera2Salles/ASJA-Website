@@ -13,6 +13,10 @@ interface Department {
     programs: any[];
 }
 
-export default function DepartmentEdit({ department }: { department: Department }) {
+export default function DepartmentEdit({
+    department,
+}: {
+    department: Department;
+}) {
     return <DepartmentForm department={department} isEdit={true} />;
 }

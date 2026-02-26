@@ -1,5 +1,5 @@
 export interface RegisterReturnType {
-  mentionId: string;
-  trancheId: string;
-  identifier: number;
+    mentionId: string;
+    trancheId: string;
+    identifier: number;
 }

@@ -21,10 +21,12 @@ import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { router, useForm } from '@inertiajs/react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 import {
     Eye,
     Image as ImageIcon,
     Loader2,
+    MessageSquare,
     PlusCircle,
     Save,
     Tag,
@@ -51,7 +53,7 @@ function Page({
     categories: any[];
     post?: any;
 }) {
-    const { data, setData, post, processing, errors, reset, transform } =
+    const { data, setData, post, processing, errors, reset } =
         useForm<PostFormData>({
             title: existingPost?.title || '',
             excerpt: existingPost?.excerpt || '',
@@ -101,7 +103,7 @@ function Page({
     const handleRemoveTag = (tagToRemove: string) => {
         setData(
             'tags',
-            data.tags.filter((tag: string) => tag !== tagToRemove),
+            data.tags.filter((tag) => tag !== tagToRemove),
         );
     };
 
@@ -133,16 +135,13 @@ function Page({
             ? route('blog.update', existingPost.id)
             : route('blog.store');
 
-        transform((data: PostFormData) => ({
-            ...data,
-            ...payload,
-            _method: existingPost ? 'put' : 'post',
-            category_id: data.category_id ? Number(data.category_id) : null,
-        }));
-
         post(url, {
             forceFormData: true,
-            preserveScroll: true,
+            data: {
+                ...payload,
+                _method: existingPost ? 'put' : 'post',
+                category_id: data.category_id ? Number(data.category_id) : null,
+            },
             onSuccess: () => {
                 toast.success('Enregistré avec succès !');
                 if (!existingPost) {
@@ -150,88 +149,106 @@ function Page({
                     setImagePreview(null);
                 }
             },
-            onError: (errors: any) => {
+            onError: (errors) => {
                 console.log('Erreurs de validation:', errors);
             },
         });
     };
     return (
         <>
-            <div className="min-h-screen bg-[#F8F9FC] px-4 py-6 dark:bg-slate-950 md:px-8">
-                <div className="mx-auto max-w-[1600px] space-y-6">
+            return (
+            <div className="relative py-8">
+                <div className="relative z-10 mx-auto max-w-[1600px] space-y-12">
                     {}
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div>
-                            <nav className="mb-2 flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="space-y-1"
+                        >
+                            <nav className="text-muted-foreground mb-4 flex items-center gap-2 text-[10px] font-black tracking-[3px] uppercase">
                                 <span>Admin</span>
-                                <span>/</span>
-                                <span className="font-medium text-brand-primary">
+                                <span className="text-asja-green-500/50">
+                                    /
+                                </span>
+                                <span className="text-asja-green-600 dark:text-primary">
                                     Blog
                                 </span>
                             </nav>
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                            <h1 className="text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
                                 {existingPost
                                     ? 'Modifier l’article'
                                     : 'Nouvel Article'}
                             </h1>
-                        </div>
+                        </motion.div>
 
-                        <div className="flex items-center gap-3">
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex items-center gap-4"
+                        >
                             <Button
                                 variant="outline"
                                 onClick={() => window.open('', '_blank')}
-                                className="bg-white shadow-sm"
+                                className="glass h-12 rounded-2xl border-white/50 px-6 font-bold text-slate-600 shadow-sm transition-all hover:bg-white/80 dark:border-white/5 dark:text-slate-300"
                             >
-                                <Eye className="mr-2 h-4 w-4" /> Prévisualiser
+                                <Eye className="mr-2 h-4 w-4" /> Aperçu
                             </Button>
                             <Button
                                 onClick={handleSubmit}
                                 disabled={processing}
-                                className="bg-brand-primary-navy shadow-md hover:bg-brand-primary"
+                                className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 group h-12 rounded-2xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
                             >
                                 {processing ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                 ) : (
-                                    <Save className="mr-2 h-4 w-4" />
+                                    <Save className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
                                 )}
-                                {existingPost
-                                    ? 'Enregistrer'
-                                    : "Publier l'article"}
+                                {existingPost ? 'Enregistrer' : 'Publier'}
                             </Button>
-                        </div>
+                        </motion.div>
                     </div>
 
                     {}
-                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-                        <div className="space-y-6 lg:col-span-8">
+                    <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+                        <div className="space-y-10 lg:col-span-8">
                             {}
-                            <div className="group space-y-2">
+                            <div className="group space-y-4">
                                 <Input
                                     id="post-title"
-                                    placeholder="Titre de l'article..."
+                                    placeholder="Entrez votre titre ici..."
                                     value={data.title}
                                     onChange={(e) =>
                                         setData('title', e.target.value)
                                     }
-                                    className="h-auto border-none bg-transparent p-0 text-4xl font-black text-slate-900 placeholder:text-slate-300 focus-visible:ring-0 dark:text-white dark:placeholder:text-slate-700 md:text-5xl"
+                                    className="h-auto border-none bg-transparent p-0 text-5xl font-black tracking-tight text-slate-900 placeholder:text-slate-200 focus-visible:ring-0 md:text-6xl dark:text-white dark:placeholder:text-slate-800"
                                 />
-                                <div className="h-0.5 w-20 bg-brand-gold transition-all group-focus-within:w-48" />
+                                <motion.div
+                                    className="bg-asja-green-500 h-1.5 w-24 rounded-full"
+                                    initial={{ width: 40 }}
+                                    whileInView={{ width: 120 }}
+                                    transition={{ duration: 0.8 }}
+                                />
                             </div>
 
                             {}
-                            <div className="overflow-hidden rounded-xl border bg-white shadow-sm dark:bg-card">
-                                <div className="border-b bg-slate-50/50 px-4 py-2 dark:bg-slate-900/50">
-                                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                            <div className="glass relative overflow-hidden rounded-[2.5rem] border-none shadow-2xl">
+                                <div className="flex items-center justify-between border-b border-white/40 bg-white/30 px-8 py-5 dark:border-white/5">
+                                    <span className="text-asja-green-600 dark:text-primary text-[10px] font-black tracking-[3px] uppercase">
                                         Corps de l'article
                                     </span>
+                                    <div className="flex gap-2">
+                                        <div className="bg-asja-green-400/50 h-2 w-2 rounded-full" />
+                                        <div className="bg-asja-green-400 h-2 w-2 rounded-full" />
+                                    </div>
                                 </div>
-                                <div className="p-1">
+                                <div className="min-h-[600px] bg-white/50 backdrop-blur-sm dark:bg-black/20">
                                     <BlogEditor
                                         content={data.content}
                                         onChange={(content) =>
                                             setData('content', content)
                                         }
-                                        placeholder="Commencez à écrire votre histoire ici..."
+                                        placeholder="Écrivez quelque chose d'extraordinaire..."
                                         onImageUpload={
                                             handleImageUploadForEditor
                                         }
@@ -240,39 +257,43 @@ function Page({
                             </div>
 
                             {}
-                            <Card className="border-none shadow-sm">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">
-                                        Résumé (Extrait)
+                            <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
+                                <CardHeader className="px-8 pt-8 pb-4">
+                                    <CardTitle className="text-muted-foreground flex items-center gap-2 text-[10px] font-black tracking-[3px] uppercase">
+                                        <MessageSquare
+                                            size={14}
+                                            className="text-asja-green-500"
+                                        />
+                                        Résumé de l'article
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="px-8 pb-8">
                                     <Textarea
-                                        placeholder="Une brève introduction..."
+                                        placeholder="Une courte introduction pour accrocher vos lecteurs..."
                                         value={data.excerpt}
                                         onChange={(e) =>
                                             setData('excerpt', e.target.value)
                                         }
-                                        className="resize-none border-slate-200 focus:border-brand-gold focus:ring-brand-gold/10"
-                                        rows={3}
+                                        className="focus:ring-asja-green-500/20 resize-none rounded-2xl border-none bg-slate-50/50 p-4 text-lg font-medium placeholder:text-slate-300 focus:ring-2 dark:bg-white/5 dark:placeholder:text-white/10"
+                                        rows={4}
                                     />
                                 </CardContent>
                             </Card>
                         </div>
 
                         {}
-                        <div className="space-y-6 lg:col-span-4">
+                        <div className="space-y-8 lg:col-span-4">
                             {}
-                            <Card className="overflow-hidden border-none shadow-sm">
-                                <CardHeader className="bg-slate-50 pb-4 dark:bg-slate-900/50">
-                                    <CardTitle className="text-base">
-                                        Paramètres de publication
+                            <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
+                                <CardHeader className="bg-asja-green-500/5 px-8 py-6">
+                                    <CardTitle className="text-asja-green-800 dark:text-primary text-sm leading-none font-black tracking-widest uppercase">
+                                        Publication
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-6 pt-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-[11px] font-bold uppercase text-slate-400">
-                                            Statut
+                                <CardContent className="space-y-8 p-8">
+                                    <div className="space-y-3">
+                                        <Label className="text-muted-foreground text-[10px] font-black tracking-widest uppercase">
+                                            État actuel
                                         </Label>
                                         <Select
                                             value={data.status}
@@ -280,28 +301,40 @@ function Page({
                                                 setData('status', val)
                                             }
                                         >
-                                            <SelectTrigger className="w-full">
+                                            <SelectTrigger className="h-12 rounded-xl border-white/50 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="draft">
+                                            <SelectContent className="glass rounded-xl border-none">
+                                                <SelectItem
+                                                    value="draft"
+                                                    className="font-bold"
+                                                >
                                                     Brouillon
                                                 </SelectItem>
-                                                <SelectItem value="publish">
+                                                <SelectItem
+                                                    value="publish"
+                                                    className="font-bold"
+                                                >
                                                     Publié
                                                 </SelectItem>
-                                                <SelectItem value="future">
+                                                <SelectItem
+                                                    value="future"
+                                                    className="font-bold"
+                                                >
                                                     Planifié
                                                 </SelectItem>
-                                                <SelectItem value="private">
+                                                <SelectItem
+                                                    value="private"
+                                                    className="font-bold"
+                                                >
                                                     Privé
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label className="text-[11px] font-bold uppercase text-slate-400">
+                                    <div className="space-y-3">
+                                        <Label className="text-muted-foreground text-[10px] font-black tracking-widest uppercase">
                                             Catégorie
                                         </Label>
                                         <div className="flex gap-2">
@@ -311,16 +344,17 @@ function Page({
                                                     setData('category_id', val)
                                                 }
                                             >
-                                                <SelectTrigger className="flex-1">
+                                                <SelectTrigger className="h-12 grow rounded-xl border-white/50 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20">
                                                     <SelectValue placeholder="Choisir..." />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="glass rounded-xl border-none">
                                                     {categories.map((cat) => (
                                                         <SelectItem
                                                             key={cat.id}
                                                             value={String(
                                                                 cat.id,
                                                             )}
+                                                            className="font-bold"
                                                         >
                                                             {cat.name}
                                                         </SelectItem>
@@ -330,14 +364,14 @@ function Page({
                                             <Button
                                                 size="icon"
                                                 variant="outline"
-                                                className="shrink-0"
+                                                className="glass hover:bg-asja-green-500 h-12 w-12 shrink-0 rounded-xl shadow-sm transition-all hover:text-white"
                                                 onClick={() =>
                                                     setShowNewCategoryDialog(
                                                         true,
                                                     )
                                                 }
                                             >
-                                                <PlusCircle className="h-4 w-4" />
+                                                <PlusCircle size={20} />
                                             </Button>
                                         </div>
                                     </div>
@@ -345,25 +379,26 @@ function Page({
                             </Card>
 
                             {}
-                            <Card className="border-none shadow-sm">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <ImageIcon className="h-4 w-4 text-brand-gold" />{' '}
+                            <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
+                                <CardHeader className="px-8 py-6">
+                                    <CardTitle className="text-muted-foreground flex items-center gap-3 text-sm font-black tracking-widest uppercase">
+                                        <ImageIcon className="text-asja-green-500 h-4 w-4" />
                                         Image à la une
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="px-8 pb-8">
                                     {imagePreview ? (
-                                        <div className="group relative overflow-hidden rounded-lg border">
+                                        <div className="group relative overflow-hidden rounded-2xl border-none shadow-2xl">
                                             <img
                                                 src={imagePreview}
                                                 alt="Preview"
-                                                className="h-48 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                            <div className="bg-asja-green-900/60 absolute inset-0 flex items-center justify-center opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
                                                 <Button
                                                     variant="destructive"
                                                     size="sm"
+                                                    className="rounded-full px-6 font-bold shadow-2xl"
                                                     onClick={() => {
                                                         setData(
                                                             'featured_image',
@@ -372,17 +407,17 @@ function Page({
                                                         setImagePreview(null);
                                                     }}
                                                 >
-                                                    Remplacer l'image
+                                                    Changer l'image
                                                 </Button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <Label className="flex h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 transition-all hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/50">
-                                            <div className="flex flex-col items-center gap-2">
-                                                <div className="rounded-full bg-white p-3 shadow-sm">
-                                                    <PlusCircle className="h-6 w-6 text-brand-primary" />
+                                        <Label className="border-asja-green-100 hover:bg-asja-green-50/50 dark:hover:bg-primary/5 group flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-slate-50/50 transition-all dark:border-white/5 dark:bg-white/5">
+                                            <div className="flex flex-col items-center gap-4">
+                                                <div className="shadow-asja-green-900/5 rounded-3xl bg-white p-4 shadow-xl transition-transform group-hover:scale-110 dark:bg-slate-800">
+                                                    <PlusCircle className="text-asja-green-600 dark:text-primary h-8 w-8" />
                                                 </div>
-                                                <span className="text-sm font-medium text-slate-600">
+                                                <span className="group-hover:text-asja-green-600 text-sm font-black tracking-widest text-slate-400 uppercase transition-colors">
                                                     Ajouter une image
                                                 </span>
                                             </div>
@@ -398,17 +433,17 @@ function Page({
                             </Card>
 
                             {}
-                            <Card className="border-none shadow-sm">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <Tag className="h-4 w-4 text-brand-gold" />{' '}
+                            <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
+                                <CardHeader className="px-8 py-6">
+                                    <CardTitle className="text-muted-foreground flex items-center gap-3 text-sm font-black tracking-widest uppercase">
+                                        <Tag className="text-asja-green-500 h-4 w-4" />
                                         Tags
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-6 px-8 pb-8">
                                     <div className="flex gap-2">
                                         <Input
-                                            placeholder="Add tag..."
+                                            placeholder="Ajouter un tag..."
                                             value={newTag}
                                             onChange={(e) =>
                                                 setNewTag(e.target.value)
@@ -417,21 +452,22 @@ function Page({
                                                 e.key === 'Enter' &&
                                                 handleAddTag()
                                             }
+                                            className="h-10 rounded-xl border-none bg-slate-50/50 font-bold placeholder:font-medium placeholder:text-slate-300 dark:bg-white/5"
                                         />
                                         <Button
                                             size="sm"
                                             onClick={handleAddTag}
-                                            className="bg-slate-100 text-slate-900 hover:bg-slate-200"
+                                            className="hover:bg-asja-green-600 h-10 rounded-xl bg-slate-900 px-4 font-bold transition-colors dark:bg-white dark:text-slate-900"
                                         >
                                             Add
                                         </Button>
                                     </div>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {data.tags.map((tag: string) => (
+                                    <div className="flex flex-wrap gap-2">
+                                        {data.tags.map((tag) => (
                                             <Badge
                                                 key={tag}
                                                 variant="secondary"
-                                                className="cursor-pointer bg-slate-100 px-2 py-0.5 text-[11px] font-medium transition-colors hover:bg-red-50 hover:text-red-600"
+                                                className="cursor-pointer rounded-full border-none bg-white/50 px-4 py-1.5 text-[10px] font-black tracking-widest uppercase shadow-sm transition-all hover:bg-rose-500 hover:text-white dark:bg-white/5 dark:hover:bg-rose-600"
                                                 onClick={() =>
                                                     handleRemoveTag(tag)
                                                 }
@@ -447,19 +483,29 @@ function Page({
                 </div>
 
                 {}
+                <div className="pointer-events-none fixed top-0 left-1/2 -z-10 h-full w-full -translate-x-1/2 bg-slate-50/50 dark:bg-transparent" />
+
+                {}
                 <Dialog
                     open={showNewCategoryDialog}
                     onOpenChange={setShowNewCategoryDialog}
                 >
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>
-                                Ajouter une nouvelle catégorie
+                    <DialogContent className="glass overflow-hidden rounded-[2.5rem] border-none p-10">
+                        <DialogHeader className="mb-6">
+                            <DialogTitle className="text-3xl leading-tight font-black text-slate-900 dark:text-white">
+                                Nouvelle Catégorie
                             </DialogTitle>
+                            <p className="font-medium text-slate-500">
+                                Créez une nouvelle division pour organiser votre
+                                blog.
+                            </p>
                         </DialogHeader>
-                        <div className="space-y-4">
-                            <div>
-                                <Label htmlFor="category-name">
+                        <div className="relative z-10 space-y-6">
+                            <div className="space-y-3">
+                                <Label
+                                    htmlFor="category-name"
+                                    className="text-asja-green-600 text-[10px] font-black tracking-widest uppercase"
+                                >
                                     Nom de la catégorie
                                 </Label>
                                 <Input
@@ -468,17 +514,12 @@ function Page({
                                     onChange={(e) =>
                                         setNewCategoryName(e.target.value)
                                     }
-                                    placeholder="Entrez le nom de la catégorie"
+                                    placeholder="ex: Événements Académiques"
+                                    className="h-14 rounded-2xl border-white/50 bg-white/50 px-6 text-lg font-bold shadow-inner dark:border-white/5 dark:bg-white/5"
                                 />
                             </div>
                         </div>
-                        <DialogFooter>
-                            <Button
-                                variant="outline"
-                                onClick={() => setShowNewCategoryDialog(false)}
-                            >
-                                Annuler
-                            </Button>
+                        <DialogFooter className="mt-10 gap-3 sm:justify-start">
                             <Button
                                 onClick={() => {
                                     router.post(
@@ -488,17 +529,32 @@ function Page({
                                             onSuccess: () => {
                                                 setShowNewCategoryDialog(false);
                                                 setNewCategoryName('');
+                                                toast.success(
+                                                    'Catégorie ajoutée !',
+                                                );
                                             },
                                         },
                                     );
                                 }}
+                                className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 h-14 grow rounded-2xl font-black text-white shadow-xl"
                             >
-                                Ajouter
+                                Ajouter la catégorie
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                onClick={() => setShowNewCategoryDialog(false)}
+                                className="h-14 rounded-2xl px-8 font-black font-bold text-slate-500 transition-all hover:bg-slate-50"
+                            >
+                                Annuler
                             </Button>
                         </DialogFooter>
+
+                        {}
+                        <div className="bg-asja-green-500/10 absolute -right-20 -bottom-20 -z-10 h-64 w-64 rounded-full blur-[80px]" />
                     </DialogContent>
                 </Dialog>
             </div>
+            );
         </>
     );
 }

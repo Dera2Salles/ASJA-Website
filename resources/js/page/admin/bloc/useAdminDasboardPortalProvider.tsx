@@ -2,14 +2,14 @@ import { AdminDashboardContext } from './useAdminContext';
 import { useAdminDashboard } from './useAdminDashboard';
 
 export const AdminDashBoardProvider = ({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) => {
-  const adminDasboard = useAdminDashboard();
-  return (
-    <AdminDashboardContext.Provider value={adminDasboard}>
-      {children}
-    </AdminDashboardContext.Provider>
-  );
+    const adminDasboard = useAdminDashboard();
+    return (
+        <AdminDashboardContext.Provider value={adminDasboard}>
+            {children}
+        </AdminDashboardContext.Provider>
+    );
 };
