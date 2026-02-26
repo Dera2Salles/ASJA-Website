@@ -38,7 +38,7 @@ docker run -d \
     --name asja-pre-prod \
     --network asja-network \
     -p 8080:80 \
-    -e VITE_GEMINI_API_KEY="AIzaSyBhhsFUWYHDEr0IBSS35M7mrGDVlEq794M" \
+    -e VITE_GEMINI_API_KEY="" \
     -e VITE_STRAPI_URL="http://localh:1337" \
     -e ASJA_DATA_BASE64="$(base64 -w 0 ASJA-DATA.json)" \
     dera2salles/asja-website:0.0.6
