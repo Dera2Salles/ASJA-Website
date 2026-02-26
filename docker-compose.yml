@@ -1,0 +1,24 @@
+services:
+  asja-pre-prod:
+    image: dera2salles/asja-website:0.0.6
+    container_name: asja-pre-prod
+    ports :
+      - 8080:80
+    environment:
+       VITE_GEMINI_API_KEY: AIzaSyBhhsFUWYHDEr0IBSS35M7mrGDVlEq794M
+       VITE_STRAPI_URL: http://localhost:1337
+       ASJA_DATA_BASE64: "${ASJA_DATA_BASE64}"
+    networks:
+      - asja-network
+
+  strapi-pre-prod:
+    image: mandaharou/strapi-docker:v1.0
+    container_name: strapi-pre-prod
+    ports:
+      - 1337:1337
+    networks:
+      - asja-network
+
+networks:
+  asja-network:
+    driver: bridge
