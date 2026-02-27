@@ -126,14 +126,26 @@ const DesktopNav = ({
     onFiliereClick: (href: string) => void;
 }) => {
     const { translate } = useLangue();
+    const isHomePage = window.location.pathname === '/';
+
     return (
         <NavigationMenu>
             <NavigationMenuList>
                 <NavItem trigger={translate('navBar.accueil')}>
                     {homeSections.map((item) => (
-                        <ScrollLink key={item.to} to={item.to}>
-                            {translate(item.key)}
-                        </ScrollLink>
+                        isHomePage ? (
+                            <ScrollLink key={item.to} to={item.to}>
+                                {translate(item.key)}
+                            </ScrollLink>
+                        ) : (
+                            <button
+                                key={item.to}
+                                onClick={() => (window.location.href = `/#${item.to}`)}
+                                className="block w-full cursor-pointer rounded-md px-4 py-2 text-left text-gray-800 transition-colors duration-200 hover:bg-gray-100 dark:text-white dark:hover:bg-zinc-700"
+                            >
+                                {translate(item.key)}
+                            </button>
+                        )
                     ))}
                 </NavItem>
                 <NavItem trigger={translate('navBar.filieres')}>
@@ -146,22 +158,35 @@ const DesktopNav = ({
                         </FiliereLink>
                     ))}
                 </NavItem>
+
                 <NavigationMenuItem>
-                    <Link
-                        to="contact"
-                        spy={true}
-                        smooth={true}
-                        offset={-50}
-                        duration={500}
+                    <button
+                        onClick={() => (window.location.href = '/blog')}
                         className="group inline-flex h-10 w-max cursor-pointer items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:text-white dark:hover:bg-zinc-700"
                     >
-                        {translate('navBar.contact')}
-                    </Link>
+                        {translate('navBar.blog')}
+                    </button>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                    {isHomePage ? (
+                        <ScrollLink to="contact">
+                            {translate('navBar.contact')}
+                        </ScrollLink>
+                    ) : (
+                        <button
+                            onClick={() => (window.location.href = '/#contact')}
+                            className="group inline-flex h-10 w-max cursor-pointer items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:text-white dark:hover:bg-zinc-700"
+                        >
+                            {translate('navBar.contact')}
+                        </button>
+                    )}
                 </NavigationMenuItem>
             </NavigationMenuList>
         </NavigationMenu>
     );
 };
+
 const MobileNav = ({
     open,
     setOpen,
@@ -174,6 +199,7 @@ const MobileNav = ({
     const { translate } = useLangue();
     const { toggleTheme, isDark } = useThemeContext();
     const handleLinkClick = () => setOpen(false);
+    const isHomePage = window.location.pathname === '/';
 
     return (
         <div
@@ -209,24 +235,33 @@ const MobileNav = ({
                     </button>
                 </div>
 
-                {}
                 <div className="flex h-full flex-col">
                     <div className="flex-1 space-y-4 overflow-y-auto p-4">
                         <NavSection title={translate('navBar.accueil')}>
                             {homeSections.map((item) => (
-                                <Link
-                                    key={item.to}
-                                    to={item.to}
-                                    spy
-                                    smooth
-                                    offset={-50}
-                                    duration={500}
-                                    onClick={handleLinkClick}
-                                    activeClass="text-green-600 dark:text-green-400 font-semibold"
-                                    className="block py-2 text-gray-700 dark:text-gray-300"
-                                >
-                                    {translate(item.key)}
-                                </Link>
+                                isHomePage ? (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        spy
+                                        smooth
+                                        offset={-50}
+                                        duration={500}
+                                        onClick={handleLinkClick}
+                                        activeClass="text-green-600 dark:text-green-400 font-semibold"
+                                        className="block py-2 text-gray-700 dark:text-gray-300"
+                                    >
+                                        {translate(item.key)}
+                                    </Link>
+                                ) : (
+                                    <button
+                                        key={item.to}
+                                        onClick={() => (window.location.href = `/#${item.to}`)}
+                                        className="block w-full py-2 text-left text-gray-700 dark:text-gray-300"
+                                    >
+                                        {translate(item.key)}
+                                    </button>
+                                )
                             ))}
                         </NavSection>
                         <NavSection title={translate('navBar.filieres')}>
@@ -240,18 +275,20 @@ const MobileNav = ({
                                 </button>
                             ))}
                         </NavSection>
-                        <Link
-                            to="contact"
-                            spy
-                            smooth
-                            offset={-50}
-                            duration={500}
-                            onClick={handleLinkClick}
-                            activeClass="text-green-600 dark:text-green-400 font-semibold"
-                            className="block py-2 font-semibold text-gray-800 dark:text-white"
+
+                        <button
+                            onClick={() => (window.location.href = '/blog')}
+                            className="block w-full py-2 text-left font-semibold text-gray-800 dark:text-white"
+                        >
+                            {translate('navBar.blog')}
+                        </button>
+
+                        <button
+                            onClick={() => (window.location.href = isHomePage ? '#contact' : '/#contact')}
+                            className="block w-full py-2 text-left font-semibold text-gray-800 dark:text-white"
                         >
                             {translate('navBar.contact')}
-                        </Link>
+                        </button>
                     </div>
                 </div>
             </div>

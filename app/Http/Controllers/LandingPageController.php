@@ -27,24 +27,4 @@ class LandingPageController extends Controller
             'departments'   => Department::where('is_visible', true)->orderBy('sort_order')->get(['id', 'slug', 'name', 'logo', 'color']),
         ]);
     }
-
-    public function blogPost(string $slug): Response
-    {
-        $post = BlogPost::where('slug', $slug)->where('is_published', true)->firstOrFail();
-
-        return Inertia::render('BlogPostPage', [
-            'post' => $post->load('author:id,name'),
-        ]);
-    }
-
-    public function blog(): Response
-    {
-        $posts = BlogPost::published()
-            ->with('author:id,name')
-            ->paginate(12);
-
-        return Inertia::render('Blog/Index', [
-            'posts' => $posts,
-        ]);
-    }
 }

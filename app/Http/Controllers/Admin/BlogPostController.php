@@ -36,7 +36,10 @@ class BlogPostController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            $validated['cover_image'] = $request->file('cover_image')->store('blog', 'public');
+            $file = $request->file('cover_image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/blog'), $fileName);
+            $validated['cover_image'] = 'blog/' . $fileName;
         }
 
         $validated['user_id']      = auth()->id();
@@ -67,7 +70,10 @@ class BlogPostController extends Controller
         ]);
 
         if ($request->hasFile('cover_image')) {
-            $validated['cover_image'] = $request->file('cover_image')->store('blog', 'public');
+            $file = $request->file('cover_image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/blog'), $fileName);
+            $validated['cover_image'] = 'blog/' . $fileName;
         }
 
         if ($validated['is_published'] && ! $blog->is_published) {

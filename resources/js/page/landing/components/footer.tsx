@@ -31,8 +31,8 @@ const InfoItem = ({
     href?: string;
 }) => {
     const content = (
-        <div className="flex items-center gap-3 text-gray-600 transition-all duration-500 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
-            <span className="text-green-700 transition-all duration-500 dark:text-green-500">
+        <div className="flex items-center gap-3 text-gray-600 transition-all duration-500 hover:text-asja-green-600 dark:text-gray-300 dark:hover:text-asja-green-400">
+            <span className="text-asja-green-600 transition-all duration-500 dark:text-asja-green-500">
                 {icon}
             </span>
             <span>{text}</span>
@@ -61,7 +61,7 @@ const QuickLink = ({
         smooth={true}
         offset={-80}
         duration={500}
-        className="cursor-pointer text-gray-600 transition-all duration-500 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500"
+        className="cursor-pointer text-gray-600 transition-all duration-500 hover:text-asja-green-600 dark:text-gray-300 dark:hover:text-asja-green-400"
     >
         {children}
     </Link>
