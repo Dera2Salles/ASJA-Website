@@ -13,7 +13,7 @@ const PromptSuggestions: React.FC<PromptSuggestionsProps> = ({ onSelect }) => {
 
     return (
         <div className="p-3 pt-2">
-            <h4 className="mb-3 text-sm font-medium text-gray-600 dark:text-gray-400">
+            <h4 className="mb-3 text-sm font-medium text-muted-foreground">
                 Suggestions
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -21,7 +21,7 @@ const PromptSuggestions: React.FC<PromptSuggestionsProps> = ({ onSelect }) => {
                     <button
                         key={i}
                         onClick={() => onSelect(s)}
-                        className="cursor-pointer rounded-full border px-3 py-2 text-xs text-gray-700 transition-colors duration-200 hover:bg-gray-200 dark:border-zinc-600 dark:text-white dark:hover:bg-zinc-700"
+                        className="cursor-pointer rounded-full border px-3 py-2 text-xs text-muted-foreground transition-colors duration-200 hover:bg-muted"
                     >
                         {s}
                     </button>

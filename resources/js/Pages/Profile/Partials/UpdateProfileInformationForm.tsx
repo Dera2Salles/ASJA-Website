@@ -41,7 +41,7 @@ export default function UpdateProfileInformation({
                         </Label>
                         <Input
                             id="name"
-                            className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 font-bold focus:ring-2 dark:bg-white/5"
+                            className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 font-bold focus:ring-2 dark:bg-white/5"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             required
@@ -64,7 +64,7 @@ export default function UpdateProfileInformation({
                         <Input
                             id="email"
                             type="email"
-                            className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 font-bold focus:ring-2 dark:bg-white/5"
+                            className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 font-bold focus:ring-2 dark:bg-white/5"
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             required
@@ -93,7 +93,7 @@ export default function UpdateProfileInformation({
                         </p>
 
                         {status === 'verification-link-sent' && (
-                            <div className="text-asja-green-600 dark:text-primary animate-in fade-in slide-in-from-top-2 mt-4 flex items-center gap-2 text-sm font-black">
+                            <div className="text-primary dark:text-primary animate-in fade-in slide-in-from-top-2 mt-4 flex items-center gap-2 text-sm font-black">
                                 <CheckCircle2 size={16} />
                                 Un nouveau lien a été envoyé.
                             </div>
@@ -104,7 +104,7 @@ export default function UpdateProfileInformation({
                 <div className="flex items-center gap-6 pt-4">
                     <Button
                         disabled={processing}
-                        className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 flex h-12 gap-2 rounded-xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+                        className="bg-primary dark:bg-primary shadow-primary/20 flex h-12 gap-2 rounded-xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
                     >
                         {processing && (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -120,7 +120,7 @@ export default function UpdateProfileInformation({
                         leave="transition ease-in-out duration-300"
                         leaveTo="opacity-0 translate-x-4"
                     >
-                        <p className="text-asja-green-600 dark:text-primary flex items-center gap-2 text-sm font-black">
+                        <p className="text-primary dark:text-primary flex items-center gap-2 text-sm font-black">
                             <CheckCircle2 size={18} />
                             Modifications enregistrées
                         </p>

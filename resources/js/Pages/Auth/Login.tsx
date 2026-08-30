@@ -47,10 +47,10 @@ export default function Login({
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center space-y-2"
                 >
-                    <h2 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                    <h2 className="text-3xl font-black text-foreground dark:text-white uppercase tracking-tight">
                         {translate('loginPage.seConnecter')}
                     </h2>
-                    <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                    <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">
                         Accédez à votre espace ASJA
                     </p>
                 </motion.div>
@@ -59,7 +59,7 @@ export default function Login({
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="p-4 rounded-2xl bg-asja-green-50 dark:bg-asja-green-900/10 border border-asja-green-100 dark:border-asja-green-900/20 text-asja-green-700 dark:text-asja-green-400 text-sm font-bold flex items-center gap-3"
+                        className="p-4 border border-primary bg-background text-primary text-sm font-bold flex items-center gap-3"
                     >
                         <ShieldCheck className="w-5 h-5" />
                         {status}
@@ -69,7 +69,7 @@ export default function Login({
                 <form onSubmit={submit} className="space-y-6">
                     <div className="space-y-5">
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest ml-1 text-slate-400">
+                            <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest ml-1 text-muted-foreground">
                                 Adresse Email
                             </Label>
                             <Input
@@ -77,7 +77,7 @@ export default function Login({
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="username"
                                 placeholder="votre@email.com"
                                 onChange={(e) => setData('email', e.target.value)}
@@ -97,13 +97,13 @@ export default function Login({
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between px-1">
-                                <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                     {translate('loginPage.mdp')}
                                 </Label>
                                 {canResetPassword && (
                                     <Link
                                         href={route('password.request')}
-                                        className="text-[10px] text-asja-green-600 hover:text-asja-green-700 font-black uppercase tracking-widest transition-all"
+                                        className="text-[10px] text-primary hover:text-primary font-black uppercase tracking-widest transition-all"
                                     >
                                         Oublié ?
                                     </Link>
@@ -114,7 +114,7 @@ export default function Login({
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="current-password"
                                 placeholder="••••••••"
                                 onChange={(e) => setData('password', e.target.value)}
@@ -138,11 +138,11 @@ export default function Login({
                                 id="remember"
                                 checked={data.remember}
                                 onCheckedChange={(checked) => setData('remember', checked as boolean)}
-                                className="w-5 h-5 rounded-md border-slate-200 dark:border-zinc-700 data-[state=checked]:bg-asja-green-600 data-[state=checked]:border-asja-green-600"
+                                className="w-5 h-5 border border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
                             <Label 
                                 htmlFor="remember" 
-                                className="text-xs font-bold text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors cursor-pointer"
+                                className="text-xs font-bold text-muted-foreground group-hover:text-muted-foreground transition-colors cursor-pointer"
                             >
                                 Se souvenir de moi
                             </Label>
@@ -152,7 +152,7 @@ export default function Login({
                     <div className="pt-4">
                         <Button 
                             disabled={processing}
-                            className="w-full h-12 rounded-xl bg-asja-green-600 hover:bg-asja-green-700 text-white font-black uppercase tracking-widest shadow-xl shadow-asja-green-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex gap-3 group/btn"
+                            className="w-full h-12 bg-primary border border-border hover:bg-background hover:text-primary text-primary-foreground font-black uppercase tracking-widest flex gap-3 group/btn"
                         >
                             {processing ? (
                                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -160,18 +160,18 @@ export default function Login({
                                 <>
                                     <LogIn className="w-5 h-5" />
                                     <span>{translate('loginPage.seConnecter')}</span>
-                                    <ArrowRight className="w-5 h-5 ml-auto opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                    <ArrowRight className="w-5 h-5 ml-auto opacity-0 group-hover:opacity-100" />
                                 </>
                             )}
                         </Button>
                     </div>
 
                     <div className="pt-6 text-center">
-                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
                             {translate('loginPage.question')}{' '}
                             <Link
                                 href={route('register')}
-                                className="text-asja-green-600 hover:text-asja-green-700 ml-1 underline underline-offset-4"
+                                className="text-primary hover:text-primary ml-1 underline underline-offset-4"
                             >
                                 {translate('loginPage.inscription')}
                             </Link>

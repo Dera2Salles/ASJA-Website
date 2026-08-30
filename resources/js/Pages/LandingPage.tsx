@@ -1,7 +1,6 @@
-import { PageProps } from '@inertiajs/core';
+import { CmsProvider, type CmsContent } from '@/lib/cms';
+import type { Post } from '@/lib/posts';
 import { Head } from '@inertiajs/react';
-import { createContext, useContext } from 'react';
-import { LandingProvider } from '../page/landing/bloc/useLandingProvider';
 import Chatbot from '../page/landing/components/chatbot';
 import { Description } from '../page/landing/components/description';
 import { EvenementSection } from '../page/landing/components/evenement-section';
@@ -12,48 +11,42 @@ import { MissionSection } from '../page/landing/components/mission-section';
 import { Navbar } from '../page/landing/components/nav-bar';
 import { SystemePedagogiqueSection } from '../page/landing/components/systeme-pedagogique-section';
 import { TestimonySection } from '../page/landing/components/testimony-section';
+import { LandingProvider } from '../page/landing/bloc/useLandingProvider';
 import { ThemeProvider } from '../page/theme/useThemeProvider';
-
 import { BlogSection } from './BlogSection';
 
-export interface LandingPageProps extends PageProps {
-    componentData: Record<string, Record<string, string>>;
-    testimonies: any[];
-    blogPosts: any[];
+export interface LandingPageProps {
+    cms: CmsContent;
+    testimonies: unknown[];
+    departments: unknown[];
+    posts: Post[];
+    events: Post[];
+    announcements: Post[];
 }
 
-export const CmsContext = createContext<LandingPageProps | null>(null);
-
-export const useCms = () => {
-    const context = useContext(CmsContext);
-    if (!context)
-        throw new Error('useCms must be used within CmsContext.Provider');
-    return context;
-};
-
-export default function LandingPage(props: LandingPageProps) {
+export default function LandingPage({ cms, posts }: LandingPageProps) {
     return (
-        <CmsContext.Provider value={props}>
-            <Head title="Bienvenue - ASJA" />
+        <CmsProvider content={cms}>
+            <Head title="Accueil" />
             <ThemeProvider>
                 <LandingProvider>
-                    <div className="flex flex-col overflow-x-hidden">
+                    <div className="flex min-h-screen flex-col overflow-x-hidden">
                         <Navbar />
-                        <div className="flex-col items-center justify-center">
+                        <main className="flex-1">
                             <Description />
                             <MissionSection />
                             <FiliereSection />
-                            <Chatbot />
                             <EvenementSection />
                             <SystemePedagogiqueSection />
                             <TestimonySection />
-                            <BlogSection posts={props.blogPosts} />
+                            <BlogSection posts={posts} />
                             <FaqSection />
-                            <Footer />
-                        </div>
+                        </main>
+                        <Footer />
+                        <Chatbot />
                     </div>
                 </LandingProvider>
             </ThemeProvider>
-        </CmsContext.Provider>
+        </CmsProvider>
     );
 }

@@ -1,89 +1,276 @@
+import { CmsProvider, type CmsContent } from '@/lib/cms';
+import {
+    formatDate,
+    formatEventPeriod,
+    POST_TYPE_LABELS,
+    postImage,
+    type Post,
+} from '@/lib/posts';
 import { Head, Link } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import {
+    ArrowLeft,
+    ArrowRight,
+    CalendarDays,
+    Check,
+    Link2,
+    MapPin,
+    User,
+} from 'lucide-react';
+import { useState } from 'react';
 import { Footer } from '../page/landing/components/footer';
 import { Navbar } from '../page/landing/components/nav-bar';
 import { ThemeProvider } from '../page/theme/useThemeProvider';
 
-interface Post {
-    id: number;
-    title: string;
-    slug: string;
-    content: string;
-    cover_image: string | null;
-    category: string | null;
-    published_at: string | null;
-    author: { name: string };
+interface Props {
+    post: Post;
+    related: Post[];
+    cms: CmsContent;
 }
 
-export default function BlogPostPage({ post }: { post: Post }) {
-    return (
-        <ThemeProvider>
-            <Head title={`${post.title} - ASJA`} />
-            <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50 dark:bg-zinc-900">
-                <Navbar />
+/** Copie l'adresse de la page ; l'ancien bouton de partage n'avait aucun effet. */
+const ShareButton = () => {
+    const [copied, setCopied] = useState(false);
 
-                <main className="mt-20 flex-1">
-                    <article className="mx-auto max-w-4xl px-4 py-12">
-                        {}
-                        <header className="mb-12 text-center">
-                            {post.category && (
-                                <div className="mb-6">
-                                    <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-sm font-semibold tracking-wider text-indigo-600 uppercase dark:bg-indigo-900/40 dark:text-indigo-400">
+    const share = async () => {
+        const url = window.location.href;
+
+        try {
+            if (navigator.share) {
+                await navigator.share({ url, title: document.title });
+                return;
+            }
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+        } catch {
+            // Partage annulé ou presse-papiers indisponible : rien à signaler.
+        }
+    };
+
+    return (
+        <button
+            onClick={share}
+            className="border-border text-foreground hover:bg-accent hover:text-accent-foreground inline-flex cursor-pointer items-center gap-2 border px-4 py-2.5 text-xs font-bold uppercase"
+        >
+            {copied ? (
+                <>
+                    <Check className="h-3.5 w-3.5" />
+                    Lien copié
+                </>
+            ) : (
+                <>
+                    <Link2 className="h-3.5 w-3.5" />
+                    Partager
+                </>
+            )}
+        </button>
+    );
+};
+
+const RelatedCard = ({ post }: { post: Post }) => {
+    const image = postImage(post);
+
+    return (
+        <Link
+            href={`/actualites/${post.slug}`}
+            className="border-border bg-card group flex h-full flex-col border"
+        >
+            <div className="bg-muted aspect-[16/10] overflow-hidden">
+                {image ? (
+                    <img src={image} alt="" className="h-full w-full object-cover" />
+                ) : null}
+            </div>
+            <div className="flex flex-1 flex-col p-5">
+                <p className="text-muted-foreground mb-2 text-xs font-semibold">
+                    {formatDate(post.published_at)}
+                </p>
+                <h3 className="text-foreground group-hover:text-primary font-bold">
+                    {post.title}
+                </h3>
+            </div>
+        </Link>
+    );
+};
+
+function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
+    const image = postImage(post);
+    const isEvent = post.type === 'evenement';
+    const period = isEvent ? formatEventPeriod(post) : '';
+
+    return (
+        <div className="flex min-h-screen flex-col overflow-x-hidden">
+            <Navbar />
+
+            <main className="flex-1">
+                <article>
+                    <header className="band-light border-border border-b py-14 md:py-20">
+                        <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">
+                            <Link
+                                href="/actualites"
+                                className="text-muted-foreground hover:text-primary group mb-8 inline-flex items-center gap-2 text-xs font-bold uppercase"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Toutes les actualités
+                            </Link>
+
+                            <div className="mb-5 flex flex-wrap items-center gap-2">
+                                <span className="bg-primary text-primary-foreground px-3 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase">
+                                    {POST_TYPE_LABELS[post.type] ?? 'Publication'}
+                                </span>
+                                {post.category ? (
+                                    <span className="border-border text-muted-foreground border px-3 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase">
                                         {post.category}
                                     </span>
-                                </div>
-                            )}
-                            <h1 className="mb-6 text-4xl leading-tight font-black text-gray-900 md:text-5xl dark:text-white">
+                                ) : null}
+                            </div>
+
+                            <h1 className="text-foreground text-3xl md:text-4xl lg:text-5xl">
                                 {post.title}
                             </h1>
-                            <div className="flex items-center justify-center gap-4 text-sm text-gray-500 dark:text-gray-400">
-                                <span className="font-medium text-gray-900 dark:text-gray-300">
-                                    {post.author.name}
-                                </span>
-                                <span>•</span>
-                                <span>
-                                    {post.published_at &&
-                                        new Date(
-                                            post.published_at,
-                                        ).toLocaleDateString('fr-FR', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric',
-                                        })}
+
+                            {post.excerpt ? (
+                                <p className="text-muted-foreground mt-5 text-lg leading-relaxed">
+                                    {post.excerpt}
+                                </p>
+                            ) : null}
+
+                            <div className="text-muted-foreground mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-semibold">
+                                {post.author ? (
+                                    <span className="inline-flex items-center gap-1.5">
+                                        <User className="text-primary h-3.5 w-3.5" />
+                                        {post.author.name}
+                                    </span>
+                                ) : null}
+                                <span className="inline-flex items-center gap-1.5">
+                                    <CalendarDays className="text-primary h-3.5 w-3.5" />
+                                    {formatDate(post.published_at)}
                                 </span>
                             </div>
-                        </header>
+                        </div>
+                    </header>
 
-                        {}
-                        {post.cover_image && (
-                            <div className="mb-12 aspect-[21/9] overflow-hidden rounded-2xl shadow-2xl">
-                                <img
-                                    src={`/storage/${post.cover_image}`}
-                                    alt={post.title}
-                                    className="h-full w-full object-cover"
-                                />
+                    {/* Les informations pratiques d'un événement sont mises en
+                        évidence avant le corps du texte plutôt que noyées dedans. */}
+                    {isEvent && (period || post.location) ? (
+                        <div className="border-border border-b">
+                            <div className="mx-auto w-full max-w-3xl px-5 py-6 sm:px-8">
+                                <dl className="grid gap-5 sm:grid-cols-2">
+                                    {period ? (
+                                        <div>
+                                            <dt className="text-muted-foreground text-[10px] font-bold tracking-[0.14em] uppercase">
+                                                Date
+                                            </dt>
+                                            <dd className="text-foreground mt-1.5 inline-flex items-center gap-2 font-bold">
+                                                <CalendarDays className="text-primary h-4 w-4" />
+                                                {period}
+                                            </dd>
+                                        </div>
+                                    ) : null}
+
+                                    {post.location ? (
+                                        <div>
+                                            <dt className="text-muted-foreground text-[10px] font-bold tracking-[0.14em] uppercase">
+                                                Lieu
+                                            </dt>
+                                            <dd className="text-foreground mt-1.5 inline-flex items-center gap-2 font-bold">
+                                                <MapPin className="text-primary h-4 w-4" />
+                                                {post.location}
+                                            </dd>
+                                        </div>
+                                    ) : null}
+                                </dl>
                             </div>
-                        )}
+                        </div>
+                    ) : null}
 
-                        {}
+                    {image ? (
+                        <motion.figure
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
+                            className="border-border border-b"
+                        >
+                            <img
+                                src={image}
+                                alt=""
+                                className="aspect-[21/9] w-full object-cover"
+                            />
+                        </motion.figure>
+                    ) : null}
+
+                    <div className="mx-auto w-full max-w-3xl px-5 py-14 sm:px-8 md:py-20">
                         <div
-                            className="prose prose-lg dark:prose-invert prose-headings:font-bold prose-headings:text-green-700 dark:prose-headings:text-green-500 prose-a:text-indigo-600 hover:prose-a:text-indigo-500 max-w-none"
-                            dangerouslySetInnerHTML={{ __html: post.content }}
+                            className="article-content"
+                            dangerouslySetInnerHTML={{ __html: post.content ?? '' }}
                         />
 
-                        {}
-                        <div className="mt-16 border-t border-gray-200 pt-8 text-center dark:border-zinc-800">
-                            <Link
-                                href={route('home')}
-                                className="inline-flex items-center justify-center rounded-md border border-transparent bg-green-700 px-6 py-3 text-base font-medium text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500"
-                            >
-                                ← Retour à l'accueil
-                            </Link>
-                        </div>
-                    </article>
-                </main>
+                        {post.tags && post.tags.length > 0 ? (
+                            <div className="mt-12 flex flex-wrap gap-2">
+                                {post.tags.map((tag) => (
+                                    <span
+                                        key={tag}
+                                        className="border-border text-muted-foreground border px-3 py-1.5 text-xs font-semibold"
+                                    >
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : null}
 
-                <Footer />
-            </div>
-        </ThemeProvider>
+                        <div className="border-border mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8">
+                            <Link
+                                href="/actualites"
+                                className="text-muted-foreground hover:text-primary inline-flex items-center gap-2 text-xs font-bold uppercase"
+                            >
+                                <ArrowLeft className="h-4 w-4" />
+                                Retour aux actualités
+                            </Link>
+
+                            <ShareButton />
+                        </div>
+                    </div>
+
+                    {related.length > 0 ? (
+                        <section className="band-dark border-border section border-t">
+                            <div className="section-container">
+                                <h2 className="text-foreground mb-9 text-2xl md:text-3xl">
+                                    À lire également
+                                </h2>
+
+                                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                                    {related.map((item) => (
+                                        <RelatedCard key={item.id} post={item} />
+                                    ))}
+                                </div>
+
+                                <div className="mt-10">
+                                    <Link
+                                        href="/actualites"
+                                        className="border-border text-foreground hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-2 border px-7 py-3 text-xs font-bold uppercase"
+                                    >
+                                        Voir toutes les publications
+                                        <ArrowRight className="h-4 w-4" />
+                                    </Link>
+                                </div>
+                            </div>
+                        </section>
+                    ) : null}
+                </article>
+            </main>
+
+            <Footer />
+        </div>
+    );
+}
+
+export default function BlogPostPage({ cms, ...props }: Props) {
+    return (
+        <CmsProvider content={cms}>
+            <Head title={props.post.title} />
+            <ThemeProvider>
+                <ArticleContent {...props} />
+            </ThemeProvider>
+        </CmsProvider>
     );
 }

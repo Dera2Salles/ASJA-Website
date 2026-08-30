@@ -24,7 +24,7 @@ export default function Edit({
                 >
                     <h1 className="text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
                         Gestion du{' '}
-                        <span className="text-asja-green-600 dark:text-primary">
+                        <span className="text-primary dark:text-primary">
                             Profil
                         </span>
                     </h1>
@@ -43,7 +43,7 @@ export default function Edit({
                     >
                         <div className="p-8 md:p-12">
                             <div className="mb-10 flex items-center gap-4">
-                                <div className="bg-asja-green-100 dark:bg-primary/10 text-asja-green-600 dark:text-primary flex h-12 w-12 items-center justify-center rounded-2xl">
+                                <div className="bg-accent dark:bg-primary/10 text-primary dark:text-primary flex h-12 w-12 items-center justify-center rounded-2xl">
                                     <User size={24} />
                                 </div>
                                 <h2 className="text-xl font-black tracking-tight text-slate-900 uppercase dark:text-white">
@@ -100,7 +100,7 @@ export default function Edit({
             </div>
 
             {}
-            <div className="bg-asja-green-500/[0.03] pointer-events-none fixed top-[10%] right-[-5%] -z-10 h-[500px] w-[500px] rounded-full blur-[120px]" />
+            <div className="bg-primary/[0.03] pointer-events-none fixed top-[10%] right-[-5%] -z-10 h-[500px] w-[500px] rounded-full blur-[120px]" />
             <div className="bg-primary/[0.02] pointer-events-none fixed bottom-[10%] left-[-5%] -z-10 h-[400px] w-[400px] rounded-full blur-[100px]" />
         </AdminLayout>
     );

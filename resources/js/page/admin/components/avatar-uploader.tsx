@@ -26,7 +26,7 @@ export const AvatarUploader: React.FC<AvatarProps> = ({
                     <img
                         src={image}
                         alt="Photo de profil"
-                        className="size-50 rounded-full border-2 border-gray-200 object-cover transition-all duration-200 group-hover:border-green-400"
+                        className="size-50 rounded-full border border-gray-200 object-cover transition-all duration-200 group-hover:border-green-400"
                     />
                 ) : (
                     <div className="flex items-center justify-center rounded-full bg-gradient-to-br from-zinc-400 to-zinc-500 font-semibold text-white">

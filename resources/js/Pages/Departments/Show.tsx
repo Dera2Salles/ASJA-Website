@@ -1,8 +1,13 @@
+import { CmsProvider, cmsImage, type CmsContent } from '@/lib/cms';
+import { departmentLogo } from '@/lib/department-logos';
 import { Head, Link } from '@inertiajs/react';
-import { BookOpen, Briefcase, GraduationCap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Briefcase, GraduationCap } from 'lucide-react';
 import { useState } from 'react';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
+import { SectionHeading } from '../../page/landing/components/section-heading';
+import { useThemeContext } from '../../page/theme/useThemeContext';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
 
 interface Program {
@@ -20,242 +25,242 @@ interface Department {
     description: string | null;
     logo: string | null;
     hero_image: string | null;
-    color: string | null;
     programs: Program[];
 }
 
-export default function DepartmentShow({
-    department,
-}: {
+interface Props {
     department: Department;
-}) {
-    const [selectedProgram, setSelectedProgram] = useState<Program | null>(
-        null,
-    );
-    const accentColor = department.color || '#4f46e5';
+    cms: CmsContent;
+}
 
-    const displayed = selectedProgram ?? null;
+/** Bandeau d'ouverture, calqué sur celui de la page d'accueil. */
+const Hero = ({ department }: { department: Department }) => {
+    const { isDark } = useThemeContext();
+    const logo = cmsImage(
+        department.logo,
+        departmentLogo(department.slug, isDark),
+    );
+    const image = cmsImage(department.hero_image);
 
     return (
-        <ThemeProvider>
-            <Head title={`${department.name} - ASJA`} />
-            <div className="flex min-h-screen flex-col overflow-x-hidden bg-gray-50 dark:bg-zinc-900">
-                <Navbar />
+        <section className="relative flex min-h-[70vh] w-full items-center justify-center overflow-hidden">
+            {image ? (
+                <img
+                    src={image}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 -z-20 h-full w-full object-cover"
+                />
+            ) : (
+                <div className="bg-foreground absolute inset-0 -z-20" />
+            )}
 
-                {}
-                <section className="relative mt-16 h-80 overflow-hidden md:h-96">
-                    {department.hero_image ? (
-                        <img
-                            src={`/storage/${department.hero_image}`}
-                            alt={department.name}
-                            className="h-full w-full object-cover"
-                        />
-                    ) : (
-                        <div
-                            className="h-full w-full"
-                            style={{ backgroundColor: accentColor }}
-                        />
-                    )}
-                    <div className="absolute inset-0 bg-black/60" />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
-                        {department.logo && (
-                            <img
-                                src={`/storage/${department.logo}`}
-                                alt=""
-                                className="mb-4 h-20 w-20 object-contain drop-shadow-lg"
-                            />
-                        )}
-                        <h1 className="mb-3 text-3xl font-black text-white drop-shadow-lg md:text-5xl">
-                            {department.name}
-                        </h1>
-                        <div
-                            className="h-1 w-20 rounded-full"
-                            style={{ backgroundColor: accentColor }}
-                        />
-                    </div>
-                </section>
+            <div
+                className="absolute inset-0 -z-10 bg-black/70"
+                aria-hidden="true"
+            />
 
-                {}
-                {department.programs.length > 0 && (
-                    <section className="sticky top-16 z-10 border-b border-gray-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-                        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3">
-                            <button
-                                onClick={() => setSelectedProgram(null)}
-                                className={`flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                                    !selectedProgram
-                                        ? 'text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300'
-                                }`}
-                                style={
-                                    !selectedProgram
-                                        ? { backgroundColor: accentColor }
-                                        : {}
-                                }
-                            >
-                                Vue générale
-                            </button>
-                            {department.programs.map((prog) => (
-                                <button
-                                    key={prog.id}
-                                    onClick={() => setSelectedProgram(prog)}
-                                    className={`flex-shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                                        selectedProgram?.id === prog.id
-                                            ? 'text-white'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-300'
-                                    }`}
-                                    style={
-                                        selectedProgram?.id === prog.id
-                                            ? { backgroundColor: accentColor }
-                                            : {}
-                                    }
-                                >
-                                    {prog.title}
-                                </button>
-                            ))}
-                        </div>
-                    </section>
-                )}
+            <div className="section-container relative py-28 text-center">
+                {logo ? (
+                    <motion.img
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        src={logo}
+                        alt=""
+                        className="mx-auto mb-7 h-20 w-20 object-contain"
+                    />
+                ) : null}
 
-                <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12">
-                    {}
-                    {!selectedProgram && department.description && (
-                        <div className="mb-12 max-w-3xl">
-                            <div className="mb-4 flex items-center gap-3">
-                                <div
-                                    className="h-8 w-1 rounded-full"
-                                    style={{ backgroundColor: accentColor }}
-                                />
-                                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                    À propos de la mention
-                                </h2>
-                            </div>
-                            <p className="text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                                {department.description}
-                            </p>
-                        </div>
-                    )}
+                <motion.p
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.05 }}
+                    className="mb-5 text-xs font-semibold tracking-[0.22em] text-white/70 uppercase"
+                >
+                    Mention
+                </motion.p>
 
-                    {}
-                    {!selectedProgram && department.programs.length > 0 && (
-                        <div>
-                            <h2 className="mb-6 text-xl font-bold text-gray-900 dark:text-white">
-                                Nos parcours
-                            </h2>
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                                {department.programs.map((prog) => (
-                                    <button
-                                        key={prog.id}
-                                        onClick={() => setSelectedProgram(prog)}
-                                        className="group rounded-2xl bg-white p-6 text-left shadow-md transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
-                                    >
-                                        <div
-                                            className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl"
-                                            style={{
-                                                backgroundColor:
-                                                    accentColor + '20',
-                                            }}
-                                        >
-                                            <BookOpen
-                                                className="h-5 w-5"
-                                                style={{ color: accentColor }}
-                                            />
-                                        </div>
-                                        <h3 className="mb-2 font-bold text-gray-900 dark:text-white">
-                                            {prog.title}
-                                        </h3>
-                                        {prog.description && (
-                                            <p className="line-clamp-3 text-sm text-gray-500 dark:text-gray-400">
-                                                {prog.description}
-                                            </p>
-                                        )}
-                                        <div
-                                            className="mt-4 text-sm font-medium"
-                                            style={{ color: accentColor }}
-                                        >
-                                            Voir le détail →
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                <motion.h1
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.1 }}
+                    className="mx-auto max-w-4xl text-3xl font-extrabold text-white md:text-5xl lg:text-6xl"
+                >
+                    {department.name}
+                </motion.h1>
 
-                    {}
-                    {selectedProgram && (
-                        <div className="max-w-3xl">
-                            <button
-                                onClick={() => setSelectedProgram(null)}
-                                className="mb-6 flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white"
-                            >
-                                ← Retour aux parcours
-                            </button>
-                            <h2 className="mb-6 text-3xl font-black text-gray-900 dark:text-white">
-                                {selectedProgram.title}
-                            </h2>
-                            {selectedProgram.description && (
-                                <p className="mb-8 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                                    {selectedProgram.description}
-                                </p>
-                            )}
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                                {selectedProgram.competences && (
-                                    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-zinc-800">
-                                        <div className="mb-4 flex items-center gap-3">
-                                            <GraduationCap
-                                                className="h-6 w-6"
-                                                style={{ color: accentColor }}
-                                            />
-                                            <h3 className="font-bold text-gray-900 dark:text-white">
-                                                Compétences acquises
-                                            </h3>
-                                        </div>
-                                        <p className="text-sm leading-relaxed whitespace-pre-line text-gray-600 dark:text-gray-400">
-                                            {selectedProgram.competences}
-                                        </p>
-                                    </div>
-                                )}
-                                {selectedProgram.debouches && (
-                                    <div className="rounded-2xl bg-white p-6 shadow-md dark:bg-zinc-800">
-                                        <div className="mb-4 flex items-center gap-3">
-                                            <Briefcase
-                                                className="h-6 w-6"
-                                                style={{ color: accentColor }}
-                                            />
-                                            <h3 className="font-bold text-gray-900 dark:text-white">
-                                                Débouchés professionnels
-                                            </h3>
-                                        </div>
-                                        <p className="text-sm leading-relaxed whitespace-pre-line text-gray-600 dark:text-gray-400">
-                                            {selectedProgram.debouches}
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </main>
-
-                <div className="border-t border-gray-200 bg-white py-10 dark:border-zinc-800 dark:bg-zinc-900">
-                    <div className="mx-auto max-w-4xl px-4 text-center">
-                        <h3 className="mb-3 text-2xl font-bold text-gray-900 dark:text-white">
-                            Intéressé par cette mention ?
-                        </h3>
-                        <p className="mb-6 text-gray-500 dark:text-gray-400">
-                            Contactez-nous pour plus d'informations sur les
-                            inscriptions.
-                        </p>
-                        <Link
-                            href={route('home') + '#contact'}
-                            className="inline-flex items-center rounded-xl px-6 py-3 font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5"
-                            style={{ backgroundColor: accentColor }}
-                        >
-                            Nous contacter
-                        </Link>
-                    </div>
-                </div>
-
-                <Footer />
+                {department.description ? (
+                    <motion.p
+                        initial={{ opacity: 0, y: 24 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7, delay: 0.2 }}
+                        className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg"
+                    >
+                        {department.description}
+                    </motion.p>
+                ) : null}
             </div>
-        </ThemeProvider>
+        </section>
+    );
+};
+
+const DetailBlock = ({
+    icon,
+    title,
+    body,
+}: {
+    icon: React.ReactNode;
+    title: string;
+    body: string;
+}) => (
+    <div className="border-border bg-card border p-6">
+        <div className="mb-4 flex items-center gap-2.5">
+            <span className="text-primary">{icon}</span>
+            <h4 className="text-foreground text-sm font-bold tracking-wide uppercase">
+                {title}
+            </h4>
+        </div>
+        <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+            {body}
+        </p>
+    </div>
+);
+
+/**
+ * Parcours en maître/détail persistant.
+ *
+ * L'ancienne page remplaçait entièrement son contenu au clic sur un parcours,
+ * obligeant à revenir en arrière pour en consulter un autre. Ici la liste
+ * reste visible : comparer deux parcours ne coûte plus qu'un clic.
+ */
+const Programs = ({ programs }: { programs: Program[] }) => {
+    const [activeId, setActiveId] = useState<number>(programs[0].id);
+    const active = programs.find((p) => p.id === activeId) ?? programs[0];
+
+    return (
+        <section id="parcours" className="band-light section border-border border-y">
+            <div className="section-container">
+                <SectionHeading
+                    eyebrow="Formations"
+                    title="Nos parcours"
+                    subtitle="Chaque parcours mène à des compétences et des débouchés qui lui sont propres."
+                />
+
+                <div className="grid gap-8 lg:grid-cols-12">
+                    <nav className="lg:col-span-4">
+                        {/* Défilement horizontal sur mobile, colonne sur grand
+                            écran : la liste reste accessible dans les deux cas. */}
+                        <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-0 lg:overflow-visible lg:pb-0">
+                            {programs.map((program) => {
+                                const isActive = program.id === active.id;
+                                return (
+                                    <button
+                                        key={program.id}
+                                        onClick={() => setActiveId(program.id)}
+                                        aria-current={isActive}
+                                        className={`shrink-0 border px-5 py-4 text-left text-sm font-bold lg:w-full lg:shrink lg:border-b-0 lg:last:border-b ${
+                                            isActive
+                                                ? 'bg-primary text-primary-foreground border-primary'
+                                                : 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground'
+                                        }`}
+                                    >
+                                        {program.title}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </nav>
+
+                    <motion.div
+                        key={active.id}
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="lg:col-span-8"
+                    >
+                        <h3 className="text-foreground mb-4 text-2xl md:text-3xl">
+                            {active.title}
+                        </h3>
+
+                        {active.description ? (
+                            <p className="text-muted-foreground mb-8 leading-relaxed">
+                                {active.description}
+                            </p>
+                        ) : null}
+
+                        <div className="grid gap-5 md:grid-cols-2">
+                            {active.competences ? (
+                                <DetailBlock
+                                    icon={<GraduationCap className="h-5 w-5" />}
+                                    title="Compétences acquises"
+                                    body={active.competences}
+                                />
+                            ) : null}
+
+                            {active.debouches ? (
+                                <DetailBlock
+                                    icon={<Briefcase className="h-5 w-5" />}
+                                    title="Débouchés"
+                                    body={active.debouches}
+                                />
+                            ) : null}
+                        </div>
+                    </motion.div>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+export default function DepartmentShow({ department, cms }: Props) {
+    return (
+        <CmsProvider content={cms}>
+            <Head title={department.name} />
+            <ThemeProvider>
+                <div className="flex min-h-screen flex-col overflow-x-hidden">
+                    <Navbar />
+
+                    <main className="flex-1">
+                        <Hero department={department} />
+
+                        {department.programs.length > 0 ? (
+                            <Programs programs={department.programs} />
+                        ) : null}
+
+                        <section className="band-dark section">
+                            <div className="section-container text-center">
+                                <h2 className="text-foreground text-2xl md:text-3xl">
+                                    Intéressé par cette mention ?
+                                </h2>
+                                <p className="text-muted-foreground mx-auto mt-4 max-w-xl">
+                                    Contactez-nous pour tout savoir sur les
+                                    modalités d'inscription.
+                                </p>
+
+                                <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                                    <Link
+                                        href="/#contact"
+                                        className="bg-primary text-primary-foreground inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold uppercase"
+                                    >
+                                        Nous contacter
+                                        <ArrowRight className="h-4 w-4" />
+                                    </Link>
+
+                                    <Link
+                                        href="/#filiere"
+                                        className="border-border text-foreground hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-2 border px-8 py-3.5 text-sm font-bold uppercase"
+                                    >
+                                        Voir les autres mentions
+                                    </Link>
+                                </div>
+                            </div>
+                        </section>
+                    </main>
+
+                    <Footer />
+                </div>
+            </ThemeProvider>
+        </CmsProvider>
     );
 }

@@ -1,11 +1,15 @@
 import type { ChatDto } from '@/features/chat/chat.dto';
-import type { EventDto } from '@/features/strapi/event.dto';
-import { chatGemini, strapiRepo } from '@/injection';
+import { chatGemini } from '@/injection';
 import { useEffect, useRef, useState } from 'react';
 
+/**
+ * État du chatbot de la page d'accueil.
+ *
+ * Les événements et les annonces ne transitent plus par ici : ils sont fournis
+ * par le serveur via les props Inertia. Les appels Strapi qui les alimentaient
+ * pointaient vers une adresse invalide et échouaient à chaque chargement.
+ */
 export const useLanding = () => {
-    const [event, setEvent] = useState<EventDto[]>([]);
-
     const [isOpen, setIsOpen] = useState(false);
     const [messagesList, setMessagesList] = useState<ChatDto[]>([
         {
@@ -15,9 +19,6 @@ export const useLanding = () => {
     ]);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
-
-    const [isAnnonce, setIsAnnonce] = useState<boolean>(false);
-    const [annonce, setAnnonce] = useState('');
 
     const refFinMessages = useRef<HTMLDivElement>(null);
     const scrollToBottom = () => {
@@ -60,33 +61,7 @@ export const useLanding = () => {
         setLoading(false);
     };
 
-    const fetchAnnonce = async () => {
-        const result = await strapiRepo.getAnnonce();
-        if (result.status == 'failure') return;
-
-        setAnnonce(result.data);
-        setIsAnnonce(true);
-    };
-
-    const fetchEvent = async () => {
-        const result = await strapiRepo.getEvent();
-
-        if (result.status == 'failure') return;
-
-        setEvent(result.data);
-    };
-
-    useEffect(() => {
-        const callFetchEvent = async () => {
-            await fetchEvent();
-            await fetchAnnonce();
-        };
-
-        callFetchEvent();
-    }, []);
-
     return {
-        event,
         loading,
         isOpen,
         messagesList,
@@ -95,7 +70,5 @@ export const useLanding = () => {
         message,
         setMessage,
         refFinMessages,
-        isAnnonce,
-        annonce,
     };
 };

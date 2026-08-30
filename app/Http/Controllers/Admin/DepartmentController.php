@@ -30,7 +30,6 @@ class DepartmentController extends Controller
             'slug'        => 'required|string|max:100|unique:departments',
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'color'       => 'nullable|string|max:20',
             'logo'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'hero_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'is_visible'  => 'boolean',
@@ -61,7 +60,6 @@ class DepartmentController extends Controller
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'color'       => 'nullable|string|max:20',
             'logo'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'hero_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'is_visible'  => 'boolean',

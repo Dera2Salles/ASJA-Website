@@ -1,213 +1,100 @@
-import Image2 from '@/assets/AGROLOGO-quality.png';
-import Dark from '@/assets/AGROLOGODARK-quality.png';
-import Image3 from '@/assets/DROITLOGO-quality.png';
-import Dark3 from '@/assets/DROITLOGODARK.png';
-import Image6 from '@/assets/ECOLOGO-quality.png';
-import Dark6 from '@/assets/ECOLOGODARK-quality.png';
-import Image from '@/assets/INFOLOGO-quality.png';
-import Dark2 from '@/assets/INFOLOGODARK.png';
-import Dark5 from '@/assets/LCLOGODARK-quality.png';
-import Image5 from '@/assets/LEALOGO.png';
-import Image4 from '@/assets/STLOGO-quality.png';
-import Dark4 from '@/assets/STLOGODARK-quality.png';
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-} from '@/components/ui/carousel';
+import { cmsImage, useSection } from '@/lib/cms';
+import { departmentLogo } from '@/lib/department-logos';
 import { useThemeContext } from '@/page/theme/useThemeContext';
-import Autoplay from 'embla-carousel-autoplay';
+import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { useCallback, useEffect, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { SectionHeading } from './section-heading';
 
-interface ItemProps {
-    mention: string;
-    image: string;
-    darkImage: string;
-    link: string;
-}
+type Department = {
+    id: number;
+    slug: string;
+    name: string;
+    logo: string | null;
+};
 
-const filieres: ItemProps[] = [
-    {
-        mention: 'SCIENCES AGRONOMIQUES',
-        image: Image2,
-        darkImage: Dark,
-        link: '/mention/agronomie',
-    },
-    {
-        mention: 'INFORMATIQUE',
-        image: Image,
-        darkImage: Dark2,
-        link: '/mention/informatique',
-    },
-    {
-        mention: 'DROIT',
-        image: Image3,
-        darkImage: Dark3,
-        link: '/mention/droit',
-    },
-    {
-        mention: 'SCIENCES DE LA TERRE',
-        image: Image4,
-        darkImage: Dark4,
-        link: '/mention/science-de-la-terre',
-    },
-    {
-        mention: 'LANGUES ETRANGERES APPLIQUEES',
-        image: Image5,
-        darkImage: Dark5,
-        link: '/mention/langue-etrangere-applique',
-    },
-    {
-        mention: 'ECONOMIE ET COMMERCE',
-        image: Image6,
-        darkImage: Dark6,
-        link: '/mention/economie',
-    },
-];
-
-const ItemCard: React.FC<Omit<ItemProps, 'link'> & { isDark: boolean }> = ({
-    mention,
-    image,
-    darkImage,
+const MentionCard = ({
+    department,
+    index,
     isDark,
+}: {
+    department: Department;
+    index: number;
+    isDark: boolean;
 }) => {
+    const logo = cmsImage(
+        department.logo,
+        departmentLogo(department.slug, isDark),
+    );
+
     return (
-        <div className="group relative transform overflow-hidden rounded-2xl shadow-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl">
-            <img
-                className="object-cover"
-                src={isDark ? darkImage : image}
-                alt={mention}
-            />
-        </div>
+        <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5, delay: index * 0.07, ease: 'easeOut' }}
+        >
+            <Link
+                href={`/mention/${department.slug}`}
+                className="border-border bg-card hover:bg-primary group flex h-full flex-col items-center border p-7 text-center"
+            >
+                {logo ? (
+                    <div className="mb-5 flex h-24 w-24 items-center justify-center">
+                        <img
+                            src={logo}
+                            alt=""
+                            className="max-h-full max-w-full object-contain"
+                        />
+                    </div>
+                ) : null}
+
+                <h3 className="text-foreground group-hover:text-primary-foreground text-base font-bold">
+                    {department.name}
+                </h3>
+
+                <span className="text-primary-foreground mt-4 hidden items-center gap-1 text-sm font-bold uppercase group-hover:inline-flex">
+                    Découvrir
+                    <ArrowUpRight className="h-4 w-4" />
+                </span>
+            </Link>
+        </motion.div>
     );
 };
 
 export const FiliereSection = () => {
     const { isDark } = useThemeContext();
+    const programs = useSection('programs');
+
+    // Les mentions proviennent de la base : leurs adresses sont donc toujours
+    // valides, contrairement à l'ancienne liste écrite en dur.
+    const { departments } = usePage().props as unknown as {
+        departments?: Department[];
+    };
+
+    const list = departments ?? [];
+
+    if (list.length === 0) return null;
 
     return (
-        <div
-            id="filiere"
-            className="bg-gray-100 py-16 transition-colors duration-300 dark:bg-zinc-900"
-        >
-            <div className="container mx-auto px-4">
-                <motion.div
-                    initial={{ y: -50, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                    viewport={{ amount: 0.2, once: true }}
-                    className="mb-12 text-center"
-                >
-                    <h1 className="text-4xl font-bold text-green-700 md:text-5xl dark:text-green-500">
-                        NOS MENTIONS
-                    </h1>
-                    <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-300">
-                        L'ASJA propose 6 domaines de formations pour préparer
-                        les leaders de demain.
-                    </p>
-                </motion.div>
+        <section id="filiere" className="band-light section">
+            <div className="section-container">
+                <SectionHeading
+                    eyebrow={String(programs.eyebrow ?? '')}
+                    title={String(programs.title ?? '')}
+                    subtitle={String(programs.subtitle ?? '')}
+                />
 
-                <div className="hidden grid-cols-1 gap-8 md:grid md:grid-cols-2 lg:grid-cols-3">
-                    {filieres.map((filiere, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ y: 50, opacity: 0 }}
-                            whileInView={{ y: 0, opacity: 1 }}
-                            transition={{
-                                duration: 0.5,
-                                delay: index * 0.1,
-                                ease: 'easeOut',
-                            }}
-                            viewport={{ amount: 0.2, once: true }}
-                            onClick={() =>
-                                (window.location.href = filiere.link)
-                            }
-                            className="cursor-pointer"
-                        >
-                            <ItemCard {...filiere} isDark={isDark} />
-                        </motion.div>
+                <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-6">
+                    {list.map((department, index) => (
+                        <MentionCard
+                            key={department.id}
+                            department={department}
+                            index={index}
+                            isDark={isDark}
+                        />
                     ))}
                 </div>
-
-                <div className="md:hidden">
-                    <FiliereSectionCarousel isDark={isDark} />
-                </div>
             </div>
-        </div>
-    );
-};
-
-const FiliereSectionCarousel = ({ isDark }: { isDark: boolean }) => {
-    const [api, setApi] = useState<any>(null);
-    const [current, setCurrent] = useState(0);
-    const [count, setCount] = useState(0);
-
-    const updateCarouselState = useCallback(() => {
-        if (api) {
-            setCount(api.scrollSnapList().length);
-            setCurrent(api.selectedScrollSnap());
-        }
-    }, [api]);
-
-    useEffect(() => {
-        if (!api) return;
-
-        updateCarouselState();
-        api.on('select', updateCarouselState);
-        api.on('reInit', updateCarouselState);
-
-        return () => {
-            api.off('select', updateCarouselState);
-        };
-    }, [api, updateCarouselState]);
-
-    return (
-        <>
-            <Carousel
-                setApi={setApi}
-                plugins={[
-                    Autoplay({
-                        delay: 3000,
-                        stopOnInteraction: true,
-                        stopOnMouseEnter: true,
-                    }),
-                ]}
-                opts={{
-                    loop: true,
-                    align: 'start',
-                }}
-                className="w-full"
-            >
-                <CarouselContent>
-                    {filieres.map((filiere, index) => (
-                        <CarouselItem
-                            key={index}
-                            onClick={() =>
-                                (window.location.href = filiere.link)
-                            }
-                        >
-                            <div className="p-1">
-                                <ItemCard {...filiere} isDark={isDark} />
-                            </div>
-                        </CarouselItem>
-                    ))}
-                </CarouselContent>
-            </Carousel>
-            <div className="mt-6 flex items-center justify-center space-x-3">
-                {Array.from({ length: count }).map((_, index) => (
-                    <button
-                        key={index}
-                        onClick={() => api?.scrollTo(index)}
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                            index === current
-                                ? 'w-6 bg-green-600 dark:bg-green-500'
-                                : 'w-2 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500'
-                        }`}
-                        aria-label={`Go to slide ${index + 1}`}
-                    />
-                ))}
-            </div>
-        </>
+        </section>
     );
 };

@@ -1,132 +1,284 @@
+import { CmsProvider, useSection, type CmsContent } from '@/lib/cms';
+import {
+    formatDate,
+    formatEventPeriod,
+    POST_TYPE_LABELS,
+    postImage,
+    type Post,
+    type PostType,
+} from '@/lib/posts';
 import { Head, Link } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import { ArrowRight, CalendarDays, MapPin, Pin } from 'lucide-react';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
+import { SectionHeading } from '../../page/landing/components/section-heading';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
 
-interface BlogPost {
-    id: number;
-    title: string;
-    slug: string;
-    cover_image: string | null;
-    category: string | null;
-    published_at: string | null;
-    author: { name: string };
-}
-
 interface Paginated {
-    data: BlogPost[];
+    data: Post[];
     current_page: number;
     last_page: number;
     total: number;
 }
 
-export default function BlogIndex({ posts }: { posts: Paginated }) {
+interface Props {
+    posts: Paginated;
+    filters: { type: PostType | null };
+    counts: Record<string, number>;
+    cms: CmsContent;
+}
+
+const FILTERS: { key: PostType | null; label: string; countKey: string }[] = [
+    { key: null, label: 'Tout', countKey: 'all' },
+    { key: 'article', label: 'Articles', countKey: 'article' },
+    { key: 'annonce', label: 'Annonces', countKey: 'annonce' },
+    { key: 'evenement', label: 'Événements', countKey: 'evenement' },
+];
+
+/** Repère de date : période pour un événement, date de parution sinon. */
+function dateLine(post: Post): { icon: React.ReactNode; text: string } | null {
+    if (post.type === 'evenement' && post.event_start_at) {
+        return {
+            icon: <CalendarDays className="h-3.5 w-3.5" />,
+            text: formatEventPeriod(post),
+        };
+    }
+
+    const text = formatDate(post.published_at);
+    return text ? { icon: null, text } : null;
+}
+
+const PostCard = ({
+    post,
+    index,
+    featured = false,
+}: {
+    post: Post;
+    index: number;
+    featured?: boolean;
+}) => {
+    const image = postImage(post);
+    const date = dateLine(post);
+
     return (
-        <ThemeProvider>
-            <Head title="Blog & Actualités - ASJA" />
-            <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-zinc-900">
-                <Navbar />
-                <main className="mt-20 flex-1">
-                    <div className="mx-auto max-w-6xl px-4 py-12">
-                        <div className="mb-12 text-center">
-                            <h1 className="mb-4 text-4xl font-black text-gray-900 md:text-5xl dark:text-white">
-                                Actualités & Événements
-                            </h1>
-                            <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">
-                                Restez informé de la vie de l'ASJA à travers nos
-                                derniers articles.
-                            </p>
-                        </div>
+        <motion.article
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ duration: 0.45, delay: Math.min(index, 5) * 0.06 }}
+            className={featured ? 'md:col-span-2 lg:col-span-3' : ''}
+        >
+            <Link
+                href={`/actualites/${post.slug}`}
+                className={`border-border bg-card group flex h-full border ${
+                    featured ? 'flex-col md:flex-row' : 'flex-col'
+                }`}
+            >
+                <div
+                    className={`bg-muted relative overflow-hidden ${
+                        featured
+                            ? 'md:w-1/2 md:shrink-0 aspect-[16/10] md:aspect-auto'
+                            : 'aspect-[16/10]'
+                    }`}
+                >
+                    {image ? (
+                        <img
+                            src={image}
+                            alt=""
+                            className="h-full w-full object-cover"
+                        />
+                    ) : null}
 
-                        {posts.data.length === 0 && (
-                            <div className="py-20 text-center text-gray-500">
-                                Aucun article publié pour le moment.
-                            </div>
-                        )}
+                    <span className="bg-primary text-primary-foreground absolute top-0 left-0 px-3 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase">
+                        {POST_TYPE_LABELS[post.type] ?? 'Publication'}
+                    </span>
+                </div>
 
-                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                            {posts.data.map((post) => (
-                                <Link
-                                    key={post.id}
-                                    href={route('blog.show', post.slug)}
-                                    className="group flex flex-col overflow-hidden rounded-2xl bg-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl dark:bg-zinc-800"
-                                >
-                                    <div className="aspect-video w-full overflow-hidden bg-gray-100 dark:bg-zinc-700">
-                                        {post.cover_image ? (
-                                            <img
-                                                src={`/storage/${post.cover_image}`}
-                                                alt={post.title}
-                                                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center text-5xl text-gray-400">
-                                                📰
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-1 flex-col p-6">
-                                        <div className="mb-3 flex items-center gap-3">
-                                            {post.category && (
-                                                <span className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
-                                                    {post.category}
-                                                </span>
-                                            )}
-                                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                {post.published_at &&
-                                                    new Date(
-                                                        post.published_at,
-                                                    ).toLocaleDateString(
-                                                        'fr-FR',
-                                                        {
-                                                            year: 'numeric',
-                                                            month: 'long',
-                                                            day: 'numeric',
-                                                        },
-                                                    )}
-                                            </span>
-                                        </div>
-                                        <h2 className="mb-2 line-clamp-2 text-xl font-bold text-gray-900 dark:text-white">
-                                            {post.title}
-                                        </h2>
-                                        <div className="mb-3 text-sm text-gray-500 dark:text-gray-400">
-                                            Par {post.author?.name}
-                                        </div>
-                                        <div className="mt-auto flex items-center pt-4 text-sm font-medium text-indigo-600 group-hover:underline dark:text-indigo-400">
-                                            Lire la suite →
-                                        </div>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
+                <div
+                    className={`flex flex-1 flex-col p-6 ${featured ? 'md:p-9' : ''}`}
+                >
+                    <div className="text-muted-foreground mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
+                        {post.is_pinned ? (
+                            <span className="text-primary inline-flex items-center gap-1">
+                                <Pin className="h-3 w-3" />
+                                Épinglé
+                            </span>
+                        ) : null}
 
-                        {}
-                        {posts.last_page > 1 && (
-                            <div className="mt-12 flex justify-center gap-2">
-                                {Array.from(
-                                    { length: posts.last_page },
-                                    (_, i) => i + 1,
-                                ).map((page) => (
+                        {date ? (
+                            <span className="inline-flex items-center gap-1.5">
+                                {date.icon}
+                                {date.text}
+                            </span>
+                        ) : null}
+
+                        {post.category ? (
+                            <span className="text-primary">{post.category}</span>
+                        ) : null}
+                    </div>
+
+                    <h2
+                        className={`text-foreground group-hover:text-primary font-bold ${
+                            featured ? 'text-2xl md:text-3xl' : 'text-lg'
+                        }`}
+                    >
+                        {post.title}
+                    </h2>
+
+                    {post.excerpt ? (
+                        <p
+                            className={`text-muted-foreground mt-3 leading-relaxed ${
+                                featured ? 'line-clamp-4' : 'line-clamp-3 text-sm'
+                            }`}
+                        >
+                            {post.excerpt}
+                        </p>
+                    ) : null}
+
+                    {post.location ? (
+                        <p className="text-muted-foreground mt-3 inline-flex items-center gap-1.5 text-xs">
+                            <MapPin className="h-3.5 w-3.5" />
+                            {post.location}
+                        </p>
+                    ) : null}
+
+                    <span className="text-primary mt-auto inline-flex items-center gap-1.5 pt-6 text-xs font-bold uppercase">
+                        Lire
+                        <ArrowRight className="h-3.5 w-3.5" />
+                    </span>
+                </div>
+            </Link>
+        </motion.article>
+    );
+};
+
+function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
+    const blog = useSection('blog');
+    const activeType = filters.type ?? null;
+
+    // Sur la première page sans filtre, la publication la plus récente occupe
+    // toute la largeur : elle donne un point d'entrée clair à la page.
+    const showFeatured = posts.current_page === 1 && !activeType;
+
+    return (
+        <div className="flex min-h-screen flex-col overflow-x-hidden">
+            <Navbar />
+
+            <main className="flex-1">
+                <section className="band-light section border-border border-b">
+                    <div className="section-container">
+                        <SectionHeading
+                            eyebrow={String(blog.eyebrow ?? 'Actualités')}
+                            title={String(blog.title ?? 'Actualités & Annonces')}
+                            subtitle={String(blog.subtitle ?? '')}
+                        />
+
+                        <div className="mb-12 flex flex-wrap justify-center gap-2">
+                            {FILTERS.map((filter) => {
+                                const isActive = activeType === filter.key;
+                                const count = counts[filter.countKey] ?? 0;
+
+                                // Un filtre sans publication n'est pas proposé.
+                                if (count === 0 && filter.key !== null) return null;
+
+                                return (
                                     <Link
-                                        key={page}
+                                        key={filter.label}
                                         href={
-                                            route('blog.index') +
-                                            `?page=${page}`
+                                            filter.key
+                                                ? `/actualites?type=${filter.key}`
+                                                : '/actualites'
                                         }
-                                        className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                                            page === posts.current_page
-                                                ? 'bg-indigo-600 text-white'
-                                                : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-zinc-800 dark:text-gray-300 dark:hover:bg-zinc-700'
+                                        className={`border px-5 py-2.5 text-xs font-bold tracking-wide uppercase ${
+                                            isActive
+                                                ? 'bg-primary text-primary-foreground border-primary'
+                                                : 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground'
                                         }`}
                                     >
-                                        {page}
+                                        {filter.label}
+                                        <span className="ml-2 opacity-60">
+                                            {count}
+                                        </span>
                                     </Link>
+                                );
+                            })}
+                        </div>
+
+                        {posts.data.length === 0 ? (
+                            <div className="border-border border border-dashed py-24 text-center">
+                                <h3 className="text-foreground text-lg font-bold">
+                                    Aucune publication
+                                </h3>
+                                <p className="text-muted-foreground mt-2 text-sm">
+                                    Revenez bientôt pour suivre l'actualité de
+                                    l'ASJA.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                {posts.data.map((post, index) => (
+                                    <PostCard
+                                        key={post.id}
+                                        post={post}
+                                        index={index}
+                                        featured={showFeatured && index === 0}
+                                    />
                                 ))}
                             </div>
                         )}
+
+                        {posts.last_page > 1 ? (
+                            <nav
+                                aria-label="Pagination"
+                                className="mt-14 flex flex-wrap justify-center gap-2"
+                            >
+                                {Array.from(
+                                    { length: posts.last_page },
+                                    (_, i) => i + 1,
+                                ).map((page) => {
+                                    const params = new URLSearchParams();
+                                    if (activeType) params.set('type', activeType);
+                                    if (page > 1) params.set('page', String(page));
+                                    const query = params.toString();
+
+                                    return (
+                                        <Link
+                                            key={page}
+                                            href={`/actualites${query ? `?${query}` : ''}`}
+                                            aria-current={
+                                                page === posts.current_page
+                                                    ? 'page'
+                                                    : undefined
+                                            }
+                                            className={`flex h-11 w-11 items-center justify-center border text-sm font-bold ${
+                                                page === posts.current_page
+                                                    ? 'bg-primary text-primary-foreground border-primary'
+                                                    : 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground'
+                                            }`}
+                                        >
+                                            {page}
+                                        </Link>
+                                    );
+                                })}
+                            </nav>
+                        ) : null}
                     </div>
-                </main>
-                <Footer />
-            </div>
-        </ThemeProvider>
+                </section>
+            </main>
+
+            <Footer />
+        </div>
+    );
+}
+
+export default function BlogIndex({ cms, ...props }: Props) {
+    return (
+        <CmsProvider content={cms}>
+            <Head title="Actualités" />
+            <ThemeProvider>
+                <BlogIndexContent {...props} />
+            </ThemeProvider>
+        </CmsProvider>
     );
 }

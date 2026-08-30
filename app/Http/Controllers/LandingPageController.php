@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BlogPost;
-use App\Models\ComponentData;
 use App\Models\Department;
+use App\Models\Post;
 use App\Models\Testimony;
+use App\Support\Cms;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,38 +13,21 @@ class LandingPageController extends Controller
 {
     public function index(): Response
     {
-        $sections = ['hero', 'about', 'contact', 'stats', 'programs', 'gallery', 'blog'];
-
-        $componentData = [];
-        foreach ($sections as $section) {
-            $componentData[$section] = ComponentData::forSection($section);
-        }
+        $postColumns = ['id', 'title', 'slug', 'type', 'excerpt', 'cover_image',
+            'category', 'published_at', 'event_start_at', 'event_end_at', 'location'];
 
         return Inertia::render('LandingPage', [
-            'componentData' => $componentData,
-            'testimonies'   => Testimony::where('is_visible', true)->get(),
-            'blogPosts'     => BlogPost::published()->take(6)->get(['id', 'title', 'slug', 'cover_image', 'category', 'published_at']),
-            'departments'   => Department::where('is_visible', true)->orderBy('sort_order')->get(['id', 'slug', 'name', 'logo', 'color']),
-        ]);
-    }
+            // Contenu éditable, déjà fusionné avec les valeurs par défaut.
+            'cms' => Cms::all(),
 
-    public function blogPost(string $slug): Response
-    {
-        $post = BlogPost::where('slug', $slug)->where('is_published', true)->firstOrFail();
+            'testimonies' => Testimony::where('is_visible', true)->get(),
+            'departments' => Department::where('is_visible', true)
+                ->orderBy('sort_order')
+                ->get(['id', 'slug', 'name', 'logo']),
 
-        return Inertia::render('BlogPostPage', [
-            'post' => $post->load('author:id,name'),
-        ]);
-    }
-
-    public function blog(): Response
-    {
-        $posts = BlogPost::published()
-            ->with('author:id,name')
-            ->paginate(12);
-
-        return Inertia::render('Blog/Index', [
-            'posts' => $posts,
+            'posts' => Post::published()->ofType(Post::TYPE_ARTICLE)->take(6)->get($postColumns),
+            'events' => Post::published()->ofType(Post::TYPE_EVENEMENT)->take(4)->get($postColumns),
+            'announcements' => Post::published()->ofType(Post::TYPE_ANNONCE)->take(3)->get($postColumns),
         ]);
     }
 }

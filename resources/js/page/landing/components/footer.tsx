@@ -1,12 +1,17 @@
 import Logo from '@/assets/Logo/asja-logo.png';
+import { useSection } from '@/lib/cms';
+import { Link as InertiaLink, usePage } from '@inertiajs/react';
 import 'leaflet/dist/leaflet.css';
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import { Link } from 'react-scroll';
+import { Link as ScrollTo } from 'react-scroll';
 
-const asjaPosition: [number, number] = [-19.814068, 47.070135];
+type Department = { id: number; slug: string; name: string };
 
-const FooterSection = ({
+const linkClass =
+    'text-muted-foreground hover:text-primary cursor-pointer text-sm';
+
+const FooterColumn = ({
     title,
     children,
 }: {
@@ -14,10 +19,10 @@ const FooterSection = ({
     children: React.ReactNode;
 }) => (
     <div>
-        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-foreground mb-4 text-xs font-semibold tracking-[0.14em] uppercase">
             {title}
         </h3>
-        <div className="space-y-3">{children}</div>
+        <div className="flex flex-col gap-2.5">{children}</div>
     </div>
 );
 
@@ -31,96 +36,117 @@ const InfoItem = ({
     href?: string;
 }) => {
     const content = (
-        <div className="flex items-center gap-3 text-gray-600 transition-all duration-500 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500">
-            <span className="text-green-700 transition-all duration-500 dark:text-green-500">
-                {icon}
-            </span>
+        <span className="text-muted-foreground group-hover:text-primary flex items-start gap-2.5 text-sm">
+            <span className="text-primary mt-0.5 shrink-0">{icon}</span>
             <span>{text}</span>
-        </div>
+        </span>
     );
 
     return href ? (
-        <a href={href} target="_blank" rel="noopener noreferrer">
+        <a
+            href={href}
+            target={href.startsWith('http') ? '_blank' : undefined}
+            rel="noopener noreferrer"
+            className="group"
+        >
             {content}
         </a>
     ) : (
-        content
+        <span className="group">{content}</span>
     );
 };
 
-const QuickLink = ({
-    to,
-    children,
-}: {
-    to: string;
-    children: React.ReactNode;
-}) => (
-    <Link
-        to={to}
-        spy={true}
-        smooth={true}
-        offset={-80}
-        duration={500}
-        className="cursor-pointer text-gray-600 transition-all duration-500 hover:text-green-700 dark:text-gray-300 dark:hover:text-green-500"
-    >
-        {children}
-    </Link>
-);
-
 export const Footer = () => {
+    const contact = useSection('contact');
+
+    const { departments } = usePage().props as unknown as {
+        departments?: Department[];
+    };
+
+    const latitude = Number(contact.latitude ?? 0);
+    const longitude = Number(contact.longitude ?? 0);
+    const hasPosition = Number.isFinite(latitude) && Number.isFinite(longitude)
+        && !(latitude === 0 && longitude === 0);
+
+    const email = String(contact.email ?? '');
+    const phone = String(contact.phone ?? '');
+    const facebook = String(contact.facebook ?? '');
+
     return (
-        <footer
-            id="contact"
-            className="border-t-2 border-gray-200 bg-gray-100 text-gray-800 transition-all duration-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
-        >
-            <div className="container mx-auto px-4 py-16">
-                <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
-                    <div className="flex flex-col items-center text-center md:items-start md:text-left">
+        <footer id="contact" className="band-dark border-border border-t">
+            <div className="section-container py-16">
+                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+                    <div>
                         <img
-                            className="mb-4 h-24 w-24"
+                            className="mb-4 h-16 w-16 object-contain"
                             src={Logo}
-                            alt="Logo de l'université ASJA"
+                            alt=""
                         />
-                        <h2 className="text-xl font-bold text-gray-900 transition-all duration-500 dark:text-white">
+                        <p className="font-display text-foreground text-lg font-bold">
                             Université ASJA
-                        </h2>
-                        <p className="mt-2 text-gray-500 transition-all duration-500 dark:text-gray-400">
-                            Formation d'excellence pour un avenir brillant.
+                        </p>
+                        <p className="text-muted-foreground mt-2 max-w-xs text-sm leading-relaxed">
+                            {String(contact.tagline ?? '')}
                         </p>
                     </div>
 
-                    <FooterSection title="Liens Rapides">
-                        <QuickLink to="mission">Notre Mission</QuickLink>
-                        <QuickLink to="filiere">Nos Filières</QuickLink>
-                        <QuickLink to="events">Événements</QuickLink>
-                        <QuickLink to="temoignages">Témoignages</QuickLink>
-                    </FooterSection>
+                    <FooterColumn title="Navigation">
+                        <ScrollTo to="mission" spy smooth offset={-80} duration={500} className={linkClass}>
+                            Notre mission
+                        </ScrollTo>
+                        <ScrollTo to="filiere" spy smooth offset={-80} duration={500} className={linkClass}>
+                            Nos mentions
+                        </ScrollTo>
+                        <ScrollTo to="systeme" spy smooth offset={-80} duration={500} className={linkClass}>
+                            Système pédagogique
+                        </ScrollTo>
+                        <InertiaLink href="/actualites" className={linkClass}>
+                            Actualités & événements
+                        </InertiaLink>
+                    </FooterColumn>
 
-                    <FooterSection title="Contactez-nous">
-                        <InfoItem
-                            icon={<Phone size={20} />}
-                            text="034 49 483 19"
-                        />
-                        <InfoItem
-                            icon={<Mail size={20} />}
-                            text="asja@moov.mg"
-                            href="mailto:asja@moov.mg"
-                        />
-                        <InfoItem
-                            icon={<MapPin size={20} />}
-                            text="Antsaha, Antsirabe, Madagascar"
-                        />
-                        <InfoItem
-                            icon={<Facebook size={20} />}
-                            text="Suivez-nous sur Facebook"
-                            href="https://www.facebook.com/UniversiteASJA"
-                        />
-                    </FooterSection>
+                    <FooterColumn title="Mentions">
+                        {(departments ?? []).map((dept) => (
+                            <InertiaLink
+                                key={dept.id}
+                                href={`/mention/${dept.slug}`}
+                                className={linkClass}
+                            >
+                                {dept.name}
+                            </InertiaLink>
+                        ))}
+                    </FooterColumn>
 
-                    <div className="h-64 w-full overflow-hidden rounded-2xl shadow-lg md:h-full">
+                    <FooterColumn title="Contact">
+                        {phone ? <InfoItem icon={<Phone size={16} />} text={phone} /> : null}
+                        {email ? (
+                            <InfoItem
+                                icon={<Mail size={16} />}
+                                text={email}
+                                href={`mailto:${email}`}
+                            />
+                        ) : null}
+                        {contact.address ? (
+                            <InfoItem
+                                icon={<MapPin size={16} />}
+                                text={String(contact.address)}
+                            />
+                        ) : null}
+                        {facebook ? (
+                            <InfoItem
+                                icon={<Facebook size={16} />}
+                                text="Suivez-nous sur Facebook"
+                                href={facebook}
+                            />
+                        ) : null}
+                    </FooterColumn>
+                </div>
+
+                {hasPosition ? (
+                    <div className="border-border mt-12 h-64 w-full overflow-hidden border">
                         <MapContainer
-                            className="z-10 h-full w-full"
-                            center={asjaPosition}
+                            className="z-0 h-full w-full"
+                            center={[latitude, longitude]}
                             zoom={15}
                             scrollWheelZoom={false}
                         >
@@ -128,20 +154,18 @@ export const Footer = () => {
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                            <Marker position={asjaPosition}>
-                                <Popup>Athénée Saint Joseph Antsirabe</Popup>
+                            <Marker position={[latitude, longitude]}>
+                                <Popup>Université ASJA</Popup>
                             </Marker>
                         </MapContainer>
                     </div>
-                </div>
+                ) : null}
             </div>
 
-            <div className="bg-gray-200 py-4 transition-all duration-500 dark:bg-zinc-800">
-                <div className="container mx-auto px-4 text-center text-sm text-gray-500 transition-all duration-500 dark:text-gray-400">
-                    <p>
-                        © {new Date().getFullYear()} Université ASJA. Tous
-                        droits réservés.
-                    </p>
+            <div className="border-border border-t">
+                <div className="section-container text-muted-foreground py-5 text-center text-xs">
+                    © {new Date().getFullYear()} Université ASJA. Tous droits
+                    réservés.
                 </div>
             </div>
         </footer>

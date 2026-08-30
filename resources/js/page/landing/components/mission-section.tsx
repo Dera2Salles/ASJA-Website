@@ -1,109 +1,82 @@
-import Image from '@/assets/Image-evenement/event-diplome_master-quality.jpg';
-import Image2 from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
+import missionImage from '@/assets/Image-evenement/event-diplome_master-quality.jpg';
+import objectifImage from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
+import { cmsImage, cmsList, useSection } from '@/lib/cms';
 import { easeOut, motion } from 'framer-motion';
+import { SectionHeading } from './section-heading';
 
-interface MissionCardProps {
+type MissionItem = {
     title: string;
     description: string;
-    image: string;
-    alt: string;
-    delay: number;
-}
+    image?: string;
+};
+
+/** Visuels livrés avec le site, utilisés tant que le CMS n'en fournit pas. */
+const fallbackImages = [missionImage, objectifImage];
 
 const MissionCard = ({
-    title,
-    description,
-    image,
-    alt,
-    delay,
-}: MissionCardProps) => {
-    const cardVariants = {
-        hidden: { y: 50, opacity: 0 },
-        visible: {
-            y: 0,
-            opacity: 1,
-            transition: { duration: 0.7, delay, ease: easeOut },
-        },
-    };
+    item,
+    index,
+}: {
+    item: MissionItem;
+    index: number;
+}) => {
+    const isEven = index % 2 === 0;
 
     return (
-        <motion.div
-            variants={cardVariants}
-            initial="hidden"
-            whileInView="visible"
+        <motion.article
+            initial={{ y: 40, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
             viewport={{ amount: 0.2, once: true }}
-            className="transform overflow-hidden rounded-2xl bg-white shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl dark:bg-zinc-800"
+            transition={{ duration: 0.6, delay: index * 0.12, ease: easeOut }}
+            className={`border-border bg-card group overflow-hidden border flex flex-col hover:bg-primary transition-colors duration-200 ${
+                isEven ? 'md:flex-row' : 'md:flex-row-reverse'
+            }`}
         >
-            <div className="relative h-64 w-full">
+            <div className="relative aspect-[16/10] w-full md:aspect-auto md:w-2/5 shrink-0 overflow-hidden">
                 <img
-                    src={image}
-                    alt={alt}
+                    src={cmsImage(
+                        item.image,
+                        fallbackImages[index % fallbackImages.length],
+                    )}
+                    alt=""
                     className="h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
             </div>
-            <div className="p-8">
-                <h3 className="mb-4 text-2xl font-bold text-green-700 dark:text-green-500">
-                    {title}
+            <div className="flex-1 p-7 md:p-10 flex flex-col justify-center">
+                <h3 className="text-primary group-hover:text-primary-foreground mb-4 text-xl font-bold md:text-2xl font-display">
+                    {item.title}
                 </h3>
-                <p className="text-lg leading-relaxed text-gray-700 dark:text-gray-300">
-                    {description}
+                <p className="text-muted-foreground group-hover:text-primary-foreground leading-relaxed text-sm md:text-base">
+                    {item.description}
                 </p>
             </div>
-        </motion.div>
+        </motion.article>
     );
 };
 
 export const MissionSection = () => {
-    const missions = [
-        {
-            title: 'Notre Mission',
-            description:
-                "L'Athénée Saint Joseph Antsirabe (ASJA) fonde son projet éducatif sur l'excellence académique, la discipline, la foi et l'engagement social. Sa mission est d'offrir une formation complète (savoir, savoir-faire, savoir-être) en alliant rigueur, solidarité et créativité.",
-            image: Image,
-            alt: "Étudiants diplômés de master de l'ASJA en toge",
-        },
-        {
-            title: 'Notre Objectif',
-            description:
-                "Notre vision pour une université moderne et ancrée nationalement repose sur six piliers : assurer une formation de haut niveau adaptée au marché du travail et à la mondialisation ; encourager la recherche scientifique et l'innovation au service du développement ; développer les compétences des étudiants via des stages et des projets concrets.",
-            image: Image2,
-            alt: "Bibliothèque de l'université ASJA avec des étudiants",
-        },
-    ];
+    const mission = useSection('mission');
+    const items = cmsList<MissionItem>(mission.items);
 
     return (
-        <div
-            id="mission"
-            className="bg-gray-50 py-16 transition-colors duration-300 md:py-24 dark:bg-zinc-900"
-        >
-            <div className="container mx-auto px-4">
-                <motion.div
-                    initial={{ y: -50, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.7, ease: 'easeOut' }}
-                    viewport={{ amount: 0.2, once: true }}
-                    className="mb-12 text-center md:mb-16"
-                >
-                    <h1 className="text-4xl font-bold text-green-700 md:text-5xl dark:text-green-500">
-                        Notre Engagement Éducatif
-                    </h1>
-                    <p className="mx-auto mt-4 max-w-3xl text-lg text-gray-600 dark:text-gray-300">
-                        Former des esprits brillants et des citoyens
-                        responsables, prêts à relever les défis de demain.
-                    </p>
-                </motion.div>
+        <section id="mission" className="band-dark section border-border border-y">
+            <div className="section-container">
+                <SectionHeading
+                    eyebrow={String(mission.eyebrow ?? '')}
+                    title={String(mission.title ?? '')}
+                    subtitle={String(mission.subtitle ?? '')}
+                />
 
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:gap-12">
-                    {missions.map((mission, index) => (
+                <div className="flex flex-col gap-8">
+                    {items.map((item, index) => (
                         <MissionCard
-                            key={index}
-                            {...mission}
-                            delay={index * 0.2}
+                            key={`${item.title}-${index}`}
+                            item={item}
+                            index={index}
                         />
                     ))}
                 </div>
             </div>
-        </div>
+        </section>
     );
 };

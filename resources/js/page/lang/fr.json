@@ -4,6 +4,7 @@
         "accueil": "Accueil",
         "apropos": "A propos",
         "filieres": "Mention",
+        "blog": "Blog",
         "contact": "Contact",
         "intranet": "intranet"
     },
@@ -12,6 +13,7 @@
         "mission": "MISSION",
         "filieres": "FILIERES",
         "events": "EVENEMENTS",
+        "blog": "BLOG",
         "systeme": "SYSTEME PEDAGOGIQUE",
         "temoignages": "TEMOINAGE",
         "FAQ": "FAQ",
