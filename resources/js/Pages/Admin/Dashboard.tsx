@@ -1,9 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { cn } from '@/lib/utils';
+import {
+    formatDate,
+    POST_TYPE_LABELS,
+    postImage,
+    type Post,
+} from '@/lib/posts';
 import { PageProps } from '@/types';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import {
     ArrowRight,
@@ -13,7 +16,6 @@ import {
     Plus,
     Users,
 } from 'lucide-react';
-import { AdminBlogCard } from './components/AdminBlogCard';
 
 interface DashboardStats {
     posts: number;
@@ -27,195 +29,160 @@ export default function DashboardPage({
     recentPosts = [],
 }: {
     stats: DashboardStats;
-    recentPosts: any[];
+    recentPosts: Post[];
 }) {
     const { auth } = usePage<PageProps>().props;
-    const { delete: destroy } = useForm();
 
-    const handleDelete = (id: number) => {
-        if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
-            destroy(route('admin.blog.destroy', id), {
-                preserveScroll: true,
-            });
-        }
-    };
-
-    const STATS = [
+    const cards = [
         {
-            title: 'Articles de Blog',
-            value: stats?.posts || 0,
+            title: 'Publications',
+            value: stats?.posts ?? 0,
             icon: FileText,
-            color: 'asja-green-600',
-            bg: 'bg-asja-green-50 dark:bg-asja-green-900/20',
+            href: route('admin.posts.index'),
         },
         {
-            title: 'Étudiants Inscrits',
-            value: stats?.students || 0,
+            title: 'Étudiants',
+            value: stats?.students ?? 0,
             icon: Users,
-            color: 'blue-600',
-            bg: 'bg-blue-50 dark:bg-blue-900/20',
+            href: route('admin.students.index'),
         },
         {
             title: 'Témoignages',
-            value: stats?.testimonies || 0,
+            value: stats?.testimonies ?? 0,
             icon: MessageSquare,
-            color: 'amber-600',
-            bg: 'bg-amber-50 dark:bg-amber-900/20',
+            href: route('admin.testimonies.index'),
         },
         {
-            title: 'Départements',
-            value: stats?.departments || 0,
+            title: 'Mentions',
+            value: stats?.departments ?? 0,
             icon: Building2,
-            color: 'rose-600',
-            bg: 'bg-rose-50 dark:bg-rose-900/20',
+            href: route('admin.departments.index'),
         },
     ];
 
     return (
         <AdminLayout>
-            <div className="space-y-12">
-                <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="space-y-1"
-                    >
-                        <h1 className="text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
-                            Ravi de vous revoir,{' '}
-                            <span className="text-asja-green-600 dark:text-primary decoration-asja-green-500/20 underline decoration-8 underline-offset-8">
-                                {auth.user.name}
-                            </span>
-                        </h1>
-                        <p className="text-muted-foreground text-lg font-medium">
-                            Voici un aperçu de l'activité de l'université
-                            aujourd'hui.
-                        </p>
-                    </motion.div>
+            <Head title="Tableau de bord" />
 
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
+            <div className="space-y-10 pb-16">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h1 className="text-foreground text-3xl">
+                            Bonjour, {auth.user.name}
+                        </h1>
+                        <p className="text-muted-foreground mt-2 text-sm">
+                            Aperçu de l'activité du site.
+                        </p>
+                    </div>
+
+                    <Link
+                        href={route('admin.posts.create')}
+                        className="bg-primary text-primary-foreground border-border hover:bg-background hover:text-primary inline-flex items-center gap-2 self-start border px-4 py-2.5 text-sm font-bold uppercase"
                     >
-                        <Link href={route('admin.blog.create')}>
-                            <Button className="dark:bg-primary hover:shadow-primary/30 group h-14 gap-3 rounded-[2rem] bg-slate-900 px-8 font-black text-white shadow-2xl transition-all hover:scale-105 active:scale-95">
-                                <Plus
-                                    size={22}
-                                    strokeWidth={3}
-                                    className="transition-transform group-hover:rotate-90"
-                                />
-                                Nouvel Article
-                            </Button>
-                        </Link>
-                    </motion.div>
+                        <Plus className="h-4 w-4" />
+                        Nouvelle publication
+                    </Link>
                 </div>
 
-                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                    {STATS.map((stat, i) => (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {cards.map((card, i) => (
                         <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 20 }}
+                            key={card.title}
+                            initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
+                            transition={{ delay: i * 0.06 }}
                         >
-                            <Card className="glass group relative overflow-hidden rounded-[2.5rem] border-none p-4 transition-all hover:-translate-y-2 hover:shadow-2xl">
-                                <div
-                                    className={cn(
-                                        'absolute top-[-10%] right-[-10%] h-32 w-32 rounded-full opacity-20 blur-3xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-60',
-                                        stat.bg,
-                                    )}
-                                />
-
-                                <CardHeader className="relative z-10 flex flex-row items-center justify-between p-4 pb-4">
-                                    <div className="flex flex-col gap-1">
-                                        <CardTitle className="text-muted-foreground text-[10px] font-black tracking-[3px] whitespace-nowrap uppercase">
-                                            {stat.title}
-                                        </CardTitle>
-                                        <div className="text-glow mt-2 text-5xl font-black tracking-tighter">
-                                            {stat.value}
-                                        </div>
-                                    </div>
-                                    <div
-                                        className={cn(
-                                            'rounded-2xl border border-white/50 bg-white/80 p-4 shadow-xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 dark:border-white/5 dark:bg-white/5',
-                                            `text-${stat.color}`,
-                                        )}
-                                    >
-                                        <stat.icon
-                                            size={28}
-                                            strokeWidth={2.5}
-                                        />
-                                    </div>
-                                </CardHeader>
-                            </Card>
+                            <Link
+                                href={card.href}
+                                className="border-border bg-card hover:bg-primary group flex items-center justify-between border p-5"
+                            >
+                                <div>
+                                    <p className="text-muted-foreground group-hover:text-primary-foreground text-xs font-bold tracking-wider uppercase">
+                                        {card.title}
+                                    </p>
+                                    <p className="text-foreground group-hover:text-primary-foreground font-display mt-1.5 text-3xl font-bold">
+                                        {card.value}
+                                    </p>
+                                </div>
+                                <div className="border-border bg-background text-foreground group-hover:bg-accent group-hover:text-accent-foreground border p-3">
+                                    <card.icon className="h-5 w-5" />
+                                </div>
+                            </Link>
                         </motion.div>
                     ))}
                 </div>
 
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="h-8 w-2 rounded-full bg-green-600" />
-                            <h2 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white">
-                                Articles récents
-                            </h2>
-                        </div>
+                <div>
+                    <div className="mb-5 flex items-center justify-between">
+                        <h2 className="text-foreground text-xl">
+                            Publications récentes
+                        </h2>
                         <Link
-                            href={route('admin.blog.index')}
-                            className="group flex items-center gap-2 text-sm font-black tracking-wider text-green-600 uppercase transition-colors hover:text-green-700 dark:text-green-500"
+                            href={route('admin.posts.index')}
+                            className="text-primary group inline-flex items-center gap-1 text-sm font-bold uppercase hover:underline"
                         >
-                            Voir tout le blog
-                            <ArrowRight
-                                size={16}
-                                strokeWidth={3}
-                                className="transition-transform group-hover:translate-x-1"
-                            />
+                            Voir tout
+                            <ArrowRight className="h-3.5 w-3.5" />
                         </Link>
                     </div>
 
                     {recentPosts.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                            {recentPosts.map((post, index) => (
-                                <motion.div
-                                    key={post.id}
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    transition={{ delay: index * 0.05 }}
-                                >
-                                    <AdminBlogCard
-                                        post={post}
-                                        onDelete={handleDelete}
-                                    />
-                                </motion.div>
-                            ))}
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            {recentPosts.map((post) => {
+                                const image = postImage(post);
+                                return (
+                                    <Link
+                                        key={post.id}
+                                        href={route('admin.posts.edit', post.id)}
+                                        className="border-border bg-card hover:bg-primary group overflow-hidden border"
+                                    >
+                                        <div className="bg-muted aspect-[16/9] overflow-hidden">
+                                            {image ? (
+                                                <img
+                                                    src={image}
+                                                    alt=""
+                                                    className="h-full w-full object-cover grayscale group-hover:grayscale-0"
+                                                />
+                                            ) : null}
+                                        </div>
+                                        <div className="p-4">
+                                            <p className="text-muted-foreground group-hover:text-primary-foreground mb-1.5 text-xs font-bold tracking-wider uppercase">
+                                                {POST_TYPE_LABELS[post.type] ??
+                                                    'Publication'}
+                                            </p>
+                                            <h3 className="text-foreground group-hover:text-primary-foreground truncate font-bold">
+                                                {post.title}
+                                            </h3>
+                                            <p className="text-muted-foreground group-hover:text-primary-foreground mt-1 text-xs">
+                                                {post.published_at
+                                                    ? formatDate(post.published_at)
+                                                    : 'Brouillon'}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                );
+                            })}
                         </div>
                     ) : (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="rounded-[3rem] border-4 border-dashed border-gray-100 bg-white/50 p-16 text-center dark:border-zinc-900 dark:bg-zinc-900/30"
-                        >
-                            <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gray-50 text-gray-200 dark:bg-zinc-800 dark:text-zinc-700">
-                                <FileText
-                                    className="h-12 w-12"
-                                    strokeWidth={1}
-                                />
-                            </div>
-                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">
-                                Votre blog est vide
+                        <div className="border-border border border-dashed py-16 text-center">
+                            <FileText
+                                className="text-muted-foreground mx-auto mb-4 h-10 w-10"
+                                strokeWidth={1.5}
+                            />
+                            <h3 className="text-foreground font-semibold">
+                                Aucune publication
                             </h3>
-                            <p className="mx-auto mt-2 max-w-sm font-medium text-gray-500 dark:text-zinc-500">
+                            <p className="text-muted-foreground mx-auto mt-1.5 max-w-sm text-sm">
                                 Partagez les actualités de l'université avec vos
-                                étudiants dès maintenant.
+                                étudiants.
                             </p>
                             <Link
-                                href={route('admin.blog.create')}
-                                className="mt-8 inline-block"
+                                href={route('admin.posts.create')}
+                                className="text-primary mt-6 inline-block text-sm font-semibold hover:underline"
                             >
-                                <Button className="h-12 rounded-2xl bg-green-600 px-8 font-black text-white shadow-lg shadow-green-600/20 transition-all hover:bg-green-700 active:scale-95">
-                                    Créer mon premier article
-                                </Button>
+                                Créer la première publication
                             </Link>
-                        </motion.div>
+                        </div>
                     )}
                 </div>
             </div>

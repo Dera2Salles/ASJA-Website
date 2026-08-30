@@ -2,10 +2,8 @@ import Logo from '@/assets/Logo/asja-logo.png';
 import { cn } from '@/lib/utils';
 import { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
 import {
     Building2,
-    ChevronRight,
     FileText,
     Home,
     LayoutDashboard,
@@ -28,9 +26,9 @@ const MENU_ITEMS = [
                 href: 'admin.dashboard',
             },
             {
-                title: 'Blog / Actualités',
+                title: 'Publications',
                 icon: FileText,
-                href: 'admin.blog.index',
+                href: 'admin.posts.index',
             },
         ],
     },
@@ -48,7 +46,7 @@ const MENU_ITEMS = [
                 href: 'admin.students.index',
             },
             {
-                title: 'Départements',
+                title: 'Mentions',
                 icon: Building2,
                 href: 'admin.departments.index',
             },
@@ -95,14 +93,13 @@ export function AdminSidebar() {
     return (
         <aside
             className={cn(
-                'relative sticky top-0 z-40 flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-500 ease-in-out dark:border-zinc-800 dark:bg-zinc-950',
+                'band-dark border-border relative sticky top-0 z-40 flex h-screen flex-col border-r',
                 isCollapsed ? 'w-24' : 'w-80',
             )}
         >
-            {}
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute top-12 -right-3 z-50 flex h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 shadow-sm transition-all hover:text-green-600 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:text-green-400"
+                className="border-border bg-background text-foreground hover:bg-primary hover:text-primary-foreground absolute top-12 -right-3 z-50 flex h-8 w-8 items-center justify-center border"
             >
                 {isCollapsed ? (
                     <PanelLeftOpen size={14} />
@@ -111,14 +108,13 @@ export function AdminSidebar() {
                 )}
             </button>
 
-            {}
             <div
                 className={cn(
-                    'flex h-24 items-center px-6 transition-all duration-500',
+                    'border-border flex h-20 items-center border-b px-6',
                     isCollapsed ? 'justify-center' : 'justify-start gap-3',
                 )}
             >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-50 p-2 shadow-inner dark:bg-green-900/20">
+                <div className="border-border bg-primary flex h-10 w-10 shrink-0 items-center justify-center border p-1">
                     <img
                         src={Logo}
                         alt="ASJA Logo"
@@ -126,27 +122,22 @@ export function AdminSidebar() {
                     />
                 </div>
                 {!isCollapsed && (
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="flex flex-col overflow-hidden"
-                    >
-                        <span className="text-lg leading-tight font-black tracking-tight text-gray-900 dark:text-white">
+                    <div className="flex flex-col overflow-hidden">
+                        <span className="text-foreground text-base leading-tight font-bold tracking-tight">
                             ASJA
                         </span>
-                        <span className="text-[10px] font-bold tracking-widest text-green-600 uppercase dark:text-green-400">
+                        <span className="text-primary font-mono text-[10px] font-bold tracking-wider uppercase">
                             Administration
                         </span>
-                    </motion.div>
+                    </div>
                 )}
             </div>
 
-            {}
             <nav className="scrollbar-none flex-1 space-y-8 overflow-x-hidden overflow-y-auto px-4 py-4">
                 {MENU_ITEMS.map((group, idx) => (
                     <div key={idx} className="space-y-2">
                         {!isCollapsed && (
-                            <p className="px-4 text-[10px] font-black tracking-[2px] text-gray-400 uppercase dark:text-zinc-600">
+                            <p className="text-muted-foreground px-4 font-mono text-[10px] font-bold tracking-wider uppercase">
                                 {group.group}
                             </p>
                         )}
@@ -158,52 +149,24 @@ export function AdminSidebar() {
                                         key={item.href}
                                         href={route(item.href)}
                                         className={cn(
-                                            'group relative flex items-center rounded-2xl px-4 py-3.5 transition-all duration-300',
+                                            'group border-border relative flex items-center border px-4 py-3',
                                             isActive
-                                                ? 'bg-green-50 text-green-700 shadow-sm shadow-green-900/5 dark:bg-green-900/10 dark:text-green-400'
-                                                : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-zinc-500 dark:hover:bg-zinc-900/50 dark:hover:text-zinc-200',
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'border-transparent text-foreground hover:border-border hover:bg-accent hover:text-accent-foreground',
                                         )}
                                     >
-                                        <item.icon
-                                            className={cn(
-                                                'h-5 w-5 flex-shrink-0 transition-transform duration-300 group-hover:scale-110',
-                                                isActive
-                                                    ? 'text-green-600 dark:text-green-500'
-                                                    : 'group-hover:text-green-500',
-                                            )}
-                                        />
+                                        <item.icon className="h-5 w-5 shrink-0" />
 
                                         {!isCollapsed && (
-                                            <motion.div
-                                                initial={{ opacity: 0, x: -10 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                className="ml-4 flex flex-1 items-center justify-between"
-                                            >
-                                                <span className="text-sm font-bold tracking-tight">
-                                                    {item.title}
-                                                </span>
-                                                {isActive && (
-                                                    <ChevronRight
-                                                        size={14}
-                                                        className="text-green-600/50"
-                                                    />
-                                                )}
-                                            </motion.div>
+                                            <span className="ml-4 flex-1 text-sm font-bold tracking-tight">
+                                                {item.title}
+                                            </span>
                                         )}
 
-                                        {}
                                         {isCollapsed && (
-                                            <div className="absolute left-full z-50 ml-4 hidden rounded-lg bg-gray-900 px-3 py-2 text-xs font-bold whitespace-nowrap text-white shadow-xl group-hover:block">
+                                            <div className="border-border bg-background text-foreground absolute left-full z-50 ml-2 hidden border px-3 py-2 text-xs font-bold whitespace-nowrap group-hover:block">
                                                 {item.title}
                                             </div>
-                                        )}
-
-                                        {}
-                                        {isActive && (
-                                            <motion.div
-                                                layoutId="active-nav-indicator"
-                                                className="absolute left-0 h-8 w-1.5 rounded-r-full bg-green-600 shadow-[0_0_10px_rgba(22,163,74,0.4)] dark:bg-green-500"
-                                            />
                                         )}
                                     </Link>
                                 );
@@ -213,24 +176,23 @@ export function AdminSidebar() {
                 ))}
             </nav>
 
-            {}
-            <div className="border-t border-gray-100 p-4 dark:border-zinc-900">
+            <div className="border-border border-t p-4">
                 <div
                     className={cn(
-                        'flex flex-col gap-2 rounded-3xl border border-gray-100 bg-gray-50/50 p-2 transition-all dark:border-zinc-800/50 dark:bg-zinc-900/30',
+                        'border-border flex flex-col gap-2 border p-2',
                         isCollapsed ? 'items-center' : 'items-stretch',
                     )}
                 >
                     {!isCollapsed && (
                         <div className="flex items-center gap-3 p-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-gray-100 bg-white text-green-600 shadow-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-green-400">
-                                <User size={22} strokeWidth={2.5} />
+                            <div className="border-border text-primary flex h-10 w-10 shrink-0 items-center justify-center border">
+                                <User size={20} strokeWidth={2} />
                             </div>
                             <div className="min-w-0">
-                                <p className="mb-1 truncate text-sm leading-none font-black text-gray-900 dark:text-white">
+                                <p className="text-foreground mb-1 truncate text-sm leading-none font-bold">
                                     {user?.name}
                                 </p>
-                                <p className="truncate text-[10px] font-bold tracking-tighter text-gray-400 uppercase">
+                                <p className="text-muted-foreground truncate font-mono text-[10px] font-bold tracking-tight uppercase">
                                     Administrateur
                                 </p>
                             </div>
@@ -246,8 +208,8 @@ export function AdminSidebar() {
                         <Link
                             href={route('home')}
                             className={cn(
-                                'flex h-11 items-center justify-center rounded-2xl border border-transparent text-gray-500 transition-all hover:border-gray-100 hover:bg-white hover:text-green-600 hover:shadow-sm dark:hover:border-zinc-700 dark:hover:bg-zinc-800',
-                                isCollapsed ? 'w-11' : 'flex-1',
+                                'border-border text-foreground hover:bg-primary hover:text-primary-foreground flex h-10 items-center justify-center border',
+                                isCollapsed ? 'w-10' : 'flex-1',
                             )}
                             title="Voir le site"
                         >
@@ -257,13 +219,13 @@ export function AdminSidebar() {
                         <button
                             onClick={() => router.post(route('logout'))}
                             className={cn(
-                                'flex h-11 items-center justify-center rounded-2xl border border-transparent bg-white/50 text-gray-500 transition-all hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600 dark:bg-transparent dark:hover:border-rose-900/30 dark:hover:bg-rose-950/20',
-                                isCollapsed ? 'w-11' : 'flex-1 gap-2',
+                                'border-border text-foreground hover:bg-destructive hover:text-destructive-foreground flex h-10 items-center justify-center border',
+                                isCollapsed ? 'w-10' : 'flex-1 gap-2',
                             )}
                         >
                             <LogOut size={18} />
                             {!isCollapsed && (
-                                <span className="text-xs font-black tracking-wider uppercase">
+                                <span className="font-mono text-xs font-bold tracking-wide uppercase">
                                     Sortir
                                 </span>
                             )}

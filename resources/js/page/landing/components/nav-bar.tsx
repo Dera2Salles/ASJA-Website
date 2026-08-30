@@ -8,9 +8,19 @@ import {
 } from '@/components/ui/navigation-menu';
 import { useLangue } from '@/page/lang/useLang';
 import { useThemeContext } from '@/page/theme/useThemeContext';
-import { MenuIcon, Moon, Sun, X } from 'lucide-react';
+import { Link as InertiaLink, usePage } from '@inertiajs/react';
+import {
+    CalendarDays,
+    ClipboardList,
+    FileText,
+    MenuIcon,
+    Moon,
+    Newspaper,
+    Sun,
+    X,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-scroll';
+import { Link as ScrollTo } from 'react-scroll';
 import { useScrollLock } from '../hooks/useScrollLock';
 import { AnnonceSection } from './annonce-section';
 
@@ -24,31 +34,39 @@ const homeSections = [
     { to: 'FAQ', key: 'sectionAccueilNavbar.FAQ' },
 ];
 
-const filiereLinks = [
-    { href: '/mention/agronomie', key: 'filiereSection.AGRO.name' },
-    { href: '/mention/informatique', key: 'filiereSection.INFO.name' },
-    { href: '/mention/droit', key: 'filiereSection.DROIT.name' },
-    { href: '/mention/economie', key: 'filiereSection.ECO.name' },
-    {
-        href: '/mention/langue-etrangere-applique',
-        key: 'filiereSection.LEA.name',
-    },
-    { href: '/mention/science-de-la-terre', key: 'filiereSection.ST.name' },
+/**
+ * Accès rapide étudiant : les trois premières fonctionnalités attendent
+ * encore leur module dédié côté backend, elles renvoient donc vers la
+ * connexion (comme le reste de l'espace étudiant protégé).
+ */
+const quickLinks = [
+    { label: 'Emploi du temps', href: '/login', icon: CalendarDays },
+    { label: 'Notes', href: '/login', icon: FileText },
+    { label: 'Inscriptions', href: '/login', icon: ClipboardList },
+    { label: 'Actualités', href: '/actualites', icon: Newspaper },
 ];
 
+type Department = { id: number; slug: string; name: string };
+
+/**
+ * Les mentions viennent de la base : les slugs sont donc toujours ceux qui
+ * existent réellement. L'ancienne liste écrite en dur pointait vers deux
+ * adresses inexistantes (404).
+ */
+function useDepartments(): Department[] {
+    const { departments } = usePage().props as unknown as {
+        departments?: Department[];
+    };
+    return departments ?? [];
+}
+
+const menuItemClass =
+    'block w-full cursor-pointer border-b border-transparent px-4 py-2 text-left text-sm text-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground';
+
 export const Navbar = () => {
-    const [open, setOpen] = useState<boolean>(false);
-    const [scrolled, setScrolled] = useState<boolean>(false);
+    const [open, setOpen] = useState(false);
     const { toggleTheme, isDark } = useThemeContext();
     const { translate } = useLangue();
-
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     useEffect(() => {
         const handleResize = () => {
@@ -58,128 +76,156 @@ export const Navbar = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const handleFiliereClick = (href: string) => {
-        window.location.href = href;
-        setOpen(false);
-    };
-    const handleLogoClick = () => (window.location.href = '/');
-
     useScrollLock(open);
 
     return (
         <header className="fixed top-0 left-0 z-50 w-full">
             <AnnonceSection />
-            <nav
-                className={`transition-all duration-300 ${
-                    scrolled
-                        ? 'bg-white/80 shadow-lg backdrop-blur-sm dark:bg-zinc-900/80'
-                        : 'bg-transparent'
-                }`}
-            >
-                <div className="container mx-auto flex items-center justify-between p-4">
-                    <div
-                        className="flex cursor-pointer items-center gap-3"
-                        onClick={handleLogoClick}
+            <QuickAccessBar />
+            <nav className="bg-background border-border border-b">
+                <div className="section-container flex items-center justify-between py-3">
+                    <InertiaLink
+                        href="/"
+                        className="flex items-center gap-3"
+                        aria-label="Accueil ASJA"
                     >
                         <img
-                            className="h-12 w-12"
+                            className="h-11 w-11 object-contain"
                             src={Logo}
-                            alt="Logo de l'université ASJA"
+                            alt=""
                         />
-                        <h1 className="hidden text-lg font-bold text-gray-900 sm:block dark:text-white">
+                        <span className="font-display text-foreground hidden text-base font-bold tracking-tight sm:block">
                             {translate('universite')}
-                        </h1>
-                    </div>
+                        </span>
+                    </InertiaLink>
 
-                    <div className="hidden items-center gap-2 md:flex">
-                        <DesktopNav onFiliereClick={handleFiliereClick} />
-                        <button
-                            className="cursor-pointer rounded-full p-2 text-gray-700 transition-colors hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-zinc-700"
-                            onClick={toggleTheme}
-                            aria-label="Toggle theme"
-                        >
-                            {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                        </button>
+                    <div className="hidden items-center gap-1 md:flex">
+                        <DesktopNav />
+                        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
                     </div>
 
                     <button
                         onClick={() => setOpen(true)}
-                        className="p-2 text-gray-800 md:hidden dark:text-white"
-                        aria-label="Open menu"
+                        className="text-foreground border-border border p-2 md:hidden"
+                        aria-label="Ouvrir le menu"
                     >
-                        <MenuIcon size={28} />
+                        <MenuIcon size={24} />
                     </button>
                 </div>
             </nav>
-            <MobileNav
-                open={open}
-                setOpen={setOpen}
-                onFiliereClick={handleFiliereClick}
-            />
+            <MobileNav open={open} setOpen={setOpen} />
         </header>
     );
 };
 
-const DesktopNav = ({
-    onFiliereClick,
+/**
+ * Barre d'accès direct : la fonctionnalité que l'étudiant vient chercher en
+ * premier ne doit jamais être à plus d'un clic, quelle que soit la page.
+ */
+const QuickAccessBar = () => (
+    <div className="bg-foreground text-background hidden md:block">
+        <div className="section-container flex items-stretch divide-x-2 divide-background/0">
+            {quickLinks.map(({ label, href, icon: Icon }) => (
+                <InertiaLink
+                    key={label}
+                    href={href}
+                    className="border-background flex flex-1 items-center justify-center gap-2 border-r py-2 font-mono text-xs font-bold tracking-widest uppercase last:border-r-0 hover:bg-primary hover:text-primary-foreground"
+                >
+                    <Icon size={14} />
+                    {label}
+                </InertiaLink>
+            ))}
+        </div>
+    </div>
+);
+
+const ThemeToggle = ({
+    isDark,
+    onToggle,
 }: {
-    onFiliereClick: (href: string) => void;
-}) => {
+    isDark: boolean;
+    onToggle: () => void;
+}) => (
+    <button
+        onClick={onToggle}
+        aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
+        className="text-foreground border-border ml-2 cursor-pointer border p-2 hover:bg-accent hover:text-accent-foreground"
+    >
+        {isDark ? <Sun size={18} /> : <Moon size={18} />}
+    </button>
+);
+
+const DesktopNav = () => {
     const { translate } = useLangue();
-    const isHomePage = window.location.pathname === '/';
+    const departments = useDepartments();
+    const isHomePage = usePage().url.split('?')[0] === '/';
+
+    const triggerClass =
+        'bg-transparent text-sm font-bold uppercase tracking-wide text-foreground hover:bg-accent hover:text-accent-foreground';
 
     return (
         <NavigationMenu>
             <NavigationMenuList>
-                <NavItem trigger={translate('navBar.accueil')}>
-                    {homeSections.map((item) => (
+                <NavItem
+                    trigger={translate('navBar.accueil')}
+                    className={triggerClass}
+                >
+                    {homeSections.map((item) =>
                         isHomePage ? (
                             <ScrollLink key={item.to} to={item.to}>
                                 {translate(item.key)}
                             </ScrollLink>
                         ) : (
-                            <button
+                            <InertiaLink
                                 key={item.to}
-                                onClick={() => (window.location.href = `/#${item.to}`)}
-                                className="block w-full cursor-pointer rounded-md px-4 py-2 text-left text-gray-800 transition-colors duration-200 hover:bg-gray-100 dark:text-white dark:hover:bg-zinc-700"
+                                href={`/#${item.to}`}
+                                className={menuItemClass}
                             >
                                 {translate(item.key)}
-                            </button>
-                        )
-                    ))}
+                            </InertiaLink>
+                        ),
+                    )}
                 </NavItem>
-                <NavItem trigger={translate('navBar.filieres')}>
-                    {filiereLinks.map((item) => (
-                        <FiliereLink
-                            key={item.href}
-                            onClick={() => onFiliereClick(item.href)}
+
+                <NavItem
+                    trigger={translate('navBar.filieres')}
+                    className={triggerClass}
+                >
+                    {departments.map((dept) => (
+                        <InertiaLink
+                            key={dept.id}
+                            href={`/mention/${dept.slug}`}
+                            className={menuItemClass}
                         >
-                            {translate(item.key)}
-                        </FiliereLink>
+                            {dept.name}
+                        </InertiaLink>
                     ))}
                 </NavItem>
 
                 <NavigationMenuItem>
-                    <button
-                        onClick={() => (window.location.href = '/blog')}
-                        className="group inline-flex h-10 w-max cursor-pointer items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:text-white dark:hover:bg-zinc-700"
+                    <InertiaLink
+                        href="/actualites"
+                        className={`inline-flex h-10 items-center px-4 py-2 ${triggerClass}`}
                     >
                         {translate('navBar.blog')}
-                    </button>
+                    </InertiaLink>
                 </NavigationMenuItem>
 
                 <NavigationMenuItem>
                     {isHomePage ? (
-                        <ScrollLink to="contact">
+                        <ScrollLink
+                            to="contact"
+                            className={`inline-flex h-10 cursor-pointer items-center px-4 py-2 ${triggerClass}`}
+                        >
                             {translate('navBar.contact')}
                         </ScrollLink>
                     ) : (
-                        <button
-                            onClick={() => (window.location.href = '/#contact')}
-                            className="group inline-flex h-10 w-max cursor-pointer items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-100 focus:outline-none disabled:pointer-events-none disabled:opacity-50 dark:text-white dark:hover:bg-zinc-700"
+                        <InertiaLink
+                            href="/#contact"
+                            className={`inline-flex h-10 items-center px-4 py-2 ${triggerClass}`}
                         >
                             {translate('navBar.contact')}
-                        </button>
+                        </InertiaLink>
                     )}
                 </NavigationMenuItem>
             </NavigationMenuList>
@@ -190,106 +236,125 @@ const DesktopNav = ({
 const MobileNav = ({
     open,
     setOpen,
-    onFiliereClick,
 }: {
     open: boolean;
     setOpen: (open: boolean) => void;
-    onFiliereClick: (href: string) => void;
 }) => {
     const { translate } = useLangue();
     const { toggleTheme, isDark } = useThemeContext();
-    const handleLinkClick = () => setOpen(false);
-    const isHomePage = window.location.pathname === '/';
+    const departments = useDepartments();
+    const isHomePage = usePage().url.split('?')[0] === '/';
+    const close = () => setOpen(false);
 
     return (
         <div
             className={`fixed inset-0 z-50 md:hidden ${open ? 'block' : 'hidden'}`}
         >
+            <div className="fixed inset-0 bg-black" onClick={close} />
             <div
-                className="fixed inset-0 bg-black/50"
-                onClick={() => setOpen(false)}
-            />
-            <div
-                className="fixed top-0 left-0 h-full w-80 bg-white shadow-xl transition-transform duration-300 ease-in-out dark:bg-zinc-900"
+                className="bg-background border-border fixed top-0 left-0 flex h-full w-80 max-w-[85vw] flex-col border-r"
                 style={{
                     transform: open ? 'translateX(0)' : 'translateX(-100%)',
                 }}
             >
-                <div className="flex items-center justify-between border-b p-4 dark:border-zinc-700">
-                    <h1 className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="border-border flex items-center justify-between border-b p-4">
+                    <span className="font-display text-foreground text-base font-bold">
                         Menu
-                    </h1>
-                    <div
-                        onClick={toggleTheme}
-                        className="mt-4 flex items-center justify-between rounded-full bg-gray-100 p-3 dark:bg-zinc-800"
-                    >
-                        <div className="p-2 text-green-700">
-                            {isDark ? <Sun size={20} /> : <Moon size={20} />}
-                        </div>
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={toggleTheme}
+                            aria-label={
+                                isDark
+                                    ? 'Passer en mode clair'
+                                    : 'Passer en mode sombre'
+                            }
+                            className="text-foreground border-border border p-2"
+                        >
+                            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
+                        <button
+                            onClick={close}
+                            aria-label="Fermer le menu"
+                            className="text-foreground border-border border p-2"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
-                    <button onClick={() => setOpen(false)} className="p-2">
-                        <X
-                            size={24}
-                            className="text-gray-700 dark:text-gray-300"
-                        />
-                    </button>
                 </div>
 
-                <div className="flex h-full flex-col">
-                    <div className="flex-1 space-y-4 overflow-y-auto p-4">
-                        <NavSection title={translate('navBar.accueil')}>
-                            {homeSections.map((item) => (
-                                isHomePage ? (
-                                    <Link
-                                        key={item.to}
-                                        to={item.to}
-                                        spy
-                                        smooth
-                                        offset={-50}
-                                        duration={500}
-                                        onClick={handleLinkClick}
-                                        activeClass="text-green-600 dark:text-green-400 font-semibold"
-                                        className="block py-2 text-gray-700 dark:text-gray-300"
-                                    >
-                                        {translate(item.key)}
-                                    </Link>
-                                ) : (
-                                    <button
-                                        key={item.to}
-                                        onClick={() => (window.location.href = `/#${item.to}`)}
-                                        className="block w-full py-2 text-left text-gray-700 dark:text-gray-300"
-                                    >
-                                        {translate(item.key)}
-                                    </button>
-                                )
-                            ))}
-                        </NavSection>
-                        <NavSection title={translate('navBar.filieres')}>
-                            {filiereLinks.map((item) => (
-                                <button
-                                    key={item.href}
-                                    onClick={() => onFiliereClick(item.href)}
-                                    className="block w-full py-2 text-left text-gray-700 dark:text-gray-300"
+                <div className="border-border grid grid-cols-2 border-b">
+                    {quickLinks.map(({ label, href, icon: Icon }) => (
+                        <InertiaLink
+                            key={label}
+                            href={href}
+                            onClick={close}
+                            className="border-border text-foreground flex flex-col items-center gap-1.5 border-r border-b p-3 text-center font-mono text-[11px] font-bold tracking-wide uppercase odd:border-r even:border-r-0 hover:bg-primary hover:text-primary-foreground"
+                        >
+                            <Icon size={18} />
+                            {label}
+                        </InertiaLink>
+                    ))}
+                </div>
+
+                <div className="flex-1 space-y-5 overflow-y-auto p-4">
+                    <NavSection title={translate('navBar.accueil')}>
+                        {homeSections.map((item) =>
+                            isHomePage ? (
+                                <ScrollTo
+                                    key={item.to}
+                                    to={item.to}
+                                    spy
+                                    smooth
+                                    offset={-70}
+                                    duration={500}
+                                    onClick={close}
+                                    activeClass="text-primary font-bold"
+                                    className="text-foreground hover:text-primary block cursor-pointer py-2 text-sm"
                                 >
                                     {translate(item.key)}
-                                </button>
-                            ))}
-                        </NavSection>
+                                </ScrollTo>
+                            ) : (
+                                <InertiaLink
+                                    key={item.to}
+                                    href={`/#${item.to}`}
+                                    onClick={close}
+                                    className="text-foreground hover:text-primary block py-2 text-sm"
+                                >
+                                    {translate(item.key)}
+                                </InertiaLink>
+                            ),
+                        )}
+                    </NavSection>
 
-                        <button
-                            onClick={() => (window.location.href = '/blog')}
-                            className="block w-full py-2 text-left font-semibold text-gray-800 dark:text-white"
-                        >
-                            {translate('navBar.blog')}
-                        </button>
+                    <NavSection title={translate('navBar.filieres')}>
+                        {departments.map((dept) => (
+                            <InertiaLink
+                                key={dept.id}
+                                href={`/mention/${dept.slug}`}
+                                onClick={close}
+                                className="text-foreground hover:text-primary block py-2 text-sm"
+                            >
+                                {dept.name}
+                            </InertiaLink>
+                        ))}
+                    </NavSection>
 
-                        <button
-                            onClick={() => (window.location.href = isHomePage ? '#contact' : '/#contact')}
-                            className="block w-full py-2 text-left font-semibold text-gray-800 dark:text-white"
-                        >
-                            {translate('navBar.contact')}
-                        </button>
-                    </div>
+                    <InertiaLink
+                        href="/actualites"
+                        onClick={close}
+                        className="text-foreground block py-2 text-sm font-bold"
+                    >
+                        {translate('navBar.blog')}
+                    </InertiaLink>
+
+                    <InertiaLink
+                        href={isHomePage ? '#contact' : '/#contact'}
+                        onClick={close}
+                        className="text-foreground block py-2 text-sm font-bold"
+                    >
+                        {translate('navBar.contact')}
+                    </InertiaLink>
                 </div>
             </div>
         </div>
@@ -298,17 +363,19 @@ const MobileNav = ({
 
 const NavItem = ({
     trigger,
+    className,
     children,
 }: {
     trigger: string;
+    className: string;
     children: React.ReactNode;
 }) => (
     <NavigationMenuItem>
-        <NavigationMenuTrigger className="bg-transparent text-gray-800 hover:bg-gray-100 dark:text-white dark:hover:bg-zinc-700">
+        <NavigationMenuTrigger className={className}>
             {trigger}
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-            <div className="w-60 space-y-1 rounded-lg bg-white p-2 shadow-lg dark:bg-zinc-800">
+            <div className="bg-popover border-border w-64 space-y-0.5 border p-2">
                 {children}
             </div>
         </NavigationMenuContent>
@@ -318,36 +385,25 @@ const NavItem = ({
 const ScrollLink = ({
     to,
     children,
+    className,
 }: {
     to: string;
     children: React.ReactNode;
+    className?: string;
 }) => (
-    <Link
+    <ScrollTo
         to={to}
-        spy={true}
-        smooth={true}
+        spy
+        smooth
         offset={-80}
         duration={500}
-        activeClass="text-green-600 dark:text-green-400 bg-gray-100 dark:bg-zinc-700"
-        className="block cursor-pointer rounded-md px-4 py-2 text-gray-800 transition-colors duration-200 hover:bg-gray-100 dark:text-white dark:hover:bg-zinc-700"
+        activeClass={
+            className ? '' : 'bg-primary text-primary-foreground'
+        }
+        className={className ?? menuItemClass}
     >
         {children}
-    </Link>
-);
-
-const FiliereLink = ({
-    onClick,
-    children,
-}: {
-    onClick: () => void;
-    children: React.ReactNode;
-}) => (
-    <button
-        onClick={onClick}
-        className="block w-full cursor-pointer rounded-md px-4 py-2 text-left text-gray-800 transition-colors duration-200 hover:bg-gray-100 dark:text-white dark:hover:bg-zinc-700"
-    >
-        {children}
-    </button>
+    </ScrollTo>
 );
 
 const NavSection = ({
@@ -358,10 +414,10 @@ const NavSection = ({
     children: React.ReactNode;
 }) => (
     <div>
-        <h3 className="mb-1 px-2 font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-primary mb-1 font-mono text-xs font-bold tracking-wider uppercase">
             {title}
         </h3>
-        <div className="ml-2 space-y-1 border-l-2 border-gray-200 pl-4 dark:border-zinc-700">
+        <div className="border-border ml-1 space-y-0.5 border-l pl-3">
             {children}
         </div>
     </div>

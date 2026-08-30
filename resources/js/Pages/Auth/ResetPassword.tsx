@@ -44,14 +44,14 @@ export default function ResetPassword({
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-4 text-center"
                 >
-                    <div className="bg-asja-green-50 dark:bg-asja-green-900/10 text-asja-green-600 dark:text-asja-green-400 mx-auto flex h-16 w-16 items-center justify-center rounded-2xl">
+                    <div className="bg-primary text-primary-foreground border-border mx-auto flex h-16 w-16 items-center justify-center border">
                         <RotateCcw size={32} />
                     </div>
                     <div className="space-y-1">
-                        <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
-                            Nouveau <span className="text-asja-green-600">Mot de Passe</span>
+                        <h2 className="text-2xl font-black tracking-tight text-foreground dark:text-white uppercase">
+                            Nouveau <span className="text-primary">Mot de Passe</span>
                         </h2>
-                        <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                        <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">
                             Sécurisez votre compte ASJA
                         </p>
                     </div>
@@ -62,7 +62,7 @@ export default function ResetPassword({
                         <div className="space-y-2">
                             <Label
                                 htmlFor="email"
-                                className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                className="ml-1 text-[10px] font-black tracking-widest text-muted-foreground uppercase"
                             >
                                 Adresse Email
                             </Label>
@@ -71,7 +71,7 @@ export default function ResetPassword({
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="username"
                                 onChange={(e) =>
                                     setData('email', e.target.value)
@@ -88,7 +88,7 @@ export default function ResetPassword({
                         <div className="space-y-2">
                             <Label
                                 htmlFor="password"
-                                className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                className="ml-1 text-[10px] font-black tracking-widest text-muted-foreground uppercase"
                             >
                                 Nouveau mot de passe
                             </Label>
@@ -97,7 +97,7 @@ export default function ResetPassword({
                                 type="password"
                                 name="password"
                                 value={data.password}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="new-password"
                                 placeholder="••••••••"
                                 onChange={(e) =>
@@ -116,7 +116,7 @@ export default function ResetPassword({
                         <div className="space-y-2">
                             <Label
                                 htmlFor="password_confirmation"
-                                className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
+                                className="ml-1 text-[10px] font-black tracking-widest text-muted-foreground uppercase"
                             >
                                 Confirmer le mot de passe
                             </Label>
@@ -125,7 +125,7 @@ export default function ResetPassword({
                                 type="password"
                                 name="password_confirmation"
                                 value={data.password_confirmation}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="new-password"
                                 placeholder="••••••••"
                                 onChange={(e) =>
@@ -148,7 +148,7 @@ export default function ResetPassword({
                     <div className="pt-6">
                         <Button
                             disabled={processing}
-                            className="h-12 rounded-xl bg-asja-green-600 hover:bg-asja-green-700 text-white font-black uppercase tracking-widest shadow-xl shadow-asja-green-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex gap-3 group/btn"
+                            className="h-12 bg-primary border border-border hover:bg-background hover:text-primary text-primary-foreground font-black uppercase tracking-widest flex gap-3 group/btn"
                         >
                             {processing ? (
                                 <Loader2 className="h-5 w-5 animate-spin" />

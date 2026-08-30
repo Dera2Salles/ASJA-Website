@@ -27,7 +27,7 @@ export const UploadAndViewImage: React.FC<AvatarProps> = ({
                         <img
                             src={image}
                             alt={image}
-                            className="h-100 w-full rounded-2xl border-2 border-gray-200 transition-all duration-200"
+                            className="h-100 w-full rounded-2xl border border-gray-200 transition-all duration-200"
                         />{' '}
                     </div>
                 ) : (

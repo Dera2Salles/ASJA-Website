@@ -42,7 +42,7 @@ export const PostList = () => {
                                 className="flex flex-col gap-4 text-white"
                             >
                                 <div className="flex items-center gap-3">
-                                    <Avatar className="size-12 border-2 border-green-500">
+                                    <Avatar className="size-12 border border-green-500">
                                         <img src={logo} alt="ASJA Logo" />
                                     </Avatar>
                                     <div>

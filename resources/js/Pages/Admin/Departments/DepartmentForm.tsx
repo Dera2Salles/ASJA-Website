@@ -16,7 +16,6 @@ import {
     Image as ImageIcon,
     Layers,
     LayoutGrid,
-    Palette,
     Pencil,
     Plus,
     Save,
@@ -40,7 +39,6 @@ interface Department {
     slug: string;
     name: string;
     description: string;
-    color: string;
     logo: string | null;
     hero_image: string | null;
     is_visible: boolean;
@@ -58,7 +56,6 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
         slug: department?.slug ?? '',
         name: department?.name ?? '',
         description: department?.description ?? '',
-        color: department?.color ?? '#10b981',
         logo: null as File | null,
         hero_image: null as File | null,
         is_visible: department?.is_visible ?? true,
@@ -166,18 +163,18 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                     >
                         <Link
                             href={route('admin.departments.index')}
-                            className="hover:text-asja-green-600 group mb-4 inline-flex items-center gap-2 text-sm font-black text-slate-400 transition-colors"
+                            className="hover:text-primary group mb-3 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors"
                         >
                             <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
                             Retour à la liste
                         </Link>
-                        <h1 className="text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
                             {isEdit ? 'Édition' : 'Nouveau'}{' '}
-                            <span className="text-asja-green-600 dark:text-primary">
+                            <span className="text-primary dark:text-primary">
                                 Département
                             </span>
                         </h1>
-                        <p className="text-muted-foreground mt-1 text-lg font-medium">
+                        <p className="text-muted-foreground mt-1 text-sm">
                             {isEdit
                                 ? `Modification des paramètres de ${department?.name}`
                                 : 'Créez une nouvelle mention académique.'}
@@ -188,20 +185,20 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
                     {}
                     <div className="space-y-10 lg:col-span-8">
-                        <Card className="glass overflow-hidden rounded-[3rem] border-none shadow-2xl">
-                            <CardHeader className="border-b border-white/40 bg-white/30 px-10 py-8 dark:border-white/5">
-                                <CardTitle className="flex items-center gap-3 text-xl font-black text-slate-900 dark:text-white">
+                        <Card className="overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-white/5">
+                            <CardHeader className="border-b border-border bg-muted/60 px-8 py-6 dark:border-white/5">
+                                <CardTitle className="flex items-center gap-3 text-base font-bold text-foreground">
                                     <Building2
-                                        className="text-asja-green-600"
+                                        className="text-primary"
                                         size={24}
                                     />
                                     Informations Générales
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-8 p-10">
+                            <CardContent className="space-y-6 p-8">
                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                                     <div className="space-y-3">
-                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-500 uppercase">
+                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                             Nom du département
                                         </Label>
                                         <Input
@@ -210,17 +207,15 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                 setData('name', e.target.value)
                                             }
                                             placeholder="ex: GÉNIE INFORMATIQUE"
-                                            className="focus:ring-asja-green-500/20 h-14 rounded-2xl border-none bg-slate-50/50 px-6 text-lg font-black focus:ring-2 dark:bg-black/20"
+                                            className="h-10 rounded-lg"
                                         />
                                         {errors.name && (
-                                            <p className="ml-1 text-[10px] font-black text-rose-500 uppercase">
-                                                {errors.name}
-                                            </p>
+                                            <p className="mt-1 text-xs text-rose-500">{errors.name}</p>
                                         )}
                                     </div>
                                     {!isEdit && (
                                         <div className="space-y-3">
-                                            <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-500 uppercase">
+                                            <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                                 Slug (URL)
                                             </Label>
                                             <Input
@@ -237,19 +232,17 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                     )
                                                 }
                                                 placeholder="ex: informatique"
-                                                className="focus:ring-asja-green-500/20 h-14 rounded-2xl border-none bg-slate-50/50 px-6 font-mono font-bold focus:ring-2 dark:bg-black/20"
+                                                className="h-10 rounded-lg font-mono"
                                             />
                                             {errors.slug && (
-                                                <p className="ml-1 text-[10px] font-black text-rose-500 uppercase">
-                                                    {errors.slug}
-                                                </p>
+                                                <p className="mt-1 text-xs text-rose-500">{errors.slug}</p>
                                             )}
                                         </div>
                                     )}
                                 </div>
 
                                 <div className="space-y-3">
-                                    <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-500 uppercase">
+                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                         Description
                                     </Label>
                                     <Textarea
@@ -261,53 +254,17 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                             )
                                         }
                                         placeholder="Présentez brièvement ce département..."
-                                        className="focus:ring-asja-green-500/20 min-h-[120px] rounded-[2rem] border-none bg-slate-50/50 p-6 leading-relaxed font-medium focus:ring-2 dark:bg-black/20"
+                                        className="min-h-[120px] rounded-lg border-border leading-relaxed dark:border-white/5"
                                     />
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-8 pt-4 md:grid-cols-3">
-                                    <div className="flex flex-col gap-4">
-                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-500 uppercase">
-                                            Identité visuelle
-                                        </Label>
-                                        <div className="flex items-center gap-4 rounded-2xl bg-slate-50/50 p-3 dark:bg-black/20">
-                                            <div
-                                                className="group relative h-12 w-12 cursor-pointer rounded-xl shadow-lg transition-transform hover:scale-110"
-                                                style={{
-                                                    backgroundColor: data.color,
-                                                }}
-                                            >
-                                                <input
-                                                    type="color"
-                                                    value={data.color}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            'color',
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                                                />
-                                                <Palette className="pointer-events-none absolute top-1/2 left-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 text-white/50" />
-                                            </div>
-                                            <Input
-                                                value={data.color}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'color',
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                className="h-10 border-none bg-transparent p-0 font-mono text-xs font-bold text-slate-500 shadow-none"
-                                            />
-                                        </div>
-                                    </div>
 
                                     <div className="flex flex-col gap-4">
-                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-500 uppercase">
+                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                             Ordre
                                         </Label>
-                                        <div className="rounded-2xl bg-slate-50/50 p-3 dark:bg-black/20">
+                                        <div className="rounded-2xl bg-muted/50 p-3 dark:bg-black/20">
                                             <Input
                                                 type="number"
                                                 value={data.sort_order}
@@ -319,22 +276,22 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                         ),
                                                     )
                                                 }
-                                                className="h-10 border-none bg-transparent p-0 text-center text-lg font-black shadow-none"
+                                                className="h-10 border-none bg-transparent p-0 text-center text-lg font-medium shadow-none"
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="flex h-[76px] flex-col items-center justify-end gap-3 rounded-2xl bg-slate-50/50 p-3 dark:bg-black/20">
-                                        <Label className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                    <div className="flex h-[76px] flex-col items-center justify-end gap-3 rounded-2xl bg-muted/50 p-3 dark:bg-black/20">
+                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                             Visibilité
                                         </Label>
                                         <div className="flex items-center gap-3">
                                             <span
                                                 className={cn(
-                                                    'text-[10px] font-black uppercase',
+                                                    'text-xs font-semibold',
                                                     !data.is_visible
                                                         ? 'text-rose-500'
-                                                        : 'text-slate-300',
+                                                        : 'text-muted-foreground',
                                                 )}
                                             >
                                                 Off
@@ -347,14 +304,14 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                         checked,
                                                     )
                                                 }
-                                                className="data-[state=checked]:bg-asja-green-600"
+                                                className="data-[state=checked]:bg-primary"
                                             />
                                             <span
                                                 className={cn(
-                                                    'text-[10px] font-black uppercase',
+                                                    'text-xs font-semibold',
                                                     data.is_visible
-                                                        ? 'text-asja-green-600'
-                                                        : 'text-slate-300',
+                                                        ? 'text-primary'
+                                                        : 'text-muted-foreground',
                                                 )}
                                             >
                                                 On
@@ -367,34 +324,28 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
 
                         {}
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                            <Card className="glass group overflow-hidden rounded-[2.5rem] border-none shadow-xl">
-                                <CardHeader className="border-b border-white/40 bg-white/20 p-6 dark:border-white/5">
-                                    <CardTitle className="flex items-center gap-2 text-sm font-black tracking-widest uppercase">
-                                        <Layers className="text-asja-green-600 h-4 w-4" />{' '}
+                            <Card className="overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-white/5">
+                                <CardHeader className="border-b border-border px-6 py-5 dark:border-white/5">
+                                    <CardTitle className="flex items-center gap-2 text-sm font-bold tracking-wide">
+                                        <Layers className="text-primary h-4 w-4" />{' '}
                                         Logo / Icône
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="flex min-h-[220px] flex-col items-center justify-center p-8">
                                     {department?.logo && !data.logo ? (
                                         <div className="group/logo relative mb-6 h-24 w-24">
-                                            <div
-                                                className="absolute inset-0 rounded-full opacity-20 blur-xl"
-                                                style={{
-                                                    backgroundColor: data.color,
-                                                }}
-                                            />
                                             <img
                                                 src={`/storage/${department.logo}`}
                                                 alt=""
-                                                className="relative h-full w-full rounded-2xl bg-white/50 object-contain p-2 shadow-xl backdrop-blur-md transition-all group-hover/logo:scale-110"
+                                    className="relative h-20 w-full overflow-hidden rounded-xl bg-card/50 object-contain p-2 shadow-sm"
                                             />
                                         </div>
                                     ) : (
-                                        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-300 dark:border-white/10 dark:bg-white/5">
+                                        <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-dashed border-border bg-muted text-muted-foreground dark:border-white/10 dark:bg-card/5">
                                             <ImageIcon size={32} />
                                         </div>
                                     )}
-                                    <Label className="dark:bg-primary cursor-pointer rounded-xl bg-slate-900 px-6 py-3 text-xs font-black text-white shadow-lg transition-all hover:scale-105 active:scale-95">
+                                    <Label className="dark:bg-primary cursor-pointer rounded-lg bg-card px-5 py-2.5 text-xs font-semibold text-white transition-all hover:bg-card">
                                         {department?.logo
                                             ? 'Remplacer le logo'
                                             : 'Choisir un logo'}
@@ -411,17 +362,17 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                         />
                                     </Label>
                                     {data.logo && (
-                                        <p className="text-asja-green-600 mt-2 max-w-[150px] truncate text-[10px] font-bold">
+                                        <p className="text-primary mt-2 max-w-[150px] truncate text-[10px] font-bold">
                                             {data.logo.name}
                                         </p>
                                     )}
                                 </CardContent>
                             </Card>
 
-                            <Card className="glass overflow-hidden rounded-[2.5rem] border-none shadow-xl">
-                                <CardHeader className="border-b border-white/40 bg-white/20 p-6 dark:border-white/5">
-                                    <CardTitle className="flex items-center gap-2 text-sm font-black tracking-widest uppercase">
-                                        <ImageIcon className="text-asja-green-600 h-4 w-4" />{' '}
+                            <Card className="overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-white/5">
+                                <CardHeader className="border-b border-border px-6 py-5 dark:border-white/5">
+                                    <CardTitle className="flex items-center gap-2 text-sm font-bold tracking-wide">
+                                        <ImageIcon className="text-primary h-4 w-4" />{' '}
                                         Image de Bannière
                                     </CardTitle>
                                 </CardHeader>
@@ -432,16 +383,16 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                             <img
                                                 src={`/storage/${department.hero_image}`}
                                                 alt=""
-                                                className="h-full w-full rounded-2xl border-2 border-white/50 object-cover shadow-lg"
+                                                className="h-full w-full rounded-2xl border border-white/50 object-cover shadow-lg"
                                             />
-                                            <div className="bg-asja-green-900/10 absolute inset-0 rounded-2xl" />
+                                            <div className="bg-primary/10 absolute inset-0 rounded-2xl" />
                                         </div>
                                     ) : (
-                                        <div className="mb-6 flex h-24 w-full items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 text-slate-300 dark:border-white/10 dark:bg-white/5">
+                                        <div className="mb-6 flex h-24 w-full items-center justify-center rounded-2xl border border-dashed border-border bg-muted text-muted-foreground dark:border-white/10 dark:bg-card/5">
                                             <LayoutGrid size={32} />
                                         </div>
                                     )}
-                                    <Label className="cursor-pointer rounded-xl bg-slate-100 px-6 py-3 text-xs font-black text-slate-600 transition-all hover:scale-105 active:scale-95 dark:bg-white/10 dark:text-white">
+                                    <Label className="cursor-pointer rounded-lg bg-muted px-5 py-2.5 text-xs font-semibold text-muted-foreground transition-all hover:bg-muted dark:bg-card/10">
                                         {department?.hero_image
                                             ? 'Modifier la bannière'
                                             : 'Image Hero'}
@@ -458,7 +409,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                         />
                                     </Label>
                                     {data.hero_image && (
-                                        <p className="text-asja-green-600 mt-2 max-w-[150px] truncate text-[10px] font-bold">
+                                        <p className="text-primary mt-2 max-w-[150px] truncate text-[10px] font-bold">
                                             {data.hero_image.name}
                                         </p>
                                     )}
@@ -474,13 +425,13 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: 0.2 }}
                         >
-                            <Card className="glass bg-asja-green-600 relative overflow-hidden rounded-[2.5rem] border-none text-white shadow-xl">
-                                <GraduationCap className="absolute -right-8 -bottom-8 h-40 w-40 opacity-10" />
-                                <CardContent className="relative z-10 space-y-6 p-8">
-                                    <h3 className="text-2xl leading-tight font-black tracking-tight uppercase">
+                            <Card className="relative overflow-hidden rounded-xl border border-primary bg-primary text-white shadow-md">
+                                <GraduationCap className="absolute -right-8 -bottom-8 h-32 w-32 opacity-10" />
+                                <CardContent className="relative z-10 space-y-5 p-6">
+                                    <h3 className="text-xl leading-tight font-bold tracking-tight">
                                         Prêt à publier ?
                                     </h3>
-                                    <p className="text-asja-green-50 text-sm leading-relaxed font-medium opacity-90">
+                                    <p className="text-accent-foreground text-sm leading-relaxed font-medium opacity-90">
                                         Assurez-vous que l'identité visuelle
                                         (couleurs, logo) correspond aux
                                         standards académiques de l'ASJA.
@@ -489,10 +440,10 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                         <Button
                                             onClick={handleSubmit}
                                             disabled={processing || isSaving}
-                                            className="text-asja-green-900 hover:bg-asja-green-50 group h-14 w-full rounded-2xl bg-white font-black tracking-widest uppercase shadow-xl transition-all hover:scale-[1.02] active:scale-95"
+                                            className="text-primary hover:bg-accent group h-12 w-full rounded-lg bg-card font-bold tracking-wide shadow-sm transition-all hover:opacity-90"
                                         >
                                             {isSaving ? (
-                                                <div className="border-asja-green-600 h-5 w-5 animate-spin rounded-full border-2 border-t-transparent" />
+                                                <div className="border-primary h-5 w-5 animate-spin rounded-full border border-t-transparent" />
                                             ) : (
                                                 <>
                                                     <Save className="mr-3 h-5 w-5 transition-transform group-hover:rotate-12" />
@@ -510,7 +461,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                         >
                                             <Button
                                                 variant="ghost"
-                                                className="w-full rounded-2xl text-xs font-black tracking-widest text-white uppercase hover:bg-white/10"
+                                                className="w-full rounded-lg text-xs font-semibold text-white hover:bg-card/10"
                                             >
                                                 Quitter sans sauver
                                             </Button>
@@ -521,8 +472,8 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                         </motion.div>
 
                         {}
-                        <div className="glass space-y-6 rounded-[3rem] border-none p-10 shadow-xl">
-                            <h4 className="text-asja-green-600 text-[10px] font-black tracking-[4px] uppercase">
+                        <div className="rounded-xl border border-border bg-card p-6 space-y-4 shadow-sm dark:border-white/5">
+                            <h4 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                 Recommandations
                             </h4>
                             <ul className="space-y-4">
@@ -541,11 +492,11 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     },
                                 ].map((tip, i) => (
                                     <li key={i} className="flex gap-4">
-                                        <div className="bg-asja-green-500/10 text-asja-green-600 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold">
+                                        <div className="bg-primary/10 text-primary flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold">
                                             {i + 1}
                                         </div>
                                         <div className="space-y-1">
-                                            <p className="text-xs leading-none font-black text-slate-900 dark:text-white">
+                                            <p className="text-xs leading-none font-semibold text-foreground">
                                                 {tip.title}
                                             </p>
                                             <p className="text-muted-foreground text-[10px] leading-tight font-medium">
@@ -567,15 +518,15 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                         transition={{ delay: 0.3 }}
                         className="mt-20 space-y-10"
                     >
-                        <div className="flex items-center justify-between border-b border-slate-200 pb-8 dark:border-white/5">
+                        <div className="flex items-center justify-between border-b border-border pb-8 dark:border-white/5">
                             <div className="space-y-1">
-                                <h2 className="text-3xl font-black tracking-tight text-slate-900 uppercase dark:text-white">
+                                <h2 className="text-2xl font-bold tracking-tight text-foreground">
                                     Programmes &{' '}
-                                    <span className="text-asja-green-600">
+                                    <span className="text-primary">
                                         Parcours
                                     </span>
                                 </h2>
-                                <p className="text-muted-foreground text-sm font-medium">
+                                <p className="text-muted-foreground text-sm">
                                     Structurez l'offre académique pour ce
                                     département.
                                 </p>
@@ -592,7 +543,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     });
                                     setShowProgramForm(true);
                                 }}
-                                className="dark:bg-primary h-12 gap-2 rounded-2xl bg-slate-900 px-6 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+                                className="dark:bg-primary h-10 gap-2 rounded-lg bg-card px-5 font-semibold text-white transition-all hover:bg-card"
                             >
                                 <Plus size={20} strokeWidth={3} />
                                 Nouveau programme
@@ -607,9 +558,9 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     exit={{ opacity: 0, height: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    <Card className="glass bg-asja-green-500/5 mb-12 rounded-[2.5rem] border-none shadow-2xl">
-                                        <CardHeader className="flex flex-row items-center justify-between px-10 pt-8 pb-4">
-                                            <CardTitle className="text-asja-green-700 text-xl font-black tracking-tight uppercase">
+                                    <Card className="mb-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-white/5">
+                                        <CardHeader className="flex flex-row items-center justify-between px-6 pt-6 pb-3">
+                                            <CardTitle className="text-primary text-base font-bold tracking-tight">
                                                 {editingProgram
                                                     ? 'Modifier le programme'
                                                     : 'Nouveau Programme'}
@@ -620,19 +571,19 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                 onClick={() =>
                                                     setShowProgramForm(false)
                                                 }
-                                                className="rounded-full hover:bg-rose-50 hover:text-rose-500"
+                                                className="rounded-lg hover:bg-rose-50 hover:text-rose-500"
                                             >
                                                 <X className="h-5 w-5" />
                                             </Button>
                                         </CardHeader>
-                                        <CardContent className="p-10">
+                                        <CardContent className="p-6">
                                             <form
                                                 onSubmit={handleProgramSubmit}
                                                 className="space-y-8"
                                             >
                                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                                                     <div className="space-y-3">
-                                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                                             Titre du parcours
                                                         </Label>
                                                         <Input
@@ -648,11 +599,11 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                                 })
                                                             }
                                                             required
-                                                            className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-white/50 px-6 font-bold focus:ring-2 dark:bg-black/20"
+                                                            className="h-10 rounded-lg"
                                                         />
                                                     </div>
                                                     <div className="space-y-3">
-                                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                                             Ordre
                                                         </Label>
                                                         <Input
@@ -671,12 +622,12 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                                         ) || 0,
                                                                 })
                                                             }
-                                                            className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-white/50 px-6 font-bold focus:ring-2 dark:bg-black/20"
+                                                            className="h-10 rounded-lg text-center"
                                                         />
                                                     </div>
                                                 </div>
                                                 <div className="space-y-3">
-                                                    <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                                         Description courte
                                                     </Label>
                                                     <Textarea
@@ -692,12 +643,12 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                             })
                                                         }
                                                         rows={2}
-                                                        className="focus:ring-asja-green-500/20 min-h-[80px] rounded-xl border-none bg-white/50 p-6 text-sm focus:ring-2 dark:bg-black/20"
+                                                        className="min-h-[80px] rounded-lg"
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                                                     <div className="space-y-3">
-                                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                                             Compétences acquises
                                                         </Label>
                                                         <Textarea
@@ -713,11 +664,11 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                                 })
                                                             }
                                                             placeholder="Listez les savoir-faire..."
-                                                            className="focus:ring-asja-green-500/20 min-h-[120px] rounded-xl border-none bg-white/50 p-6 text-sm leading-relaxed focus:ring-2 dark:bg-black/20"
+                                                            className="min-h-[120px] rounded-lg"
                                                         />
                                                     </div>
                                                     <div className="space-y-3">
-                                                        <Label className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                                                        <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                                             Débouchés
                                                             professionnels
                                                         </Label>
@@ -734,7 +685,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                                 })
                                                             }
                                                             placeholder="Métiers, carrières..."
-                                                            className="focus:ring-asja-green-500/20 min-h-[120px] rounded-xl border-none bg-white/50 p-6 text-sm leading-relaxed focus:ring-2 dark:bg-black/20"
+                                                            className="min-h-[120px] rounded-lg"
                                                         />
                                                     </div>
                                                 </div>
@@ -752,7 +703,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                     </Button>
                                                     <Button
                                                         type="submit"
-                                                        className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 rounded-xl px-10 font-black text-white shadow-xl"
+                                                        className="bg-primary dark:bg-primary rounded-lg px-8 font-semibold text-white hover:opacity-90"
                                                     >
                                                         Enregistrer
                                                     </Button>
@@ -767,12 +718,9 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             {(department.programs ?? []).length === 0 &&
                                 !showProgramForm && (
-                                    <div className="glass flex flex-col items-center justify-center rounded-[3rem] border-none py-20 text-slate-400 md:col-span-2">
-                                        <GraduationCap
-                                            size={48}
-                                            className="mb-4 opacity-20"
-                                        />
-                                        <p className="text-xs font-black tracking-widest uppercase">
+                                    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-muted-foreground md:col-span-2 dark:border-white/5">
+                                        <GraduationCap size={32} className="mb-3 opacity-30" />
+                                        <p className="text-xs font-medium tracking-wider">
                                             Aucun programme publié
                                         </p>
                                     </div>
@@ -784,15 +732,15 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: idx * 0.05 }}
                                 >
-                                    <Card className="group glass relative overflow-hidden rounded-[2.5rem] border-none p-8 shadow-xl transition-all hover:-translate-y-1">
-                                        <div className="bg-asja-green-500/5 pointer-events-none absolute top-0 right-0 h-32 w-32 rounded-full blur-[40px]" />
+                                    <Card className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md dark:border-white/5">
+                                        <div className="bg-primary/5 pointer-events-none absolute top-0 right-0 h-32 w-32 rounded-full blur-[40px]" />
                                         <div className="space-y-6">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="bg-asja-green-600 shadow-asja-green-500/30 flex h-8 w-8 items-center justify-center rounded-full text-[10px] font-black text-white shadow-lg">
+                                                    <div className="bg-primary flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white">
                                                         {prog.sort_order}
                                                     </div>
-                                                    <h3 className="text-xl font-black tracking-tight text-slate-900 uppercase dark:text-white">
+                                                    <h3 className="text-base font-bold tracking-tight text-foreground">
                                                         {prog.title}
                                                     </h3>
                                                 </div>
@@ -814,7 +762,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                                 true,
                                                             );
                                                         }}
-                                                        className="hover:text-asja-green-600 hover:bg-asja-green-50 h-9 w-9 rounded-xl text-slate-400 transition-all"
+                                                        className="hover:text-primary hover:bg-accent h-9 w-9 rounded-xl text-muted-foreground transition-all"
                                                     >
                                                         <Pencil
                                                             size={16}
@@ -830,7 +778,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                                 prog.id,
                                                             )
                                                         }
-                                                        className="h-9 w-9 rounded-xl text-slate-400 transition-all hover:bg-rose-50 hover:text-rose-600"
+                                                        className="h-9 w-9 rounded-xl text-muted-foreground transition-all hover:bg-rose-50 hover:text-rose-600"
                                                     >
                                                         <Trash2
                                                             size={16}
@@ -841,7 +789,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                             </div>
 
                                             {prog.description && (
-                                                <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed font-bold">
+                                                <p className="text-muted-foreground line-clamp-2 text-xs leading-relaxed">
                                                     {prog.description}
                                                 </p>
                                             )}
@@ -850,7 +798,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                 {prog.competences && (
                                                     <Badge
                                                         variant="outline"
-                                                        className="text-asja-green-600 border-asja-green-600/10 bg-asja-green-500/[0.03] rounded-lg px-3 py-1 text-[9px] font-black uppercase"
+                                                        className="text-primary border-primary/10 bg-primary/[0.03] rounded-md px-2 py-0.5 text-xs font-medium"
                                                     >
                                                         📚 Compétences
                                                     </Badge>
@@ -858,7 +806,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                                 {prog.debouches && (
                                                     <Badge
                                                         variant="outline"
-                                                        className="rounded-lg border-indigo-500/10 bg-indigo-500/[0.03] px-3 py-1 text-[9px] font-black text-indigo-500 uppercase"
+                                                        className="rounded-md border-indigo-500/10 bg-indigo-500/[0.03] px-2 py-0.5 text-xs font-medium text-indigo-500"
                                                     >
                                                         💼 Débouchés
                                                     </Badge>
@@ -874,7 +822,6 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
             </div>
 
             {}
-            <div className="bg-asja-green-500/[0.03] pointer-events-none fixed top-[10%] left-[-10%] -z-10 h-[600px] w-[600px] rounded-full blur-[150px]" />
             <div className="bg-primary/[0.02] pointer-events-none fixed right-[-5%] bottom-[10%] -z-10 h-[500px] w-[500px] animate-pulse rounded-full blur-[120px]" />
         </AdminLayout>
     );

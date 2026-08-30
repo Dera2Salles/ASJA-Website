@@ -117,194 +117,93 @@ function StudentForm({
     };
 
     return (
-        <Card className="glass relative mb-12 overflow-hidden rounded-[2.5rem] border-none shadow-2xl">
+        <Card className="relative mb-8 overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-white/5">
             <div className="absolute top-6 right-6 z-20">
                 <Button
                     variant="ghost"
                     size="icon"
                     onClick={onClose}
-                    className="h-10 w-10 rounded-full font-black transition-all hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30"
+                    className="h-9 w-9 rounded-lg transition-all hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950/30"
                 >
-                    <X size={20} strokeWidth={3} />
+                    <X size={18} />
                 </Button>
             </div>
-            <CardHeader className="relative z-10 px-10 pt-10 pb-6">
-                <div className="text-asja-green-600 dark:text-primary flex items-center gap-4">
-                    <div className="bg-asja-green-500 h-6 w-1.5 rounded-full" />
-                    <CardTitle className="text-xl leading-none font-black tracking-widest uppercase">
+            <CardHeader className="px-8 pt-8 pb-4">
+                <div className="flex items-center gap-3">
+                    <div className="bg-primary h-5 w-1 rounded-full" />
+                    <CardTitle className="text-lg font-bold tracking-tight">
                         {student ? "Modifier l'Étudiant" : 'Nouvel Étudiant'}
                     </CardTitle>
                 </div>
             </CardHeader>
-            <CardContent className="relative z-10 px-10 pb-10">
-                <form onSubmit={handleSubmit} className="space-y-10">
+            <CardContent className="px-8 pb-8">
+                <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                         {}
-                        <div className="space-y-6">
-                            <h3 className="text-asja-green-600 text-[10px] font-black tracking-[3px] uppercase opacity-70">
+                        <div className="space-y-5">
+                            <h3 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                 Identité Personnel
                             </h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                        Prénom
-                                    </Label>
-                                    <Input
-                                        value={data.name}
-                                        onChange={(e) =>
-                                            setData('name', e.target.value)
-                                        }
-                                        className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20"
-                                        required
-                                    />
-                                    {errors.name && (
-                                        <p className="mt-1 ml-2 text-[10px] font-bold text-rose-500 uppercase italic">
-                                            {errors.name}
-                                        </p>
-                                    )}
+                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Prénom</Label>
+                                    <Input value={data.name} onChange={e => setData('name', e.target.value)} className="h-10 rounded-lg" required />
+                                    {errors.name && <p className="mt-1 text-xs text-rose-500">{errors.name}</p>}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                        Nom de famille
-                                    </Label>
-                                    <Input
-                                        value={data.last_name}
-                                        onChange={(e) =>
-                                            setData('last_name', e.target.value)
-                                        }
-                                        className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20"
-                                    />
+                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Nom de famille</Label>
+                                    <Input value={data.last_name} onChange={e => setData('last_name', e.target.value)} className="h-10 rounded-lg" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                    Email Académique
-                                </Label>
-                                <Input
-                                    type="email"
-                                    value={data.email}
-                                    onChange={(e) =>
-                                        setData('email', e.target.value)
-                                    }
-                                    className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20"
-                                />
+                                <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Email Académique</Label>
+                                <Input type="email" value={data.email} onChange={e => setData('email', e.target.value)} className="h-10 rounded-lg" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                    Contact Téléphonique
-                                </Label>
-                                <Input
-                                    value={data.contact}
-                                    onChange={(e) =>
-                                        setData('contact', e.target.value)
-                                    }
-                                    className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20"
-                                />
+                                <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Contact Téléphonique</Label>
+                                <Input value={data.contact} onChange={e => setData('contact', e.target.value)} className="h-10 rounded-lg" />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                    Mot de passe
-                                </Label>
-                                <Input
-                                    type="password"
-                                    value={data.password}
-                                    onChange={(e) =>
-                                        setData('password', e.target.value)
-                                    }
-                                    placeholder={
-                                        student
-                                            ? 'Laisser vide si inchangé'
-                                            : 'Mot de passe sécurisé'
-                                    }
-                                    className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20"
-                                    required={!student}
-                                />
+                                <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Mot de passe</Label>
+                                <Input type="password" value={data.password} onChange={e => setData('password', e.target.value)}
+                                    placeholder={student ? 'Laisser vide si inchangé' : 'Mot de passe sécurisé'}
+                                    className="h-10 rounded-lg" required={!student} />
                             </div>
                         </div>
 
-                        {}
-                        <div className="space-y-6">
-                            <h3 className="text-asja-green-600 text-[10px] font-black tracking-[3px] uppercase opacity-70">
+                        {/* Cursus */}
+                        <div className="space-y-5">
+                            <h3 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
                                 Cursus Académique
                             </h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                        Mention
-                                    </Label>
-                                    <UISelect
-                                        value={data.mention}
-                                        onValueChange={(val) =>
-                                            setData('mention', val)
-                                        }
-                                    >
-                                        <SelectTrigger className="h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20">
-                                            <SelectValue placeholder="Choisir..." />
-                                        </SelectTrigger>
-                                        <SelectContent className="glass rounded-xl border-none">
-                                            {MENTIONS.map((m) => (
-                                                <SelectItem
-                                                    key={m}
-                                                    value={m}
-                                                    className="font-bold"
-                                                >
-                                                    {m}
-                                                </SelectItem>
-                                            ))}
+                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Mention</Label>
+                                    <UISelect value={data.mention} onValueChange={val => setData('mention', val)}>
+                                        <SelectTrigger className="h-10 rounded-lg"><SelectValue placeholder="Choisir..." /></SelectTrigger>
+                                        <SelectContent className="rounded-xl">
+                                            {MENTIONS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
                                         </SelectContent>
                                     </UISelect>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                        Niveau
-                                    </Label>
-                                    <UISelect
-                                        value={data.level}
-                                        onValueChange={(val) =>
-                                            setData('level', val)
-                                        }
-                                    >
-                                        <SelectTrigger className="h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20">
-                                            <SelectValue placeholder="Choisir..." />
-                                        </SelectTrigger>
-                                        <SelectContent className="glass rounded-xl border-none">
-                                            {LEVELS.map((l) => (
-                                                <SelectItem
-                                                    key={l}
-                                                    value={l}
-                                                    className="font-bold"
-                                                >
-                                                    {l}
-                                                </SelectItem>
-                                            ))}
+                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Niveau</Label>
+                                    <UISelect value={data.level} onValueChange={val => setData('level', val)}>
+                                        <SelectTrigger className="h-10 rounded-lg"><SelectValue placeholder="Choisir..." /></SelectTrigger>
+                                        <SelectContent className="rounded-xl">
+                                            {LEVELS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
                                         </SelectContent>
                                     </UISelect>
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                    Branche de Spécialisation
-                                </Label>
-                                <Input
-                                    value={data.branche}
-                                    onChange={(e) =>
-                                        setData('branche', e.target.value)
-                                    }
-                                    className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 font-bold dark:border-white/5 dark:bg-black/20"
-                                />
+                                <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Branche de Spécialisation</Label>
+                                <Input value={data.branche} onChange={e => setData('branche', e.target.value)} className="h-10 rounded-lg" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label className="text-muted-foreground ml-2 text-[10px] font-black tracking-widest uppercase">
-                                        Note Moyenne
-                                    </Label>
-                                    <Input
-                                        value={data.grade}
-                                        onChange={(e) =>
-                                            setData('grade', e.target.value)
-                                        }
-                                        className="focus:ring-asja-green-500/20 h-12 rounded-xl border-white/40 bg-white/50 text-center font-bold dark:border-white/5 dark:bg-black/20"
-                                    />
+                                    <Label className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">Note Moyenne</Label>
+                                    <Input value={data.grade} onChange={e => setData('grade', e.target.value)} className="h-10 rounded-lg text-center" />
                                 </div>
                                 <div className="flex flex-col justify-end gap-3 pb-1">
                                     <Label className="text-muted-foreground mb-1 ml-2 text-[10px] font-black tracking-widest uppercase">
@@ -327,9 +226,9 @@ function StudentForm({
                                                     onCheckedChange={(
                                                         checked,
                                                     ) => setData(t, checked)}
-                                                    className="data-[state=checked]:bg-asja-green-600 scale-75"
+                                                    className="data-[state=checked]:bg-primary scale-75"
                                                 />
-                                                <span className="text-[10px] font-black text-slate-500 uppercase">
+                                                <span className="text-[10px] font-black text-muted-foreground uppercase">
                                                     {idx + 1}
                                                 </span>
                                             </div>
@@ -340,25 +239,12 @@ function StudentForm({
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-4 border-t border-white/40 pt-6 dark:border-white/5">
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={onClose}
-                            className="h-12 rounded-xl px-8 font-black text-slate-500 transition-all hover:bg-slate-100"
-                        >
+                    <div className="flex justify-end gap-3 border-t border-border pt-5 dark:border-white/5">
+                        <Button type="button" variant="ghost" onClick={onClose} className="h-10 rounded-lg px-6 font-semibold text-muted-foreground hover:bg-muted">
                             Annuler
                         </Button>
-                        <Button
-                            type="submit"
-                            disabled={processing}
-                            className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 h-12 rounded-xl px-10 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
-                        >
-                            {processing
-                                ? 'Enregistrement...'
-                                : student
-                                  ? 'Mettre à jour'
-                                  : "Inscrire l'étudiant"}
+                        <Button type="submit" disabled={processing} className="bg-primary dark:bg-primary h-10 rounded-lg px-8 font-semibold text-white hover:opacity-90">
+                            {processing ? 'Enregistrement...' : student ? 'Mettre à jour' : "Inscrire l'étudiant"}
                         </Button>
                     </div>
                 </form>
@@ -413,7 +299,7 @@ export default function StudentsIndex({ students, filters, mentions }: Props) {
                 {[1, 2, 3].map((t) => (
                     <div
                         key={t}
-                        className={`h-1 w-4 rounded-full ${tranches.includes(t) ? 'bg-asja-green-500' : 'bg-slate-200 dark:bg-white/10'}`}
+                        className={`h-1 w-4 rounded-full ${tranches.includes(t) ?'bg-primary' : 'bg-muted dark:bg-card/10'}`}
                     />
                 ))}
             </div>
@@ -422,40 +308,26 @@ export default function StudentsIndex({ students, filters, mentions }: Props) {
 
     return (
         <AdminLayout>
-            <div className="space-y-12 pb-20">
-                {}
-                <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="space-y-1"
-                    >
-                        <h1 className="text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
+            <div className="space-y-8 pb-16">
+                {/* Header */}
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-1">
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">
                             Base des{' '}
-                            <span className="text-asja-green-600 dark:text-primary">
-                                Étudiants
-                            </span>
+                            <span className="text-primary dark:text-primary">Étudiants</span>
                         </h1>
-                        <p className="text-muted-foreground text-lg font-medium">
-                            {students.total} futur(s) diplômé(s) enregistrés
-                            dans le système.
+                        <p className="text-muted-foreground text-sm">
+                            {students.total} futur(s) diplômé(s) enregistrés dans le système.
                         </p>
                     </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                    >
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                         {!showForm && (
                             <Button
                                 onClick={openCreate}
-                                className="dark:bg-primary hover:shadow-primary/30 group h-14 gap-3 rounded-[2rem] bg-slate-900 px-8 font-black text-white shadow-2xl transition-all hover:scale-105 active:scale-95"
+                                className="dark:bg-primary h-10 gap-2 rounded-lg bg-card px-5 font-semibold text-white transition-all hover:bg-card"
                             >
-                                <Plus
-                                    size={22}
-                                    strokeWidth={3}
-                                    className="transition-transform group-hover:rotate-90"
-                                />
+                                <Plus size={18} />
                                 Nouvel Étudiant
                             </Button>
                         )}
@@ -464,236 +336,124 @@ export default function StudentsIndex({ students, filters, mentions }: Props) {
 
                 <AnimatePresence>
                     {showForm && (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: -20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: -20 }}
-                        >
-                            <StudentForm
-                                student={editing}
-                                onClose={() => setShowForm(false)}
-                            />
+                        <motion.div initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
+                            <StudentForm student={editing} onClose={() => setShowForm(false)} />
                         </motion.div>
                     )}
                 </AnimatePresence>
 
-                {}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                    className="glass flex flex-col items-center justify-between gap-6 rounded-[2.5rem] border-none p-6 shadow-xl lg:flex-row"
-                >
-                    <form
-                        onSubmit={handleSearch}
-                        className="group relative w-full lg:w-[32rem]"
-                    >
-                        <Search
-                            className="group-focus-within:text-asja-green-500 absolute top-1/2 left-4 -translate-y-1/2 text-slate-400 transition-colors"
-                            size={18}
-                            strokeWidth={2.5}
-                        />
+                {/* Search & Filter */}
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+                    className="flex flex-col items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 shadow-sm lg:flex-row dark:border-white/5">
+                    <form onSubmit={handleSearch} className="group relative w-full lg:w-[32rem]">
+                        <Search className="group-focus-within:text-primary absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground transition-colors" size={16} />
                         <Input
                             placeholder="Rechercher par nom, matricule ou mention..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50/50 pr-12 pl-12 font-bold transition-all placeholder:font-medium focus:ring-2 dark:bg-black/20"
+                            className="h-10 rounded-lg border-border pr-10 pl-9 dark:border-white/5"
                         />
                         {search && (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setSearch('');
-                                    router.get(route('admin.students.index'));
-                                }}
-                                className="absolute top-1/2 right-4 -translate-y-1/2 text-slate-400 transition-colors hover:text-rose-500"
-                            >
-                                <X size={16} strokeWidth={3} />
+                            <button type="button" onClick={() => { setSearch(''); router.get(route('admin.students.index')); }}
+                                className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground transition-colors hover:text-rose-500">
+                                <X size={14} />
                             </button>
                         )}
                     </form>
 
-                    <div className="flex w-full items-center gap-4 lg:w-auto">
-                        <div className="flex grow items-center gap-2 lg:grow-0">
-                            <Filter size={16} className="text-asja-green-500" />
-                            <UISelect
-                                value={filters.mention ?? 'all'}
-                                onValueChange={(val) =>
-                                    router.get(route('admin.students.index'), {
-                                        ...filters,
-                                        mention:
-                                            val === 'all' ? undefined : val,
-                                    })
-                                }
-                            >
-                                <SelectTrigger className="h-12 min-w-[180px] rounded-xl border-none bg-slate-50/50 font-bold dark:bg-black/20">
-                                    <SelectValue placeholder="Toutes les Mentions" />
-                                </SelectTrigger>
-                                <SelectContent className="glass rounded-xl border-none">
-                                    <SelectItem
-                                        value="all"
-                                        className="text-asja-green-600 font-bold"
-                                    >
-                                        Toutes les Mentions
-                                    </SelectItem>
-                                    {mentions.map((m) => (
-                                        <SelectItem
-                                            key={m}
-                                            value={m}
-                                            className="font-bold"
-                                        >
-                                            {m}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </UISelect>
-                        </div>
+                    <div className="flex w-full items-center gap-3 lg:w-auto">
+                        <Filter size={15} className="text-primary shrink-0" />
+                        <UISelect value={filters.mention ?? 'all'} onValueChange={(val) =>
+                            router.get(route('admin.students.index'), { ...filters, mention: val === 'all' ? undefined : val })}>
+                            <SelectTrigger className="h-10 min-w-[180px] rounded-lg">
+                                <SelectValue placeholder="Toutes les Mentions" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                                <SelectItem value="all" className="text-primary font-semibold">Toutes les Mentions</SelectItem>
+                                {mentions.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                            </SelectContent>
+                        </UISelect>
                     </div>
                 </motion.div>
 
-                {}
-                <Card className="glass overflow-hidden rounded-[3rem] border-none shadow-2xl">
+                {/* Table */}
+                <Card className="overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:border-white/5">
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b border-white/40 bg-slate-50/30 dark:border-white/5 dark:bg-black/10">
-                                    <th className="text-muted-foreground px-10 py-6 text-left text-[10px] font-black tracking-[2px] uppercase">
-                                        Étudiant
-                                    </th>
-                                    <th className="text-muted-foreground px-6 py-6 text-left text-[10px] font-black tracking-[2px] uppercase">
-                                        Parcours
-                                    </th>
-                                    <th className="text-muted-foreground px-6 py-6 text-left text-[10px] font-black tracking-[2px] uppercase">
-                                        Niveau
-                                    </th>
-                                    <th className="text-muted-foreground px-6 py-6 text-left text-[10px] font-black tracking-[2px] uppercase">
-                                        Scolarité
-                                    </th>
-                                    <th className="text-muted-foreground px-6 py-6 text-left text-[10px] font-black tracking-[2px] uppercase">
-                                        Performance
-                                    </th>
-                                    <th className="text-muted-foreground px-10 py-6 text-right text-[10px] font-black tracking-[2px] uppercase">
-                                        Gestion
-                                    </th>
+                                <tr className="border-b border-border bg-muted/80 dark:border-white/5 dark:bg-black/10">
+                                    <th className="text-muted-foreground px-6 py-4 text-left text-xs font-semibold tracking-wider uppercase">Étudiant</th>
+                                    <th className="text-muted-foreground px-5 py-4 text-left text-xs font-semibold tracking-wider uppercase">Parcours</th>
+                                    <th className="text-muted-foreground px-5 py-4 text-left text-xs font-semibold tracking-wider uppercase">Niveau</th>
+                                    <th className="text-muted-foreground px-5 py-4 text-left text-xs font-semibold tracking-wider uppercase">Scolarité</th>
+                                    <th className="text-muted-foreground px-5 py-4 text-left text-xs font-semibold tracking-wider uppercase">Performance</th>
+                                    <th className="text-muted-foreground px-6 py-4 text-right text-xs font-semibold tracking-wider uppercase">Gestion</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {students.data.length === 0 ? (
                                     <tr>
-                                        <td
-                                            colSpan={6}
-                                            className="py-24 text-center"
-                                        >
-                                            <div className="flex flex-col items-center gap-4">
-                                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-50 dark:bg-white/5">
-                                                    <User
-                                                        className="text-slate-300"
-                                                        size={32}
-                                                    />
+                                        <td colSpan={6} className="py-20 text-center">
+                                            <div className="flex flex-col items-center gap-3">
+                                                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted dark:bg-card/5">
+                                                    <User className="text-muted-foreground" size={28} />
                                                 </div>
-                                                <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                                                    Aucune donnée disponible
-                                                </span>
+                                                <span className="text-xs font-medium text-muted-foreground">Aucune donnée disponible</span>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : (
                                     students.data.map((s, i) => (
-                                        <motion.tr
-                                            key={s.id}
-                                            initial={{ opacity: 0, x: -10 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: i * 0.03 }}
-                                            className="group hover:bg-asja-green-50/30 dark:hover:bg-primary/5 border-b border-white/20 transition-colors dark:border-white/5"
-                                        >
-                                            <td className="px-10 py-6">
-                                                <div className="flex items-center gap-4">
-                                                    <Avatar className="h-10 w-10 border-2 border-white shadow-md transition-transform group-hover:scale-110 dark:border-slate-800">
-                                                        <AvatarFallback className="bg-asja-green-100 text-asja-green-600 text-xs font-black">
-                                                            {s.name.charAt(0)}
-                                                            {s.last_name?.charAt(
-                                                                0,
-                                                            )}
+                                        <motion.tr key={s.id} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}
+                                            className="group hover:bg-muted/60 border-b border-border transition-colors dark:border-white/5 dark:hover:bg-card/[0.02]">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="h-9 w-9 border border-border shadow-sm">
+                                                        <AvatarFallback className="bg-accent text-primary text-xs font-bold">
+                                                            {s.name.charAt(0)}{s.last_name?.charAt(0)}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                     <div>
-                                                        <div className="group-hover:text-asja-green-600 font-black tracking-tight text-slate-900 uppercase transition-colors dark:text-white">
-                                                            {s.name}{' '}
-                                                            {s.last_name}
+                                                        <div className="group-hover:text-primary text-sm font-semibold tracking-tight text-foreground transition-colors">
+                                                            {s.name} {s.last_name}
                                                         </div>
-                                                        <div className="text-muted-foreground text-[10px] font-bold lowercase opacity-70">
-                                                            {s.email ||
-                                                                s.contact ||
-                                                                'contact non renseigné'}
+                                                        <div className="text-muted-foreground text-xs">
+                                                            {s.email || s.contact || 'contact non renseigné'}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-6">
-                                                <Badge
-                                                    variant="secondary"
-                                                    className="rounded-lg bg-white/50 px-3 py-1 text-[9px] font-black tracking-widest uppercase dark:bg-white/5"
-                                                >
+                                            <td className="px-5 py-4">
+                                                <Badge variant="secondary" className="rounded-lg bg-muted px-2.5 py-1 text-xs font-medium dark:bg-card/5">
                                                     {s.mention || 'Général'}
                                                 </Badge>
                                             </td>
-                                            <td className="px-6 py-6">
-                                                <div className="flex items-center gap-2">
-                                                    <GraduationCap
-                                                        size={14}
-                                                        className="text-asja-green-500"
-                                                    />
-                                                    <span className="text-xs font-black text-slate-600 dark:text-slate-400">
-                                                        {s.level || '—'}
-                                                    </span>
+                                            <td className="px-5 py-4">
+                                                <div className="flex items-center gap-1.5">
+                                                    <GraduationCap size={13} className="text-primary" />
+                                                    <span className="text-sm text-muted-foreground">{s.level || '—'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-6">
-                                                <div className="space-y-1.5">
+                                            <td className="px-5 py-4">
+                                                <div className="space-y-1">
                                                     {trancheStatus(s)}
-                                                    <div className="text-[8px] font-black tracking-widest text-slate-400 uppercase">
-                                                        Tranches réglées
-                                                    </div>
+                                                    <div className="text-[10px] font-medium text-muted-foreground">Tranches réglées</div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-6">
+                                            <td className="px-5 py-4">
                                                 {s.grade ? (
-                                                    <Badge className="bg-asja-green-600 shadow-asja-green-900/10 rounded-full px-2.5 py-0.5 text-[10px] font-black text-white shadow-lg">
-                                                        {s.grade}
-                                                    </Badge>
-                                                ) : (
-                                                    <span className="font-black text-slate-300">
-                                                        —
-                                                    </span>
-                                                )}
+                                                    <Badge className="bg-primary rounded-full px-2.5 py-0.5 text-xs font-semibold text-white">{s.grade}</Badge>
+                                                ) : <span className="text-muted-foreground">—</span>}
                                             </td>
-                                            <td className="px-10 py-6">
-                                                <div className="flex justify-end gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        onClick={() =>
-                                                            openEdit(s)
-                                                        }
-                                                        className="hover:text-asja-green-600 hover:bg-asja-green-50 h-10 w-10 rounded-2xl text-slate-400 transition-all active:scale-90"
-                                                    >
-                                                        <Edit
-                                                            size={18}
-                                                            strokeWidth={2.5}
-                                                        />
+                                            <td className="px-6 py-4">
+                                                <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    <Button size="icon" variant="ghost" onClick={() => openEdit(s)}
+                                                        className="hover:text-primary hover:bg-accent h-9 w-9 rounded-lg text-muted-foreground">
+                                                        <Edit size={16} />
                                                     </Button>
-                                                    <Button
-                                                        size="icon"
-                                                        variant="ghost"
-                                                        onClick={() =>
-                                                            handleDelete(s.id)
-                                                        }
-                                                        className="h-10 w-10 rounded-2xl text-slate-400 transition-all hover:rotate-6 hover:bg-rose-50 hover:text-rose-600 active:scale-95"
-                                                    >
-                                                        <Trash2
-                                                            size={18}
-                                                            strokeWidth={2.5}
-                                                        />
+                                                    <Button size="icon" variant="ghost" onClick={() => handleDelete(s.id)}
+                                                        className="h-9 w-9 rounded-lg text-muted-foreground hover:bg-rose-50 hover:text-rose-600">
+                                                        <Trash2 size={16} />
                                                     </Button>
                                                 </div>
                                             </td>
@@ -705,61 +465,29 @@ export default function StudentsIndex({ students, filters, mentions }: Props) {
                     </div>
                 </Card>
 
-                {}
+                {/* Pagination */}
                 {students.last_page > 1 && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="glass flex items-center justify-between rounded-[2.5rem] border-none px-8 py-5 shadow-xl"
-                    >
-                        <div className="text-muted-foreground text-[10px] font-black tracking-[2px] uppercase">
-                            Page{' '}
-                            <span className="text-asja-green-600">
-                                {students.current_page}
-                            </span>{' '}
-                            sur{' '}
-                            <span className="text-slate-900 dark:text-white">
-                                {students.last_page}
-                            </span>
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                        className="flex items-center justify-between rounded-xl border border-border bg-card px-6 py-4 shadow-sm dark:border-white/5">
+                        <div className="text-muted-foreground text-xs font-medium">
+                            Page <span className="text-primary font-semibold">{students.current_page}</span> sur{' '}
+                            <span className="font-semibold text-foreground">{students.last_page}</span>
                         </div>
-                        <div className="flex gap-3">
-                            <Button
-                                disabled={students.current_page === 1}
-                                onClick={() =>
-                                    router.get(route('admin.students.index'), {
-                                        ...filters,
-                                        page: students.current_page - 1,
-                                    })
-                                }
-                                variant="outline"
-                                className="h-10 gap-2 rounded-xl border-white/50 px-6 text-[10px] font-black tracking-widest uppercase dark:border-white/5"
-                            >
-                                <ChevronLeft size={16} strokeWidth={3} />{' '}
-                                Précédent
+                        <div className="flex gap-2">
+                            <Button disabled={students.current_page === 1}
+                                onClick={() => router.get(route('admin.students.index'), { ...filters, page: students.current_page - 1 })}
+                                variant="outline" className="h-9 gap-1.5 rounded-lg px-4 text-xs font-semibold">
+                                <ChevronLeft size={14} /> Précédent
                             </Button>
-                            <Button
-                                disabled={
-                                    students.current_page === students.last_page
-                                }
-                                onClick={() =>
-                                    router.get(route('admin.students.index'), {
-                                        ...filters,
-                                        page: students.current_page + 1,
-                                    })
-                                }
-                                className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 h-10 gap-2 rounded-xl px-6 text-[10px] font-black tracking-widest text-white uppercase shadow-lg"
-                            >
-                                Suivant{' '}
-                                <ChevronRight size={16} strokeWidth={3} />
+                            <Button disabled={students.current_page === students.last_page}
+                                onClick={() => router.get(route('admin.students.index'), { ...filters, page: students.current_page + 1 })}
+                                className="bg-primary dark:bg-primary h-9 gap-1.5 rounded-lg px-4 text-xs font-semibold text-white">
+                                Suivant <ChevronRight size={14} />
                             </Button>
                         </div>
                     </motion.div>
                 )}
             </div>
-
-            {}
-            <div className="bg-asja-green-500/5 pointer-events-none fixed top-[15%] left-[-10%] -z-10 h-[600px] w-[600px] rounded-full blur-[150px]" />
-            <div className="bg-primary/5 pointer-events-none fixed right-[-5%] bottom-[5%] -z-10 h-[400px] w-[400px] rounded-full blur-[120px]" />
         </AdminLayout>
     );
 }

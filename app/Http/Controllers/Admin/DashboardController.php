@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\BlogPost;
+use App\Models\Post;
 use App\Models\Department;
 use App\Models\Testimony;
 use Inertia\Inertia;
@@ -18,12 +18,12 @@ class DashboardController extends Controller
     {
         return Inertia::render('Admin/Dashboard', [
             'stats' => [
-                'posts' => BlogPost::count(),
+                'posts' => Post::count(),
                 'students' => \App\Models\User::where('role', 'Student')->count(),
                 'testimonies' => Testimony::count(),
                 'departments' => Department::count(),
             ],
-            'recentPosts' => BlogPost::latest()
+            'recentPosts' => Post::latest()
                 ->take(3)
                 ->get(),
         ]);

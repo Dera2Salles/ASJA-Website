@@ -68,7 +68,7 @@ export default function UpdatePasswordForm({
                                     setData('current_password', e.target.value)
                                 }
                                 type="password"
-                                className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
+                                className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
                                 autoComplete="current-password"
                             />
                             <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
@@ -97,7 +97,7 @@ export default function UpdatePasswordForm({
                                     setData('password', e.target.value)
                                 }
                                 type="password"
-                                className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
+                                className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
                                 autoComplete="new-password"
                             />
                             <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
@@ -127,7 +127,7 @@ export default function UpdatePasswordForm({
                                     )
                                 }
                                 type="password"
-                                className="focus:ring-asja-green-500/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
+                                className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
                                 autoComplete="new-password"
                             />
                             <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
@@ -144,7 +144,7 @@ export default function UpdatePasswordForm({
                 <div className="flex items-center gap-6 pt-4">
                     <Button
                         disabled={processing}
-                        className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 flex h-12 gap-2 rounded-xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+                        className="bg-primary dark:bg-primary shadow-primary/20 flex h-12 gap-2 rounded-xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
                     >
                         {processing && (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -160,7 +160,7 @@ export default function UpdatePasswordForm({
                         leave="transition ease-in-out duration-300"
                         leaveTo="opacity-0 translate-x-4"
                     >
-                        <p className="text-asja-green-600 dark:text-primary flex items-center gap-2 text-sm font-black">
+                        <p className="text-primary dark:text-primary flex items-center gap-2 text-sm font-black">
                             <CheckCircle2 size={18} />
                             Mot de passe mis à jour
                         </p>

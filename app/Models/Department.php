@@ -9,8 +9,15 @@ class Department extends Model
 {
     protected $fillable = [
         'slug', 'name', 'description', 'logo', 'hero_image',
-        'color', 'is_visible', 'sort_order', 'parcours', 'events', 'stats',
+        'is_visible', 'sort_order', 'parcours', 'events', 'stats',
     ];
+
+    /**
+     * La couleur propre à chaque mention n'est plus utilisée : les pages de
+     * mention suivent le thème unique du site. La colonne subsiste en base
+     * (aucune donnée n'est détruite) mais n'est plus exposée au front.
+     */
+    protected $hidden = ['color'];
 
     protected $casts = [
         'is_visible' => 'boolean',

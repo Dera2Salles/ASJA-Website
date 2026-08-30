@@ -2,53 +2,32 @@
 
 namespace Database\Seeders;
 
-use App\Models\ComponentData;
+use App\Support\Cms;
 use Illuminate\Database\Seeder;
 
+/**
+ * Peuple `component_data` avec les valeurs par défaut du schéma.
+ *
+ * Optionnel : le site s'affiche correctement même sans ce seeder, puisque
+ * Cms::section() retombe déjà sur les défauts. Il sert surtout à pré-remplir
+ * les champs de l'admin pour que l'administrateur parte du contenu existant.
+ */
 class ComponentDataSeeder extends Seeder
 {
     public function run(): void
     {
-        $defaults = [
-            'hero' => [
-                'title'    => "Bienvenue à l'ASJA",
-                'subtitle' => "Université Catholique d'Antsirabe et Antsohihy — Excellence, Foi & Engagement",
-                'cta_text' => "S'inscrire maintenant",
-            ],
-            'about' => [
-                'title'       => "A propos de l'ASJA",
-                'description' => "L'Athenee Saint Joseph Antsirabe (ASJA) est une universite catholique situee a Antsirabe et Antsohihy, Madagascar. Elle a pour mission l'excellence academique, la discipline, la foi et l'engagement social.",
-                'mission'     => "Former des professionnels competents, engages et responsables pour Madagascar et le monde.",
-            ],
-            'stats' => [
-                'students'    => '2000+',
-                'programs'    => '6',
-                'years'       => '20+',
-                'cities'      => '2',
-            ],
-            'contact' => [
-                'phone'   => '034 49 483 19',
-                'email'   => 'example@gmail.com',
-                'address' => 'Antsaha, Antsirabe, Madagascar',
-                'facebook'=> 'https://www.facebook.com/UniversiteASJA',
-            ],
-            'programs' => [
-                'title'    => 'Nos Mentions',
-                'subtitle' => 'Choisissez votre avenir parmi nos formations reconnues par le MESupReS.',
-            ],
-            'gallery' => [
-                'title'    => 'Notre Campus',
-                'subtitle' => "Decouvrez notre environnement d'apprentissage stimulant.",
-            ],
-            'blog' => [
-                'title'    => 'Actualites & Evenements',
-                'subtitle' => "Restez informe de la vie de l'ASJA.",
-            ],
-        ];
+        foreach (Cms::schema() as $section => $definition) {
+            $values = [];
 
-        foreach ($defaults as $section => $keys) {
-            foreach ($keys as $key => $value) {
-                ComponentData::setValue($section, $key, $value);
+            foreach ($definition['fields'] as $key => $field) {
+                if (! array_key_exists('default', $field)) {
+                    continue;
+                }
+                $values[$key] = $field['default'];
+            }
+
+            if ($values !== []) {
+                Cms::put($section, $values);
             }
         }
     }

@@ -53,7 +53,7 @@ function Page({
     categories: any[];
     post?: any;
 }) {
-    const { data, setData, post, processing, errors, reset } =
+    const { data, setData, post, processing, errors, reset, transform } =
         useForm<PostFormData>({
             title: existingPost?.title || '',
             excerpt: existingPost?.excerpt || '',
@@ -135,13 +135,16 @@ function Page({
             ? route('blog.update', existingPost.id)
             : route('blog.store');
 
+        // La charge utile se prépare via transform() : `data` n'est pas une
+        // option acceptée par post().
+        transform(() => ({
+            ...payload,
+            _method: existingPost ? 'put' : 'post',
+            category_id: data.category_id ? Number(data.category_id) : null,
+        }));
+
         post(url, {
             forceFormData: true,
-            data: {
-                ...payload,
-                _method: existingPost ? 'put' : 'post',
-                category_id: data.category_id ? Number(data.category_id) : null,
-            },
             onSuccess: () => {
                 toast.success('Enregistré avec succès !');
                 if (!existingPost) {
@@ -168,10 +171,10 @@ function Page({
                         >
                             <nav className="text-muted-foreground mb-4 flex items-center gap-2 text-[10px] font-black tracking-[3px] uppercase">
                                 <span>Admin</span>
-                                <span className="text-asja-green-500/50">
+                                <span className="text-primary/50">
                                     /
                                 </span>
-                                <span className="text-asja-green-600 dark:text-primary">
+                                <span className="text-primary dark:text-primary">
                                     Blog
                                 </span>
                             </nav>
@@ -197,7 +200,7 @@ function Page({
                             <Button
                                 onClick={handleSubmit}
                                 disabled={processing}
-                                className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 group h-12 rounded-2xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
+                                className="bg-primary dark:bg-primary shadow-primary/20 group h-12 rounded-2xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
                             >
                                 {processing ? (
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -224,7 +227,7 @@ function Page({
                                     className="h-auto border-none bg-transparent p-0 text-5xl font-black tracking-tight text-slate-900 placeholder:text-slate-200 focus-visible:ring-0 md:text-6xl dark:text-white dark:placeholder:text-slate-800"
                                 />
                                 <motion.div
-                                    className="bg-asja-green-500 h-1.5 w-24 rounded-full"
+                                    className="bg-primary h-1.5 w-24 rounded-full"
                                     initial={{ width: 40 }}
                                     whileInView={{ width: 120 }}
                                     transition={{ duration: 0.8 }}
@@ -234,12 +237,12 @@ function Page({
                             {}
                             <div className="glass relative overflow-hidden rounded-[2.5rem] border-none shadow-2xl">
                                 <div className="flex items-center justify-between border-b border-white/40 bg-white/30 px-8 py-5 dark:border-white/5">
-                                    <span className="text-asja-green-600 dark:text-primary text-[10px] font-black tracking-[3px] uppercase">
+                                    <span className="text-primary dark:text-primary text-[10px] font-black tracking-[3px] uppercase">
                                         Corps de l'article
                                     </span>
                                     <div className="flex gap-2">
-                                        <div className="bg-asja-green-400/50 h-2 w-2 rounded-full" />
-                                        <div className="bg-asja-green-400 h-2 w-2 rounded-full" />
+                                        <div className="bg-primary/50 h-2 w-2 rounded-full" />
+                                        <div className="bg-primary h-2 w-2 rounded-full" />
                                     </div>
                                 </div>
                                 <div className="min-h-[600px] bg-white/50 backdrop-blur-sm dark:bg-black/20">
@@ -262,7 +265,7 @@ function Page({
                                     <CardTitle className="text-muted-foreground flex items-center gap-2 text-[10px] font-black tracking-[3px] uppercase">
                                         <MessageSquare
                                             size={14}
-                                            className="text-asja-green-500"
+                                            className="text-primary"
                                         />
                                         Résumé de l'article
                                     </CardTitle>
@@ -274,7 +277,7 @@ function Page({
                                         onChange={(e) =>
                                             setData('excerpt', e.target.value)
                                         }
-                                        className="focus:ring-asja-green-500/20 resize-none rounded-2xl border-none bg-slate-50/50 p-4 text-lg font-medium placeholder:text-slate-300 focus:ring-2 dark:bg-white/5 dark:placeholder:text-white/10"
+                                        className="focus:ring-ring/20 resize-none rounded-2xl border-none bg-slate-50/50 p-4 text-lg font-medium placeholder:text-slate-300 focus:ring-2 dark:bg-white/5 dark:placeholder:text-white/10"
                                         rows={4}
                                     />
                                 </CardContent>
@@ -285,8 +288,8 @@ function Page({
                         <div className="space-y-8 lg:col-span-4">
                             {}
                             <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
-                                <CardHeader className="bg-asja-green-500/5 px-8 py-6">
-                                    <CardTitle className="text-asja-green-800 dark:text-primary text-sm leading-none font-black tracking-widest uppercase">
+                                <CardHeader className="bg-primary/5 px-8 py-6">
+                                    <CardTitle className="text-primary dark:text-primary text-sm leading-none font-black tracking-widest uppercase">
                                         Publication
                                     </CardTitle>
                                 </CardHeader>
@@ -364,7 +367,7 @@ function Page({
                                             <Button
                                                 size="icon"
                                                 variant="outline"
-                                                className="glass hover:bg-asja-green-500 h-12 w-12 shrink-0 rounded-xl shadow-sm transition-all hover:text-white"
+                                                className="glass hover:bg-primary h-12 w-12 shrink-0 rounded-xl shadow-sm transition-all hover:text-white"
                                                 onClick={() =>
                                                     setShowNewCategoryDialog(
                                                         true,
@@ -382,7 +385,7 @@ function Page({
                             <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
                                 <CardHeader className="px-8 py-6">
                                     <CardTitle className="text-muted-foreground flex items-center gap-3 text-sm font-black tracking-widest uppercase">
-                                        <ImageIcon className="text-asja-green-500 h-4 w-4" />
+                                        <ImageIcon className="text-primary h-4 w-4" />
                                         Image à la une
                                     </CardTitle>
                                 </CardHeader>
@@ -394,7 +397,7 @@ function Page({
                                                 alt="Preview"
                                                 className="h-56 w-full object-cover transition-transform duration-700 group-hover:scale-110"
                                             />
-                                            <div className="bg-asja-green-900/60 absolute inset-0 flex items-center justify-center opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
+                                            <div className="bg-primary/60 absolute inset-0 flex items-center justify-center opacity-0 backdrop-blur-[2px] transition-opacity duration-300 group-hover:opacity-100">
                                                 <Button
                                                     variant="destructive"
                                                     size="sm"
@@ -412,12 +415,12 @@ function Page({
                                             </div>
                                         </div>
                                     ) : (
-                                        <Label className="border-asja-green-100 hover:bg-asja-green-50/50 dark:hover:bg-primary/5 group flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-slate-50/50 transition-all dark:border-white/5 dark:bg-white/5">
+                                        <Label className="border-border hover:bg-accent/50 dark:hover:bg-primary/5 group flex h-56 cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed bg-slate-50/50 transition-all dark:border-white/5 dark:bg-white/5">
                                             <div className="flex flex-col items-center gap-4">
-                                                <div className="shadow-asja-green-900/5 rounded-3xl bg-white p-4 shadow-xl transition-transform group-hover:scale-110 dark:bg-slate-800">
-                                                    <PlusCircle className="text-asja-green-600 dark:text-primary h-8 w-8" />
+                                                <div className="shadow-primary/5 rounded-3xl bg-white p-4 shadow-xl transition-transform group-hover:scale-110 dark:bg-slate-800">
+                                                    <PlusCircle className="text-primary dark:text-primary h-8 w-8" />
                                                 </div>
-                                                <span className="group-hover:text-asja-green-600 text-sm font-black tracking-widest text-slate-400 uppercase transition-colors">
+                                                <span className="group-hover:text-primary text-sm font-black tracking-widest text-slate-400 uppercase transition-colors">
                                                     Ajouter une image
                                                 </span>
                                             </div>
@@ -436,7 +439,7 @@ function Page({
                             <Card className="glass overflow-hidden rounded-[2rem] border-none shadow-xl">
                                 <CardHeader className="px-8 py-6">
                                     <CardTitle className="text-muted-foreground flex items-center gap-3 text-sm font-black tracking-widest uppercase">
-                                        <Tag className="text-asja-green-500 h-4 w-4" />
+                                        <Tag className="text-primary h-4 w-4" />
                                         Tags
                                     </CardTitle>
                                 </CardHeader>
@@ -457,7 +460,7 @@ function Page({
                                         <Button
                                             size="sm"
                                             onClick={handleAddTag}
-                                            className="hover:bg-asja-green-600 h-10 rounded-xl bg-slate-900 px-4 font-bold transition-colors dark:bg-white dark:text-slate-900"
+                                            className="hover:bg-primary h-10 rounded-xl bg-slate-900 px-4 font-bold transition-colors dark:bg-white dark:text-slate-900"
                                         >
                                             Add
                                         </Button>
@@ -504,7 +507,7 @@ function Page({
                             <div className="space-y-3">
                                 <Label
                                     htmlFor="category-name"
-                                    className="text-asja-green-600 text-[10px] font-black tracking-widest uppercase"
+                                    className="text-primary text-[10px] font-black tracking-widest uppercase"
                                 >
                                     Nom de la catégorie
                                 </Label>
@@ -536,7 +539,7 @@ function Page({
                                         },
                                     );
                                 }}
-                                className="bg-asja-green-600 dark:bg-primary shadow-asja-green-900/20 h-14 grow rounded-2xl font-black text-white shadow-xl"
+                                className="bg-primary dark:bg-primary shadow-primary/20 h-14 grow rounded-2xl font-black text-white shadow-xl"
                             >
                                 Ajouter la catégorie
                             </Button>
@@ -550,7 +553,7 @@ function Page({
                         </DialogFooter>
 
                         {}
-                        <div className="bg-asja-green-500/10 absolute -right-20 -bottom-20 -z-10 h-64 w-64 rounded-full blur-[80px]" />
+                        <div className="bg-primary/10 absolute -right-20 -bottom-20 -z-10 h-64 w-64 rounded-full blur-[80px]" />
                     </DialogContent>
                 </Dialog>
             </div>

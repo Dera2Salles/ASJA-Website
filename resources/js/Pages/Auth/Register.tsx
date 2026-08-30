@@ -37,10 +37,10 @@ export default function Register() {
                     animate={{ opacity: 1, y: 0 }}
                     className="space-y-2 text-center"
                 >
-                    <h2 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
-                        Créer un <span className="text-asja-green-600">Compte</span>
+                    <h2 className="text-3xl font-black tracking-tight text-foreground dark:text-white uppercase">
+                        Créer un <span className="text-primary">Compte</span>
                     </h2>
-                    <p className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">
+                    <p className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">
                         Rejoignez l'Université ASJA
                     </p>
                 </motion.div>
@@ -50,7 +50,7 @@ export default function Register() {
                         <div className="space-y-2">
                             <Label
                                 htmlFor="name"
-                                className="ml-1 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase"
+                                className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
                             >
                                 Nom Complet
                             </Label>
@@ -58,7 +58,7 @@ export default function Register() {
                                 id="name"
                                 name="name"
                                 value={data.name}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="name"
                                 placeholder="John Doe"
                                 onChange={(e) =>
@@ -77,7 +77,7 @@ export default function Register() {
                         <div className="space-y-2">
                             <Label
                                 htmlFor="email"
-                                className="ml-1 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase"
+                                className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
                             >
                                 Adresse Email
                             </Label>
@@ -86,7 +86,7 @@ export default function Register() {
                                 type="email"
                                 name="email"
                                 value={data.email}
-                                className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                 autoComplete="username"
                                 placeholder="votre@email.com"
                                 onChange={(e) =>
@@ -105,7 +105,7 @@ export default function Register() {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="password"
-                                    className="ml-1 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase"
+                                    className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
                                 >
                                     Mot de passe
                                 </Label>
@@ -114,7 +114,7 @@ export default function Register() {
                                     type="password"
                                     name="password"
                                     value={data.password}
-                                    className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                    className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                     autoComplete="new-password"
                                     placeholder="••••••••"
                                     onChange={(e) =>
@@ -127,7 +127,7 @@ export default function Register() {
                             <div className="space-y-2">
                                 <Label
                                     htmlFor="password_confirmation"
-                                    className="ml-1 text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase"
+                                    className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
                                 >
                                     Confirmation
                                 </Label>
@@ -136,7 +136,7 @@ export default function Register() {
                                     type="password"
                                     name="password_confirmation"
                                     value={data.password_confirmation}
-                                    className="h-12 rounded-xl border-none bg-slate-50 dark:bg-zinc-800/50 focus:ring-2 focus:ring-asja-green-500/20 px-4 font-bold text-slate-900 dark:text-white placeholder:text-slate-300 transition-all"
+                                    className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
                                     autoComplete="new-password"
                                     placeholder="••••••••"
                                     onChange={(e) =>
@@ -165,7 +165,7 @@ export default function Register() {
                     <div className="pt-6">
                         <Button
                             disabled={processing}
-                            className="h-12 rounded-xl bg-asja-green-600 hover:bg-asja-green-700 text-white font-black uppercase tracking-widest shadow-xl shadow-asja-green-900/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex gap-3 group/btn"
+                            className="h-12 bg-primary border border-border hover:bg-background hover:text-primary text-primary-foreground font-black uppercase tracking-widest flex gap-3 group/btn"
                         >
                             {processing ? (
                                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -179,11 +179,11 @@ export default function Register() {
                     </div>
 
                     <div className="pt-6 text-center">
-                        <p className="text-[10px] font-black tracking-widest text-slate-400 uppercase">
+                        <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">
                             Déjà inscrit ?{' '}
                             <Link
                                 href={route('login')}
-                                className="text-asja-green-600 hover:text-asja-green-700 ml-1 underline underline-offset-4"
+                                className="text-primary hover:text-primary ml-1 underline underline-offset-4"
                             >
                                 Se connecter
                             </Link>

@@ -31,7 +31,7 @@ export const columns: ColumnDef<UserDto>[] = [
         },
         cell: ({ row }) => (
             <Avatar
-                className={`size-11 rounded-full ${row.getValue('imageUrl') ? 'border-2' : 'border-0'} border-green-700`}
+                className={`size-11 rounded-full ${row.getValue('imageUrl') ? 'border' : 'border-0'} border-green-700`}
             >
                 <AvatarFallback className="bg-gradient-to-br from-zinc-400 to-zinc-500 text-white dark:text-white">
                     {row.getValue('imageUrl') ? (
