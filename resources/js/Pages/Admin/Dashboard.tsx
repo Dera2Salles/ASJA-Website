@@ -1,190 +1,402 @@
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from '@/components/ui/chart';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
 import AdminLayout from '@/Layouts/AdminLayout';
 import {
     formatDate,
+    formatEventPeriod,
     POST_TYPE_LABELS,
-    postImage,
     type Post,
 } from '@/lib/posts';
 import { PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
 import {
-    ArrowRight,
     Building2,
+    CalendarClock,
     FileText,
+    MapPin,
     MessageSquare,
+    Pencil,
     Plus,
     Users,
 } from 'lucide-react';
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-interface DashboardStats {
+interface Stats {
     posts: number;
+    published: number;
+    drafts: number;
+    scheduled: number;
     students: number;
     testimonies: number;
     departments: number;
+    upcomingEvents: number;
 }
+
+interface Props {
+    stats: Stats;
+    byType: { type: string; total: number }[];
+    activity: { month: string; total: number }[];
+    recentPosts: Post[];
+    upcomingEvents: Post[];
+}
+
+const chartConfig = {
+    total: { label: 'Publications', color: 'var(--chart-1)' },
+} satisfies ChartConfig;
+
+/** Statut réel d'une publication, programmation comprise. */
+function statusBadge(post: Post) {
+    if (!post.published_at) {
+        return <Badge variant="secondary">Brouillon</Badge>;
+    }
+    if (new Date(post.published_at) > new Date()) {
+        return <Badge variant="outline">Programmée</Badge>;
+    }
+    return <Badge>En ligne</Badge>;
+}
+
+const StatCard = ({
+    label,
+    value,
+    hint,
+    icon: Icon,
+    href,
+}: {
+    label: string;
+    value: number;
+    hint?: string;
+    icon: React.ElementType;
+    href: string;
+}) => (
+    <Link href={href} className="block">
+        <Card className="app-interactive h-full">
+            <CardHeader className="flex flex-row items-start justify-between gap-3 space-y-0 pb-2">
+                <div className="space-y-1">
+                    <CardDescription>{label}</CardDescription>
+                    <CardTitle className="text-3xl tabular-nums">
+                        {value}
+                    </CardTitle>
+                </div>
+                <div className="bg-accent text-accent-foreground rounded-lg p-2.5">
+                    <Icon className="size-5" />
+                </div>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground text-xs">{hint ?? ' '}</p>
+            </CardContent>
+        </Card>
+    </Link>
+);
 
 export default function DashboardPage({
     stats,
-    recentPosts = [],
-}: {
-    stats: DashboardStats;
-    recentPosts: Post[];
-}) {
+    byType,
+    activity,
+    recentPosts,
+    upcomingEvents,
+}: Props) {
     const { auth } = usePage<PageProps>().props;
 
-    const cards = [
-        {
-            title: 'Publications',
-            value: stats?.posts ?? 0,
-            icon: FileText,
-            href: route('admin.posts.index'),
-        },
-        {
-            title: 'Étudiants',
-            value: stats?.students ?? 0,
-            icon: Users,
-            href: route('admin.students.index'),
-        },
-        {
-            title: 'Témoignages',
-            value: stats?.testimonies ?? 0,
-            icon: MessageSquare,
-            href: route('admin.testimonies.index'),
-        },
-        {
-            title: 'Mentions',
-            value: stats?.departments ?? 0,
-            icon: Building2,
-            href: route('admin.departments.index'),
-        },
-    ];
-
     return (
-        <AdminLayout>
-            <Head title="Tableau de bord" />
-
-            <div className="space-y-10 pb-16">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <h1 className="text-foreground text-3xl">
-                            Bonjour, {auth.user.name}
-                        </h1>
-                        <p className="text-muted-foreground mt-2 text-sm">
-                            Aperçu de l'activité du site.
-                        </p>
-                    </div>
-
-                    <Link
-                        href={route('admin.posts.create')}
-                        className="bg-primary text-primary-foreground border-border hover:bg-background hover:text-primary inline-flex items-center gap-2 self-start border px-4 py-2.5 text-sm font-bold uppercase"
-                    >
-                        <Plus className="h-4 w-4" />
+        <AdminLayout
+            breadcrumbs={[{ label: 'Tableau de bord' }]}
+            actions={
+                <Button asChild size="sm">
+                    <Link href={route('admin.posts.create')}>
+                        <Plus className="size-4" />
                         Nouvelle publication
                     </Link>
-                </div>
+                </Button>
+            }
+        >
+            <Head title="Tableau de bord" />
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    {cards.map((card, i) => (
-                        <motion.div
-                            key={card.title}
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.06 }}
+            <div>
+                <h1 className="text-2xl font-semibold tracking-tight">
+                    Bonjour, {auth.user.name}
+                </h1>
+                <p className="text-muted-foreground mt-1 text-sm">
+                    Voici l'état du site aujourd'hui.
+                </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    label="Publications"
+                    value={stats.posts}
+                    hint={`${stats.published} en ligne · ${stats.drafts} brouillon(s)`}
+                    icon={FileText}
+                    href={route('admin.posts.index')}
+                />
+                <StatCard
+                    label="Étudiants"
+                    value={stats.students}
+                    hint="Comptes étudiants enregistrés"
+                    icon={Users}
+                    href={route('admin.students.index')}
+                />
+                <StatCard
+                    label="Mentions"
+                    value={stats.departments}
+                    hint="Filières publiées sur le site"
+                    icon={Building2}
+                    href={route('admin.departments.index')}
+                />
+                <StatCard
+                    label="Témoignages"
+                    value={stats.testimonies}
+                    hint="Affichés sur la page d'accueil"
+                    icon={MessageSquare}
+                    href={route('admin.testimonies.index')}
+                />
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+                <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Rythme de publication</CardTitle>
+                        <CardDescription>
+                            Publications créées sur les six derniers mois
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ChartContainer
+                            config={chartConfig}
+                            className="h-[240px] w-full"
                         >
-                            <Link
-                                href={card.href}
-                                className="border-border bg-card hover:bg-primary group flex items-center justify-between border p-5"
+                            <AreaChart
+                                data={activity}
+                                margin={{ left: -20, right: 8, top: 8 }}
                             >
-                                <div>
-                                    <p className="text-muted-foreground group-hover:text-primary-foreground text-xs font-bold tracking-wider uppercase">
-                                        {card.title}
-                                    </p>
-                                    <p className="text-foreground group-hover:text-primary-foreground font-display mt-1.5 text-3xl font-bold">
-                                        {card.value}
-                                    </p>
-                                </div>
-                                <div className="border-border bg-background text-foreground group-hover:bg-accent group-hover:text-accent-foreground border p-3">
-                                    <card.icon className="h-5 w-5" />
-                                </div>
-                            </Link>
-                        </motion.div>
-                    ))}
-                </div>
-
-                <div>
-                    <div className="mb-5 flex items-center justify-between">
-                        <h2 className="text-foreground text-xl">
-                            Publications récentes
-                        </h2>
-                        <Link
-                            href={route('admin.posts.index')}
-                            className="text-primary group inline-flex items-center gap-1 text-sm font-bold uppercase hover:underline"
-                        >
-                            Voir tout
-                            <ArrowRight className="h-3.5 w-3.5" />
-                        </Link>
-                    </div>
-
-                    {recentPosts.length > 0 ? (
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                            {recentPosts.map((post) => {
-                                const image = postImage(post);
-                                return (
-                                    <Link
-                                        key={post.id}
-                                        href={route('admin.posts.edit', post.id)}
-                                        className="border-border bg-card hover:bg-primary group overflow-hidden border"
+                                <defs>
+                                    <linearGradient
+                                        id="fillTotal"
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
                                     >
-                                        <div className="bg-muted aspect-[16/9] overflow-hidden">
-                                            {image ? (
-                                                <img
-                                                    src={image}
-                                                    alt=""
-                                                    className="h-full w-full object-cover grayscale group-hover:grayscale-0"
-                                                />
-                                            ) : null}
-                                        </div>
-                                        <div className="p-4">
-                                            <p className="text-muted-foreground group-hover:text-primary-foreground mb-1.5 text-xs font-bold tracking-wider uppercase">
-                                                {POST_TYPE_LABELS[post.type] ??
-                                                    'Publication'}
-                                            </p>
-                                            <h3 className="text-foreground group-hover:text-primary-foreground truncate font-bold">
-                                                {post.title}
-                                            </h3>
-                                            <p className="text-muted-foreground group-hover:text-primary-foreground mt-1 text-xs">
-                                                {post.published_at
-                                                    ? formatDate(post.published_at)
-                                                    : 'Brouillon'}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                );
-                            })}
-                        </div>
-                    ) : (
-                        <div className="border-border border border-dashed py-16 text-center">
-                            <FileText
-                                className="text-muted-foreground mx-auto mb-4 h-10 w-10"
-                                strokeWidth={1.5}
-                            />
-                            <h3 className="text-foreground font-semibold">
-                                Aucune publication
-                            </h3>
-                            <p className="text-muted-foreground mx-auto mt-1.5 max-w-sm text-sm">
-                                Partagez les actualités de l'université avec vos
-                                étudiants.
+                                        <stop
+                                            offset="5%"
+                                            stopColor="var(--color-total)"
+                                            stopOpacity={0.35}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor="var(--color-total)"
+                                            stopOpacity={0.02}
+                                        />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid vertical={false} />
+                                <XAxis
+                                    dataKey="month"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                />
+                                <YAxis
+                                    allowDecimals={false}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    width={40}
+                                />
+                                <ChartTooltip
+                                    content={<ChartTooltipContent />}
+                                />
+                                <Area
+                                    dataKey="total"
+                                    type="monotone"
+                                    stroke="var(--color-total)"
+                                    strokeWidth={2}
+                                    fill="url(#fillTotal)"
+                                />
+                            </AreaChart>
+                        </ChartContainer>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Répartition</CardTitle>
+                        <CardDescription>Publications par type</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-5">
+                        {byType.map((row) => {
+                            const max = Math.max(
+                                1,
+                                ...byType.map((r) => r.total),
+                            );
+                            return (
+                                <div key={row.type} className="space-y-1.5">
+                                    <div className="flex items-baseline justify-between text-sm">
+                                        <span className="font-medium">
+                                            {row.type}
+                                        </span>
+                                        <span className="text-muted-foreground tabular-nums">
+                                            {row.total}
+                                        </span>
+                                    </div>
+                                    <div className="bg-muted h-2 w-full overflow-hidden rounded-full">
+                                        <div
+                                            className="bg-primary h-full rounded-full transition-[width] duration-500"
+                                            style={{
+                                                width: `${(row.total / max) * 100}%`,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            );
+                        })}
+
+                        {stats.scheduled > 0 ? (
+                            <p className="text-muted-foreground border-t pt-4 text-xs">
+                                {stats.scheduled} publication(s) programmée(s)
+                                en attente de mise en ligne.
                             </p>
-                            <Link
-                                href={route('admin.posts.create')}
-                                className="text-primary mt-6 inline-block text-sm font-semibold hover:underline"
-                            >
-                                Créer la première publication
-                            </Link>
+                        ) : null}
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div className="grid gap-4 lg:grid-cols-3">
+                <Card className="lg:col-span-2">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <div>
+                            <CardTitle>Publications récentes</CardTitle>
+                            <CardDescription>
+                                Les six dernières, tous statuts confondus
+                            </CardDescription>
                         </div>
-                    )}
-                </div>
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={route('admin.posts.index')}>
+                                Tout voir
+                            </Link>
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {recentPosts.length === 0 ? (
+                            <p className="text-muted-foreground py-8 text-center text-sm">
+                                Aucune publication pour le moment.
+                            </p>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Titre</TableHead>
+                                        <TableHead className="hidden sm:table-cell">
+                                            Type
+                                        </TableHead>
+                                        <TableHead>Statut</TableHead>
+                                        <TableHead className="hidden md:table-cell">
+                                            Date
+                                        </TableHead>
+                                        <TableHead className="w-10" />
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {recentPosts.map((post) => (
+                                        <TableRow key={post.id}>
+                                            <TableCell className="max-w-[22ch] truncate font-medium">
+                                                {post.title}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground hidden sm:table-cell">
+                                                {POST_TYPE_LABELS[post.type]}
+                                            </TableCell>
+                                            <TableCell>
+                                                {statusBadge(post)}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground hidden md:table-cell">
+                                                {post.published_at
+                                                    ? formatDate(
+                                                          post.published_at,
+                                                      )
+                                                    : '—'}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Button
+                                                    asChild
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8"
+                                                >
+                                                    <Link
+                                                        href={route(
+                                                            'admin.posts.edit',
+                                                            post.id,
+                                                        )}
+                                                        aria-label="Modifier"
+                                                    >
+                                                        <Pencil className="size-4" />
+                                                    </Link>
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Événements à venir</CardTitle>
+                        <CardDescription>
+                            {stats.upcomingEvents} événement(s) programmé(s)
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        {upcomingEvents.length === 0 ? (
+                            <p className="text-muted-foreground py-6 text-center text-sm">
+                                Aucun événement à venir.
+                            </p>
+                        ) : (
+                            upcomingEvents.map((event) => (
+                                <Link
+                                    key={event.id}
+                                    href={route('admin.posts.edit', event.id)}
+                                    className="hover:bg-accent block rounded-lg border p-3"
+                                >
+                                    <p className="truncate text-sm font-medium">
+                                        {event.title}
+                                    </p>
+                                    <p className="text-muted-foreground mt-1.5 flex items-center gap-1.5 text-xs">
+                                        <CalendarClock className="size-3.5" />
+                                        {formatEventPeriod(event)}
+                                    </p>
+                                    {event.location ? (
+                                        <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs">
+                                            <MapPin className="size-3.5" />
+                                            {event.location}
+                                        </p>
+                                    ) : null}
+                                </Link>
+                            ))
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </AdminLayout>
     );

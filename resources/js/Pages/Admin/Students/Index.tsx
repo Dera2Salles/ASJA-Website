@@ -307,7 +307,7 @@ export default function StudentsIndex({ students, filters, mentions }: Props) {
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout breadcrumbs={[{ label: 'Étudiants' }]}>
             <div className="space-y-8 pb-16">
                 {/* Header */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

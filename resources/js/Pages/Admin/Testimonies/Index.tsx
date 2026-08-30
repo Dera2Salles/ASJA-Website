@@ -53,7 +53,7 @@ export default function TestimoniesIndex({ testimonies }: { testimonies: Testimo
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout breadcrumbs={[{ label: 'Témoignages' }]}>
             <div className="space-y-8 pb-16">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-1">

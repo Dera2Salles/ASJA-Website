@@ -67,7 +67,7 @@ export default function ComponentDataIndex({ schema, content }: Props) {
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout breadcrumbs={[{ label: 'Pages & sections' }]}>
             <Head title="Contenu du site" />
 
             <div className="pb-16">

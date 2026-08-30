@@ -71,39 +71,67 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+
+    /* Rôles attendus par le composant Sidebar de shadcn : sans eux, il
+       s'affichait sans couleurs. */
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Palette des graphiques, dérivée du vert ASJA. */
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
 }
 
-/* --- Mode clair : blanc cassé, texte gris très foncé, accent vert ---------- */
+/* --- Mode clair : fond blanc cassé, textes quasi-noirs pour un contraste maximal ---------- */
 :root {
     --radius: 0px;
 
     --background: #f3f5f4;
-    --foreground: #1c1f1d;
+    --foreground: #0f1210;          /* quasi-noir → identique au mode sombre inversé */
     --card: #ffffff;
-    --card-foreground: #1c1f1d;
+    --card-foreground: #0f1210;
     --popover: #ffffff;
-    --popover-foreground: #1c1f1d;
+    --popover-foreground: #0f1210;
 
     --primary: var(--color-asja);
     --primary-foreground: #ffffff;
-    /* Bloc secondaire en gris clair : l'inversion noir/blanc créait un pavé
-       trop violent au milieu de la page. */
     --secondary: #e9ecea;
-    --secondary-foreground: #1c1f1d;
+    --secondary-foreground: #0f1210;
     --muted: #e9ecea;
-    --muted-foreground: #5f6663;
-    /* L'accent sert de fond au survol : un aplat vert vif y était illisible. */
+    --muted-foreground: #2f3331;    /* gris très foncé → était trop clair */
     --accent: var(--color-asja-soft);
     --accent-foreground: var(--color-asja-deep);
 
     --destructive: #c1332b;
     --destructive-foreground: #ffffff;
 
-    /* Bordures grises : en noir plein, chaque carte et chaque champ tirait
-       l'œil autant que le texte. */
-    --border: #c6ccc8;
-    --input: #b9c0bc;
+    --border: #a8b0ac;              /* bordures plus visibles */
+    --input: #9aa09c;
     --ring: var(--color-asja);
+
+    --sidebar: #ffffff;
+    --sidebar-foreground: #1c1f1d;
+    --sidebar-primary: var(--color-asja);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: var(--color-asja-soft);
+    --sidebar-accent-foreground: var(--color-asja-deep);
+    --sidebar-border: #dfe4e1;
+    --sidebar-ring: var(--color-asja);
+
+    --chart-1: #0c8042;
+    --chart-2: #35cf7f;
+    --chart-3: #08542c;
+    --chart-4: #7fdaa6;
+    --chart-5: #5f6663;
 }
 
 /* --- Mode sombre : anthracite, texte blanc cassé, accent vert -------------- */
@@ -130,12 +158,30 @@
     --border: #313634;
     --input: #3a403d;
     --ring: var(--color-asja-bright);
+
+    --sidebar: #1b1e1c;
+    --sidebar-foreground: #e6e9e7;
+    --sidebar-primary: var(--color-asja-bright);
+    --sidebar-primary-foreground: #12150e;
+    --sidebar-accent: #1d2f25;
+    --sidebar-accent-foreground: #7fdaa6;
+    --sidebar-border: #2a2f2c;
+    --sidebar-ring: var(--color-asja-bright);
+
+    --chart-1: #35cf7f;
+    --chart-2: #0c8042;
+    --chart-3: #7fdaa6;
+    --chart-4: #08542c;
+    --chart-5: #9aa19d;
 }
 
 @layer base {
+    *:not(.app-shell, .app-shell *) {
+        border-radius: 0 !important;
+    }
+
     * {
         @apply border-border;
-        border-radius: 0 !important;
     }
 
     body {
@@ -179,26 +225,26 @@
     }
 
     /* Survols francs et instantanés : pas de transition, inversion nette. */
-    a,
-    button {
+    a:not(.app-shell *),
+    button:not(.app-shell *) {
         transition: none;
     }
 
     /* Filet de sécurité brutaliste : neutralise tout flou, dégradé ou ombre
        douce qui subsisterait dans des classes utilitaires non nettoyées.
        Le focus (ring-*, box-shadow) reste actif car ciblé séparément. */
-    [class*='blur-'],
-    [class*='backdrop-blur'] {
+    [class*='blur-']:not(.app-shell *),
+    [class*='backdrop-blur']:not(.app-shell *) {
         filter: none !important;
         backdrop-filter: none !important;
     }
 
-    [class*='bg-gradient-to'] {
+    [class*='bg-gradient-to']:not(.app-shell *) {
         background-image: none !important;
     }
 
-    [class*='shadow-']:not(:focus-visible):not(:focus),
-    .shadow {
+    [class*='shadow-']:not(:focus-visible):not(:focus):not(.app-shell *),
+    .shadow:not(.app-shell *) {
         box-shadow: none !important;
     }
 }
@@ -215,7 +261,7 @@
 
     /* Sur-titre en capitales qui coiffe les titres de section. */
     .eyebrow {
-        @apply text-primary font-mono text-xs font-bold tracking-[0.18em] uppercase;
+        @apply text-primary font-sans text-xs font-bold tracking-[0.18em] uppercase;
     }
 
     /* Bordure franche pleine, remplace toute élévation/ombre. */
@@ -251,18 +297,18 @@
 
     .band-light {
         --background: #eef1ef;
-        --foreground: #1c1f1d;
+        --foreground: #0f1210;
         --card: #ffffff;
-        --card-foreground: #1c1f1d;
+        --card-foreground: #0f1210;
         --popover: #ffffff;
-        --popover-foreground: #1c1f1d;
+        --popover-foreground: #0f1210;
         --muted: #e2e6e4;
-        --muted-foreground: #5f6663;
+        --muted-foreground: #2f3331;
         --accent: var(--color-asja-soft);
         --accent-foreground: var(--color-asja-deep);
         --primary: var(--color-asja);
         --primary-foreground: #ffffff;
-        --border: #c6ccc8;
+        --border: #a8b0ac;
         background: var(--background);
         color: var(--foreground);
     }
@@ -282,6 +328,79 @@
 
     .scrollbar-premium::-webkit-scrollbar-thumb:hover {
         background: var(--muted-foreground);
+    }
+}
+
+
+/* ==========================================================================
+   Administration — habillage « application »
+   Le site public assume un parti pris brutaliste (angles droits, aplats,
+   aucune ombre). Un outil de gestion utilisé quotidiennement demande
+   l'inverse : des surfaces douces, une profondeur lisible et des transitions
+   qui rendent les états compréhensibles. Tout ce qui suit est donc contenu
+   dans `.app-shell` et n'affecte jamais les pages publiques.
+   ========================================================================== */
+
+.app-shell {
+    --radius: 0.625rem;
+
+    --app-radius-sm: 6px;
+    --app-radius: 10px;
+    --app-radius-lg: 14px;
+
+    --app-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.05);
+    --app-shadow: 0 2px 8px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04);
+    --app-shadow-lg: 0 12px 28px oklch(0 0 0 / 0.1), 0 2px 6px oklch(0 0 0 / 0.05);
+}
+
+.dark .app-shell {
+    --app-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+    --app-shadow: 0 2px 8px oklch(0 0 0 / 0.35), 0 1px 2px oklch(0 0 0 / 0.2);
+    --app-shadow-lg: 0 12px 28px oklch(0 0 0 / 0.45), 0 2px 6px oklch(0 0 0 / 0.3);
+}
+
+@layer utilities {
+    /* Surface de base : carte, panneau, ligne de tableau. */
+    .app-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--app-radius);
+        box-shadow: var(--app-shadow-sm);
+    }
+
+    .app-card-interactive {
+        transition:
+            box-shadow 0.18s ease,
+            border-color 0.18s ease,
+            transform 0.18s ease;
+    }
+
+    .app-card-interactive:hover {
+        border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+        box-shadow: var(--app-shadow);
+        transform: translateY(-1px);
+    }
+
+    .app-elevated {
+        box-shadow: var(--app-shadow-lg);
+    }
+
+    /* Champs et boutons : rayon commun pour éviter les mélanges d'angles. */
+    .app-shell input,
+    .app-shell textarea,
+    .app-shell select,
+    .app-shell button,
+    .app-shell [role='button'] {
+        border-radius: var(--app-radius-sm);
+    }
+
+    .app-shell a,
+    .app-shell button {
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease,
+            box-shadow 0.15s ease;
     }
 }
 

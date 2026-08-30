@@ -153,7 +153,12 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout
+            breadcrumbs={[
+                { label: 'Mentions', href: route('admin.departments.index') },
+                { label: department ? 'Modifier' : 'Nouvelle' },
+            ]}
+        >
             <div className="mx-auto max-w-5xl space-y-12 pb-20">
                 {}
                 <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">

@@ -102,7 +102,7 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
         <div className="flex min-h-screen flex-col overflow-x-hidden">
             <Navbar />
 
-            <main className="flex-1 pt-20">
+            <main className="flex-1">
                 <article>
                     <header className="band-light border-border border-b py-14 md:py-20">
                         <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">

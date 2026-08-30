@@ -165,7 +165,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
         <div className="flex min-h-screen flex-col overflow-x-hidden">
             <Navbar />
 
-            <main className="flex-1 pt-20">
+            <main className="flex-1">
                 <section className="band-light section border-border border-b">
                     <div className="section-container">
                         <SectionHeading

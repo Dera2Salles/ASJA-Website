@@ -5,7 +5,12 @@ import { PostForm } from './PostForm';
 
 export default function PostEdit({ post }: { post: Post }) {
     return (
-        <AdminLayout>
+        <AdminLayout
+            breadcrumbs={[
+                { label: 'Publications', href: route('admin.posts.index') },
+                { label: 'Modifier' },
+            ]}
+        >
             <Head title={`Modifier — ${post.title}`} />
             <PostForm post={post} />
         </AdminLayout>

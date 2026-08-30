@@ -73,7 +73,7 @@ export const Footer = () => {
     const facebook = String(contact.facebook ?? '');
 
     return (
-        <footer id="contact" className="bg-foreground text-background border-border border-t">
+        <footer id="contact" className="band-dark border-border border-t">
             <div className="section-container py-16">
                 <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
                     <div>
@@ -143,7 +143,7 @@ export const Footer = () => {
                 </div>
 
                 {hasPosition ? (
-                    <div className="border-background mt-12 h-64 w-full overflow-hidden border">
+                    <div className="border-border mt-12 h-64 w-full overflow-hidden border">
                         <MapContainer
                             className="z-0 h-full w-full"
                             center={[latitude, longitude]}
@@ -162,8 +162,8 @@ export const Footer = () => {
                 ) : null}
             </div>
 
-            <div className="border-background border-t">
-                <div className="section-container text-background/70 py-5 text-center text-xs">
+            <div className="border-border border-t">
+                <div className="section-container text-muted-foreground py-5 text-center text-xs">
                     © {new Date().getFullYear()} Université ASJA. Tous droits
                     réservés.
                 </div>

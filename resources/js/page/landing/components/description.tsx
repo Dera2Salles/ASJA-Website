@@ -22,7 +22,7 @@ export const Description = () => {
     return (
         <section
             id="description"
-            className="relative flex min-h-screen w-full items-center justify-center overflow-hidden"
+            className="relative flex min-h-[calc(100svh-4.25rem)] w-full items-center justify-center overflow-hidden"
         >
             <img
                 src={background}
@@ -58,7 +58,11 @@ export const Description = () => {
                 <motion.p
                     initial={{ opacity: 0, y: 28 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.75, delay: 0.15, ease: 'easeOut' }}
+                    transition={{
+                        duration: 0.75,
+                        delay: 0.15,
+                        ease: 'easeOut',
+                    }}
                     className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/85 md:text-xl"
                 >
                     {String(hero.subtitle ?? '')}
@@ -72,7 +76,7 @@ export const Description = () => {
                 >
                     <button
                         onClick={scrollToFiliere}
-                        className="bg-primary text-primary-foreground border border-white hover:bg-background hover:text-primary inline-flex cursor-pointer items-center gap-2 px-8 py-3.5 text-sm font-bold uppercase tracking-wide"
+                        className="bg-primary text-primary-foreground hover:bg-background hover:text-primary inline-flex cursor-pointer items-center gap-2 px-8 py-3.5 text-sm font-bold tracking-wide uppercase"
                     >
                         {String(hero.cta_label ?? '')}
                         <ArrowDown className="h-4 w-4" />
@@ -80,7 +84,7 @@ export const Description = () => {
 
                     <a
                         href="/actualites"
-                        className="inline-flex items-center gap-2 border border-white px-8 py-3.5 text-sm font-bold text-white uppercase tracking-wide hover:bg-white hover:text-black"
+                        className="inline-flex items-center gap-2 border border-white px-8 py-3.5 text-sm font-bold tracking-wide text-white uppercase hover:bg-white hover:text-black"
                     >
                         Actualités & événements
                     </a>

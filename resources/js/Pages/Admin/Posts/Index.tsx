@@ -159,7 +159,7 @@ const PostRow = ({ post }: { post: Post }) => {
 
 export default function PostsIndex({ posts, filters, counts }: Props) {
     return (
-        <AdminLayout>
+        <AdminLayout breadcrumbs={[{ label: 'Publications' }]}>
             <Head title="Publications" />
 
             <div className="pb-16">

@@ -4,7 +4,12 @@ import { PostForm } from './PostForm';
 
 export default function PostCreate() {
     return (
-        <AdminLayout>
+        <AdminLayout
+            breadcrumbs={[
+                { label: 'Publications', href: route('admin.posts.index') },
+                { label: 'Nouvelle' },
+            ]}
+        >
             <Head title="Nouvelle publication" />
             <PostForm />
         </AdminLayout>

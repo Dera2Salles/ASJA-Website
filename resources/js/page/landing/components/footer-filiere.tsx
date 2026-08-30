@@ -63,7 +63,7 @@ export const FooterFiliereSection = () => {
                         <h2 className="text-xl font-bold text-gray-900 transition-all duration-500 dark:text-white">
                             Université ASJA
                         </h2>
-                        <p className="mt-2 text-gray-500 transition-all duration-500 dark:text-gray-400">
+                        <p className="mt-2 text-gray-600 transition-all duration-500 dark:text-gray-300">
                             Formation d'excellence pour un avenir brillant.
                         </p>
                     </div>
@@ -109,7 +109,7 @@ export const FooterFiliereSection = () => {
             </div>
 
             <div className="bg-gray-200 py-4 transition-all duration-500 dark:bg-zinc-800">
-                <div className="container mx-auto px-4 text-center text-sm text-gray-500 transition-all duration-500 dark:text-gray-400">
+                <div className="container mx-auto px-4 text-center text-sm text-gray-700 transition-all duration-500 dark:text-gray-300">
                     <p>
                         © {new Date().getFullYear()} Université ASJA. Tous
                         droits réservés.

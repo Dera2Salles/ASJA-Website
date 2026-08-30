@@ -31,7 +31,7 @@ export default function DepartmentsIndex({
     };
 
     return (
-        <AdminLayout>
+        <AdminLayout breadcrumbs={[{ label: 'Mentions' }]}>
             <div className="space-y-12 pb-20">
                 {}
                 <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
