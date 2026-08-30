@@ -2,7 +2,6 @@ import { cmsList, useSection } from '@/lib/cms';
 import { motion } from 'framer-motion';
 import { useRef, useState } from 'react';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
-import { SectionHeading } from './section-heading';
 
 type PedagItem = {
     percentage: number | string;
@@ -24,29 +23,26 @@ const PedagCard = ({
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-        className="border-border bg-card hover:bg-primary group h-full border p-7"
+        className="rounded-[22px] bg-card p-8 transition-colors hover:bg-accent"
     >
-        {/* Barre de proportion : rend le pourcentage lisible d'un coup d'œil,
-            là où le chiffre seul demandait un effort de comparaison. */}
-        <div className="mb-5 flex items-baseline gap-2">
-            <span className="text-primary group-hover:text-primary-foreground font-display text-4xl font-extrabold">
-                {displayed}
-            </span>
-            <span className="text-primary group-hover:text-primary-foreground text-lg font-semibold">%</span>
-        </div>
+        {/* Pourcentage : grand, vert, Archivo */}
+        <span className="font-display text-[58px] font-black leading-none text-primary">
+            {displayed}%
+        </span>
 
+        {/* Barre de proportion */}
         <div
-            className="bg-background border-border mb-6 h-2 w-full overflow-hidden border"
+            className="mb-6 mt-5 h-1.5 overflow-hidden rounded-full bg-muted"
             aria-hidden="true"
         >
             <div
-                className="bg-foreground group-hover:bg-primary-foreground h-full"
+                className="h-full rounded-full bg-primary transition-all duration-100"
                 style={{ width: `${displayed}%` }}
             />
         </div>
 
-        <h3 className="text-foreground group-hover:text-primary-foreground mb-2 text-lg font-bold">{item.title}</h3>
-        <p className="text-muted-foreground group-hover:text-primary-foreground text-sm leading-relaxed">
+        <h3 className="mb-2 text-xl font-bold text-foreground">{item.title}</h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
             {item.description}
         </p>
     </motion.div>
@@ -85,15 +81,26 @@ export const SystemePedagogiqueSection = () => {
     });
 
     return (
-        <section id="systeme" ref={observerRef} className="band-light section">
-            <div className="section-container">
-                <SectionHeading
-                    eyebrow={String(pedagogy.eyebrow ?? '')}
-                    title={String(pedagogy.title ?? '')}
-                    subtitle={String(pedagogy.subtitle ?? '')}
-                />
+        <section id="systeme" ref={observerRef} className="band-dark py-[104px]">
+            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+                {/* En-tête split */}
+                <div className="mb-12 flex items-end justify-between gap-12">
+                    <h2
+                        className="max-w-[560px] font-display font-black uppercase tracking-tight text-foreground"
+                        style={{
+                            fontSize: 'clamp(40px, 4vw, 56px)',
+                            lineHeight: 1,
+                        }}
+                    >
+                        {String(pedagogy.title ?? '')}
+                    </h2>
+                    <p className="max-w-sm text-base leading-relaxed text-muted-foreground">
+                        {String(pedagogy.subtitle ?? '')}
+                    </p>
+                </div>
 
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {/* Grille de cartes */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {items.map((item, index) => (
                         <PedagCard
                             key={`${item.title}-${index}`}

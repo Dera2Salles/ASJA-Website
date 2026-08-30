@@ -9,7 +9,7 @@ import { Link as ScrollTo } from 'react-scroll';
 type Department = { id: number; slug: string; name: string };
 
 const linkClass =
-    'text-muted-foreground hover:text-primary cursor-pointer text-sm';
+    'text-muted-foreground hover:text-primary cursor-pointer text-sm transition-colors';
 
 const FooterColumn = ({
     title,
@@ -19,7 +19,9 @@ const FooterColumn = ({
     children: React.ReactNode;
 }) => (
     <div>
-        <h3 className="text-foreground mb-4 text-xs font-semibold tracking-[0.14em] uppercase">
+        <h3
+            className="mb-4 font-sans text-[11.5px] font-bold uppercase tracking-[0.16em] text-muted-foreground"
+        >
             {title}
         </h3>
         <div className="flex flex-col gap-2.5">{children}</div>
@@ -36,8 +38,8 @@ const InfoItem = ({
     href?: string;
 }) => {
     const content = (
-        <span className="text-muted-foreground group-hover:text-primary flex items-start gap-2.5 text-sm">
-            <span className="text-primary mt-0.5 shrink-0">{icon}</span>
+        <span className="group-hover:text-primary flex items-start gap-2.5 text-sm text-muted-foreground">
+            <span className="mt-0.5 shrink-0 text-primary">{icon}</span>
             <span>{text}</span>
         </span>
     );
@@ -65,46 +67,89 @@ export const Footer = () => {
 
     const latitude = Number(contact.latitude ?? 0);
     const longitude = Number(contact.longitude ?? 0);
-    const hasPosition = Number.isFinite(latitude) && Number.isFinite(longitude)
-        && !(latitude === 0 && longitude === 0);
+    const hasPosition =
+        Number.isFinite(latitude) &&
+        Number.isFinite(longitude) &&
+        !(latitude === 0 && longitude === 0);
 
     const email = String(contact.email ?? '');
     const phone = String(contact.phone ?? '');
     const facebook = String(contact.facebook ?? '');
 
     return (
-        <footer id="contact" className="band-dark border-border border-t">
-            <div className="section-container py-16">
-                <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <footer
+            id="contact"
+            className="band-dark"
+            style={{ borderTop: '1px solid var(--border)' }}
+        >
+            <div
+                className="mx-auto w-full px-9"
+                style={{ maxWidth: '1320px', paddingTop: '64px', paddingBottom: '40px' }}
+            >
+                <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+                    {/* Colonne identité */}
                     <div>
                         <img
-                            className="mb-4 h-16 w-16 object-contain"
                             src={Logo}
                             alt=""
+                            className="mb-5 h-12 w-12 object-contain rounded-xl"
                         />
-                        <p className="font-display text-foreground text-lg font-bold">
+                        <p className="font-display text-[22px] font-extrabold uppercase tracking-tight text-foreground">
                             Université ASJA
                         </p>
-                        <p className="text-muted-foreground mt-2 max-w-xs text-sm leading-relaxed">
-                            {String(contact.tagline ?? '')}
+                        <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
+                            {String(
+                                contact.tagline ??
+                                    'Université catholique d\'Antsirabe — Excellence, Foi & Engagement.',
+                            )}
                         </p>
                     </div>
 
-                    <FooterColumn title="Navigation">
-                        <ScrollTo to="mission" spy smooth offset={-80} duration={500} className={linkClass}>
+                    {/* Université */}
+                    <FooterColumn title="Université">
+                        <ScrollTo
+                            to="mission"
+                            spy
+                            smooth
+                            offset={-80}
+                            duration={500}
+                            className={linkClass}
+                        >
                             Notre mission
                         </ScrollTo>
-                        <ScrollTo to="filiere" spy smooth offset={-80} duration={500} className={linkClass}>
+                        <ScrollTo
+                            to="filiere"
+                            spy
+                            smooth
+                            offset={-80}
+                            duration={500}
+                            className={linkClass}
+                        >
                             Nos mentions
                         </ScrollTo>
-                        <ScrollTo to="systeme" spy smooth offset={-80} duration={500} className={linkClass}>
-                            Système pédagogique
+                        <ScrollTo
+                            to="systeme"
+                            spy
+                            smooth
+                            offset={-80}
+                            duration={500}
+                            className={linkClass}
+                        >
+                            Méthode
                         </ScrollTo>
-                        <InertiaLink href="/actualites" className={linkClass}>
-                            Actualités & événements
-                        </InertiaLink>
+                        <ScrollTo
+                            to="temoignages"
+                            spy
+                            smooth
+                            offset={-80}
+                            duration={500}
+                            className={linkClass}
+                        >
+                            Témoignages
+                        </ScrollTo>
                     </FooterColumn>
 
+                    {/* Mentions */}
                     <FooterColumn title="Mentions">
                         {(departments ?? []).map((dept) => (
                             <InertiaLink
@@ -117,8 +162,11 @@ export const Footer = () => {
                         ))}
                     </FooterColumn>
 
+                    {/* Contact */}
                     <FooterColumn title="Contact">
-                        {phone ? <InfoItem icon={<Phone size={16} />} text={phone} /> : null}
+                        {phone ? (
+                            <InfoItem icon={<Phone size={16} />} text={phone} />
+                        ) : null}
                         {email ? (
                             <InfoItem
                                 icon={<Mail size={16} />}
@@ -142,8 +190,12 @@ export const Footer = () => {
                     </FooterColumn>
                 </div>
 
+                {/* Carte */}
                 {hasPosition ? (
-                    <div className="border-border mt-12 h-64 w-full overflow-hidden border">
+                    <div
+                        className="mt-12 w-full overflow-hidden rounded-[16px]"
+                        style={{ height: '256px', border: '1px solid var(--border)' }}
+                    >
                         <MapContainer
                             className="z-0 h-full w-full"
                             center={[latitude, longitude]}
@@ -162,10 +214,13 @@ export const Footer = () => {
                 ) : null}
             </div>
 
-            <div className="border-border border-t">
-                <div className="section-container text-muted-foreground py-5 text-center text-xs">
-                    © {new Date().getFullYear()} Université ASJA. Tous droits
-                    réservés.
+            {/* Bas de page */}
+            <div style={{ borderTop: '1px solid var(--border)' }}>
+                <div
+                    className="mx-auto w-full px-9 py-5 text-xs text-muted-foreground"
+                    style={{ maxWidth: '1320px' }}
+                >
+                    © {new Date().getFullYear()} Université ASJA. Tous droits réservés.
                 </div>
             </div>
         </footer>

@@ -1,81 +1,97 @@
-import missionImage from '@/assets/Image-evenement/event-diplome_master-quality.jpg';
-import objectifImage from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
-import { cmsImage, cmsList, useSection } from '@/lib/cms';
-import { easeOut, motion } from 'framer-motion';
-import { SectionHeading } from './section-heading';
-
-type MissionItem = {
-    title: string;
-    description: string;
-    image?: string;
-};
-
-/** Visuels livrés avec le site, utilisés tant que le CMS n'en fournit pas. */
-const fallbackImages = [missionImage, objectifImage];
-
-const MissionCard = ({
-    item,
-    index,
-}: {
-    item: MissionItem;
-    index: number;
-}) => {
-    const isEven = index % 2 === 0;
-
-    return (
-        <motion.article
-            initial={{ y: 40, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ amount: 0.2, once: true }}
-            transition={{ duration: 0.6, delay: index * 0.12, ease: easeOut }}
-            className={`border-border bg-card group overflow-hidden border flex flex-col hover:bg-primary transition-colors duration-200 ${
-                isEven ? 'md:flex-row' : 'md:flex-row-reverse'
-            }`}
-        >
-            <div className="relative aspect-[16/10] w-full md:aspect-auto md:w-2/5 shrink-0 overflow-hidden">
-                <img
-                    src={cmsImage(
-                        item.image,
-                        fallbackImages[index % fallbackImages.length],
-                    )}
-                    alt=""
-                    className="h-full w-full object-cover"
-                />
-            </div>
-            <div className="flex-1 p-7 md:p-10 flex flex-col justify-center">
-                <h3 className="text-primary group-hover:text-primary-foreground mb-4 text-xl font-bold md:text-2xl font-display">
-                    {item.title}
-                </h3>
-                <p className="text-muted-foreground group-hover:text-primary-foreground leading-relaxed text-sm md:text-base">
-                    {item.description}
-                </p>
-            </div>
-        </motion.article>
-    );
-};
+import amphiteatre from '@/assets/Lieu_espace/amphitheatre.jpg';
+import terrainBasket from '@/assets/Lieu_espace/terrain-basket.jpg';
+import bibliotheque from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
+import { motion } from 'framer-motion';
 
 export const MissionSection = () => {
-    const mission = useSection('mission');
-    const items = cmsList<MissionItem>(mission.items);
-
     return (
-        <section id="mission" className="band-dark section border-border border-y">
-            <div className="section-container">
-                <SectionHeading
-                    eyebrow={String(mission.eyebrow ?? '')}
-                    title={String(mission.title ?? '')}
-                    subtitle={String(mission.subtitle ?? '')}
-                />
-
-                <div className="flex flex-col gap-8">
-                    {items.map((item, index) => (
-                        <MissionCard
-                            key={`${item.title}-${index}`}
-                            item={item}
-                            index={index}
-                        />
-                    ))}
+        <section id="campus" className="bg-[#f2f5f3] text-[#0e1411] py-[104px]">
+            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+                
+                {/* Stats grid */}
+                <div className="grid grid-cols-2 gap-8 md:grid-cols-4 mb-16">
+                    <div>
+                        <p className="font-display text-[66px] font-black tracking-[-0.04em] leading-none">
+                            2000<span className="text-[#0c8042]">+</span>
+                        </p>
+                        <p className="mt-1.5 text-sm font-semibold text-[#5b665f]">
+                            étudiants sur deux campus
+                        </p>
+                    </div>
+                    <div>
+                        <p className="font-display text-[66px] font-black tracking-[-0.04em] leading-none">
+                            20<span className="text-[#0c8042]">+</span>
+                        </p>
+                        <p className="mt-1.5 text-sm font-semibold text-[#5b665f]">
+                            années d'expérience
+                        </p>
+                    </div>
+                    <div>
+                        <p className="font-display text-[66px] font-black tracking-[-0.04em] leading-none">
+                            3
+                        </p>
+                        <p className="mt-1.5 text-sm font-semibold text-[#5b665f]">
+                            clubs de sport, un tournoi par an
+                        </p>
+                    </div>
+                    <div>
+                        <p className="font-display text-[66px] font-black tracking-[-0.04em] leading-none">
+                            2
+                        </p>
+                        <p className="mt-1.5 text-sm font-semibold text-[#5b665f]">
+                            cafétérias, du lundi au samedi
+                        </p>
+                    </div>
                 </div>
+
+                {/* Section title */}
+                <h2 className="font-display text-5xl font-black uppercase tracking-[-0.04em] mb-8 leading-none">
+                    La vie ici
+                </h2>
+
+                {/* Photo grid layout matching reference */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Left: Amphitheater large card */}
+                    <div className="aspect-[4/3] rounded-[22px] overflow-hidden">
+                        <img 
+                            src={amphiteatre} 
+                            alt="Amphithéâtre" 
+                            className="h-full w-full object-cover"
+                        />
+                    </div>
+
+                    {/* Middle: Stacked cards */}
+                    <div className="flex flex-col gap-4">
+                        <div className="flex-1 min-h-[160px] rounded-[22px] overflow-hidden">
+                            <img 
+                                src={terrainBasket} 
+                                alt="Terrain de Basket" 
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
+                        <div className="flex-1 min-h-[160px] rounded-[22px] overflow-hidden">
+                            <img 
+                                src={bibliotheque} 
+                                alt="Bibliothèque" 
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Right: Info green box */}
+                    <div className="bg-[#0c8042] text-white rounded-[22px] p-8 flex flex-col justify-between min-h-[300px]">
+                        <p className="font-display text-2xl font-extrabold leading-[1.14] tracking-[-0.02em]">
+                            Logement, cafétérias, clubs : le campus ne s'arrête pas aux salles de cours.
+                        </p>
+                        <a 
+                            href="#campus" 
+                            className="text-white text-[14.5px] font-bold underline underline-offset-4 hover:opacity-90"
+                        >
+                            Visiter le campus →
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </section>
     );

@@ -40,23 +40,15 @@ function useDepartments(): Department[] {
 }
 
 const menuItemClass =
-    'block w-full cursor-pointer border-b border-transparent px-4 py-2 text-left text-sm text-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground';
+    'block w-full cursor-pointer px-4 py-2.5 text-left text-sm font-semibold text-foreground hover:text-primary hover:bg-accent rounded-lg';
 
 const triggerClass =
-    'bg-transparent text-sm font-bold uppercase tracking-wide text-foreground hover:bg-accent hover:text-accent-foreground';
+    'bg-transparent text-sm font-semibold text-foreground hover:text-primary hover:bg-transparent rounded-full px-4 py-2';
 
 /**
- * Navigation unique du site.
+ * Navigation unique du site — style "C Vivant".
  *
- * Elle remplace les deux barres superposées précédentes : une bande « accès
- * rapide » coiffait la navigation principale, alors que trois de ses quatre
- * entrées (emploi du temps, notes, inscriptions) menaient toutes à la page de
- * connexion faute de module dédié, et que la quatrième (actualités) figurait
- * déjà dans le menu. Ces trois entrées sont regroupées sous « Espace
- * étudiant » : aucune destination n'est perdue.
- *
- * La barre est `sticky` et non `fixed` : elle ne recouvre plus le haut des
- * pages, ce qui rend inutiles les décalages manuels qu'elles portaient.
+ * Barre sticky translucide avec backdrop-blur, boutons pill, CTA vert.
  */
 export const Navbar = () => {
     const [open, setOpen] = useState(false);
@@ -77,44 +69,62 @@ export const Navbar = () => {
         <>
             <AnnonceSection />
 
-            <nav className="bg-background border-border sticky top-0 z-50 border-b">
-                <div className="section-container flex items-center justify-between gap-4 py-3">
+            <nav
+                className="border-border sticky top-0 z-50 border-b"
+                style={{
+                    background: 'rgba(14, 20, 17, 0.86)',
+                    backdropFilter: 'blur(14px)',
+                    WebkitBackdropFilter: 'blur(14px)',
+                }}
+            >
+                <div
+                    className="mx-auto flex items-center justify-between gap-9 py-4"
+                    style={{ maxWidth: '1320px', padding: '16px 36px' }}
+                >
+                    {/* Logo */}
                     <InertiaLink
                         href="/"
                         className="flex shrink-0 items-center gap-3"
                         aria-label="Accueil ASJA"
                     >
                         <img
-                            className="h-10 w-10 object-contain"
                             src={Logo}
                             alt=""
+                            className="h-[42px] w-[42px] rounded-[10px] object-contain"
                         />
-                        <span className="font-display text-foreground hidden text-base font-bold tracking-tight sm:block">
-                            {translate('universite')}
+                        <span className="font-display text-foreground hidden text-[19px] font-black tracking-[-0.02em] uppercase sm:block">
+                            Université ASJA
                         </span>
                     </InertiaLink>
 
+                    {/* Liens desktop */}
                     <div className="hidden items-center gap-1 lg:flex">
                         <DesktopNav />
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
-                        <ThemeToggle isDark={isDark} onToggle={toggleTheme} />
-
+                    {/* Actions droite */}
+                    <div className="flex shrink-0 items-center gap-2.5">
                         <InertiaLink
                             href="/login"
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 hidden items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-wide uppercase sm:inline-flex"
+                            className="border-border text-foreground hover:border-primary hover:text-primary hidden items-center gap-2 rounded-full border px-4 py-2.5 text-[13.5px] font-semibold sm:inline-flex"
                         >
                             <LogIn size={14} />
                             Espace étudiant
                         </InertiaLink>
 
+                        <InertiaLink
+                            href="/login"
+                            className="bg-primary text-primary-foreground hidden rounded-full px-5 py-2.5 text-[13.5px] font-bold hover:bg-white hover:text-black sm:inline-flex"
+                        >
+                            Je candidate
+                        </InertiaLink>
+
                         <button
                             onClick={() => setOpen(true)}
-                            className="text-foreground border-border cursor-pointer border p-2 lg:hidden"
+                            className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-full border p-2.5 lg:hidden"
                             aria-label="Ouvrir le menu"
                         >
-                            <MenuIcon size={22} />
+                            <MenuIcon size={20} />
                         </button>
                     </div>
                 </div>
@@ -135,7 +145,7 @@ const ThemeToggle = ({
     <button
         onClick={onToggle}
         aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
-        className="text-foreground border-border cursor-pointer border p-2 hover:bg-accent hover:text-accent-foreground"
+        className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-full border p-2.5"
     >
         {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>
@@ -188,7 +198,7 @@ const DesktopNav = () => {
                 <NavigationMenuItem>
                     <InertiaLink
                         href="/actualites"
-                        className={`inline-flex h-10 items-center px-4 py-2 ${triggerClass}`}
+                        className={`inline-flex h-10 items-center ${triggerClass}`}
                     >
                         {translate('navBar.blog')}
                     </InertiaLink>
@@ -198,14 +208,14 @@ const DesktopNav = () => {
                     {isHomePage ? (
                         <ScrollLink
                             to="contact"
-                            className={`inline-flex h-10 cursor-pointer items-center px-4 py-2 ${triggerClass}`}
+                            className={`inline-flex h-10 cursor-pointer items-center ${triggerClass}`}
                         >
                             {translate('navBar.contact')}
                         </ScrollLink>
                     ) : (
                         <InertiaLink
                             href="/#contact"
-                            className={`inline-flex h-10 items-center px-4 py-2 ${triggerClass}`}
+                            className={`inline-flex h-10 items-center ${triggerClass}`}
                         >
                             {translate('navBar.contact')}
                         </InertiaLink>
@@ -235,7 +245,7 @@ const MobileNav = ({
             <div className="fixed inset-0 bg-black/60" onClick={close} />
 
             <div
-                className="bg-background border-border fixed top-0 left-0 flex h-full w-80 max-w-[85vw] flex-col border-r"
+                className="border-border bg-background fixed top-0 left-0 flex h-full w-80 max-w-[85vw] flex-col border-r"
                 style={{
                     transform: open ? 'translateX(0)' : 'translateX(-100%)',
                 }}
@@ -247,7 +257,7 @@ const MobileNav = ({
                     <button
                         onClick={close}
                         aria-label="Fermer le menu"
-                        className="text-foreground border-border cursor-pointer border p-2 hover:bg-accent hover:text-accent-foreground"
+                        className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-full border p-2"
                     >
                         <X size={18} />
                     </button>
@@ -315,14 +325,21 @@ const MobileNav = ({
                     </div>
                 </div>
 
-                <div className="border-border border-t p-4">
+                <div className="border-border space-y-3 border-t p-4">
                     <InertiaLink
                         href="/login"
                         onClick={close}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 flex w-full items-center justify-center gap-2 px-4 py-3 text-xs font-bold tracking-wide uppercase"
+                        className="border-border text-foreground flex w-full items-center justify-center gap-2 rounded-full border px-4 py-3 text-xs font-semibold uppercase"
                     >
                         <LogIn size={14} />
                         Espace étudiant
+                    </InertiaLink>
+                    <InertiaLink
+                        href="/login"
+                        onClick={close}
+                        className="bg-primary text-primary-foreground flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-xs font-bold uppercase hover:bg-white hover:text-black"
+                    >
+                        Je candidate
                     </InertiaLink>
                 </div>
             </div>
@@ -344,7 +361,7 @@ const NavItem = ({
             {trigger}
         </NavigationMenuTrigger>
         <NavigationMenuContent>
-            <div className="bg-popover border-border w-64 border p-1">
+            <div className="border-border bg-popover w-64 rounded-xl border p-2">
                 {children}
             </div>
         </NavigationMenuContent>
@@ -366,7 +383,7 @@ const ScrollLink = ({
         smooth
         offset={-80}
         duration={500}
-        activeClass={className ? '' : 'bg-accent text-accent-foreground'}
+        activeClass={className ? '' : 'text-primary bg-accent'}
         className={className ?? menuItemClass}
     >
         {children}

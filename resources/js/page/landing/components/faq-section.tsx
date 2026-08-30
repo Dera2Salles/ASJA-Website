@@ -2,7 +2,6 @@ import { cmsList, useSection } from '@/lib/cms';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { SectionHeading } from './section-heading';
 
 type FaqItem = { question: string; answer: string; category: string };
 type FaqCategory = { name: string };
@@ -33,7 +32,7 @@ const FaqRow = ({
             </span>
             <ChevronDown
                 size={20}
-                className={`shrink-0 ${
+                className={`shrink-0 transition-transform ${
                     isOpen ? 'text-primary rotate-180' : 'text-muted-foreground'
                 }`}
             />
@@ -48,7 +47,7 @@ const FaqRow = ({
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                     className="overflow-hidden"
                 >
-                    <p className="text-muted-foreground pr-8 pb-5 leading-relaxed">
+                    <p className="text-muted-foreground pr-8 pb-5 leading-relaxed text-sm">
                         {item.answer}
                     </p>
                 </motion.div>
@@ -63,8 +62,6 @@ export const FaqSection = () => {
     const items = cmsList<FaqItem>(faq.items);
     const categories = cmsList<FaqCategory>(faq.categories);
 
-    // Les catégories réellement utilisées par au moins une question, dans
-    // l'ordre défini par le CMS.
     const usableCategories = useMemo(() => {
         const declared = categories.map((c) => c.name).filter(Boolean);
         const used = new Set(items.map((i) => i.category));
@@ -84,17 +81,30 @@ export const FaqSection = () => {
     const openKey = openQuestion ?? filtered[0]?.question ?? null;
 
     return (
-        <section id="FAQ" className="band-light section border-border border-y">
-            <div className="section-container">
-                <SectionHeading
-                    eyebrow={String(faq.eyebrow ?? '')}
-                    title={String(faq.title ?? '')}
-                    subtitle={String(faq.subtitle ?? '')}
-                />
+        <section id="FAQ" className="band-dark py-[104px]">
+            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+                
+                {/* Header */}
+                <div className="mb-12 text-center">
+                    <h2
+                        className="font-display font-black uppercase text-foreground"
+                        style={{
+                            fontSize: 'clamp(40px, 4vw, 56px)',
+                            lineHeight: 1,
+                            letterSpacing: '-0.04em',
+                        }}
+                    >
+                        {String(faq.title ?? 'Des questions ?')}
+                    </h2>
+                    {faq.subtitle ? (
+                        <p className="mt-4 text-base leading-relaxed text-muted-foreground mx-auto max-w-2xl">
+                            {String(faq.subtitle)}
+                        </p>
+                    ) : null}
+                </div>
 
                 <div className="mx-auto max-w-3xl">
-                    {/* Filtres en pastilles : plus compact et plus lisible que
-                        l'ancienne colonne latérale « Catégories ». */}
+                    {/* Filtres en pastilles de style pilule arrondi */}
                     <div className="mb-8 flex flex-wrap justify-center gap-2">
                         {usableCategories.map((name) => (
                             <button
@@ -103,10 +113,10 @@ export const FaqSection = () => {
                                     setActiveCategory(name);
                                     setOpenQuestion(null);
                                 }}
-                                className={`cursor-pointer border border-border px-4 py-2 text-sm font-bold uppercase ${
+                                className={`cursor-pointer rounded-full px-5 py-2 text-xs font-bold uppercase transition-colors ${
                                     name === current
                                         ? 'bg-primary text-primary-foreground'
-                                        : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                                        : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border'
                                 }`}
                             >
                                 {name}
@@ -114,7 +124,8 @@ export const FaqSection = () => {
                         ))}
                     </div>
 
-                    <div className="bg-card border-border border px-6 md:px-8">
+                    {/* Conteneur FAQ arrondi */}
+                    <div className="bg-card rounded-[22px] px-6 md:px-8 border border-border">
                         {filtered.map((item) => (
                             <FaqRow
                                 key={item.question}
