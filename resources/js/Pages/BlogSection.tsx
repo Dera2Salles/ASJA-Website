@@ -3,10 +3,10 @@ import { formatDate, postImage, type Post } from '@/lib/posts';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { SectionHeading } from '../page/landing/components/section-heading';
 
 const PostCard = ({ post, index }: { post: Post; index: number }) => {
     const image = postImage(post);
+    const dateText = formatDate(post.published_at);
 
     return (
         <motion.article
@@ -14,49 +14,41 @@ const PostCard = ({ post, index }: { post: Post; index: number }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-            className="group flex flex-col"
+            className="flex flex-col"
         >
             <Link
                 href={`/actualites/${post.slug}`}
-                className="border-border bg-card elevation-1 hover:elevation-3 flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-500 hover:-translate-y-1"
+                className="group flex h-full flex-col overflow-hidden rounded-[22px] bg-card border border-border transition-colors duration-200 hover:bg-accent"
             >
-                <div className="bg-muted relative aspect-[16/10] overflow-hidden">
-                    {image ? (
+                {image ? (
+                    <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
                         <img
                             src={image}
                             alt=""
-                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            className="h-full w-full object-cover transition-transform duration-75 group-hover:scale-105"
                         />
-                    ) : null}
-                </div>
-
-                <div className="flex flex-1 flex-col p-6">
-                    <div className="text-muted-foreground mb-3 flex items-center gap-2 text-xs">
-                        {post.category ? (
-                            <>
-                                <span className="text-primary font-semibold">
-                                    {post.category}
-                                </span>
-                                <span aria-hidden="true">·</span>
-                            </>
-                        ) : null}
-                        <time>{formatDate(post.published_at)}</time>
                     </div>
+                ) : null}
 
-                    <h3 className="text-foreground group-hover:text-primary mb-2 text-lg font-bold transition-colors">
+                <div className="flex flex-1 flex-col p-[26px]">
+                    {dateText ? (
+                        <p className="m-0 text-[12.5px] font-bold text-primary uppercase tracking-wider">
+                            {dateText}
+                        </p>
+                    ) : null}
+
+                    <h3
+                        className="font-display font-bold text-foreground mt-2.5 transition-colors group-hover:text-primary"
+                        style={{ fontSize: '21px', letterSpacing: '-0.015em', lineHeight: '1.2' }}
+                    >
                         {post.title}
                     </h3>
 
                     {post.excerpt ? (
-                        <p className="text-muted-foreground line-clamp-3 flex-1 text-sm leading-relaxed">
+                        <p className="mt-2.5 line-clamp-2 text-[14.5px] leading-[1.6] text-muted-foreground">
                             {post.excerpt}
                         </p>
                     ) : null}
-
-                    <span className="text-primary mt-5 inline-flex items-center gap-1.5 text-sm font-semibold">
-                        Lire la suite
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                    </span>
                 </div>
             </Link>
         </motion.article>
@@ -69,31 +61,33 @@ export const BlogSection = ({ posts }: { posts: Post[] }) => {
     if (!posts || posts.length === 0) return null;
 
     return (
-        // L'ancre « actualites » remplace « events », qui était déjà utilisée
-        // par la section Événements : deux éléments partageaient le même id,
-        // ce qui cassait le défilement depuis la navigation.
-        <section id="actualites" className="bg-muted/40 section">
-            <div className="section-container">
-                <SectionHeading
-                    eyebrow={String(content.eyebrow ?? '')}
-                    title={String(content.title ?? '')}
-                    subtitle={String(content.subtitle ?? '')}
-                />
-
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {posts.map((post, index) => (
-                        <PostCard key={post.id} post={post} index={index} />
-                    ))}
-                </div>
-
-                <div className="mt-12 text-center">
+        <section id="actualites" className="py-[104px]">
+            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+                
+                {/* Header */}
+                <div className="mb-10 flex items-end justify-between gap-10">
+                    <h2
+                        className="font-display font-black uppercase text-foreground m-0"
+                        style={{
+                            fontSize: '48px',
+                            lineHeight: 1,
+                            letterSpacing: '-0.035em',
+                        }}
+                    >
+                        {String(content.title ?? 'Actualités & Annonces')}
+                    </h2>
                     <Link
                         href="/actualites"
-                        className="border-border text-foreground hover:border-primary hover:text-primary inline-flex items-center gap-2 rounded-full border px-7 py-3 text-sm font-semibold transition-colors"
+                        className="shrink-0 text-sm font-bold text-primary hover:underline"
                     >
-                        {String(content.cta_label ?? '')}
-                        <ArrowRight className="h-4 w-4" />
+                        Toutes les actus →
                     </Link>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {posts.slice(0, 3).map((post, index) => (
+                        <PostCard key={post.id} post={post} index={index} />
+                    ))}
                 </div>
             </div>
         </section>

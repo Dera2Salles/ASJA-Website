@@ -2,34 +2,17 @@ import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 
 export const useTheme = () => {
-    const [isDark, setIsDark] = useState(false);
+    const [isDark, setIsDark] = useState(true);
 
     useEffect(() => {
-        const savedTheme = Cookies.get('theme');
-        if (savedTheme === 'dark') {
-            setIsDark(true);
-            document.documentElement.classList.add('dark');
-        } else {
-            setIsDark(false);
-            document.documentElement.classList.remove('dark');
-        }
+        // Toujours en mode sombre par défaut
+        setIsDark(true);
+        document.documentElement.classList.add('dark');
     }, []);
 
     const toggleTheme = () => {
-        setIsDark((prev) => {
-            const newValue = !prev;
-
-            if (newValue) {
-                document.documentElement.classList.add('dark');
-                Cookies.set('theme', 'dark', { expires: 30 });
-            } else {
-                document.documentElement.classList.remove('dark');
-                Cookies.set('theme', 'light', { expires: 30 });
-            }
-
-            return newValue;
-        });
+        // Le site est uniquement sombre, pas de bascule possible
     };
 
-    return { isDark, toggleTheme };
+    return { isDark: true, toggleTheme };
 };

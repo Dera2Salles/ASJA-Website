@@ -6,7 +6,6 @@ import { ArrowRight, Briefcase, GraduationCap } from 'lucide-react';
 import { useState } from 'react';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
-import { SectionHeading } from '../../page/landing/components/section-heading';
 import { useThemeContext } from '../../page/theme/useThemeContext';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
 
@@ -33,7 +32,7 @@ interface Props {
     cms: CmsContent;
 }
 
-/** Bandeau d'ouverture, calqué sur celui de la page d'accueil. */
+/** Bandeau d'ouverture style "C Vivant" */
 const Hero = ({ department }: { department: Department }) => {
     const { isDark } = useThemeContext();
     const logo = cmsImage(
@@ -43,63 +42,75 @@ const Hero = ({ department }: { department: Department }) => {
     const image = cmsImage(department.hero_image);
 
     return (
-        <section className="relative flex min-h-[70vh] w-full items-center justify-center overflow-hidden">
+        <section className="relative flex min-h-[60vh] w-full items-end overflow-hidden">
             {image ? (
                 <img
                     src={image}
                     alt=""
                     aria-hidden="true"
-                    className="absolute inset-0 -z-20 h-full w-full object-cover"
+                    className="absolute inset-0 h-full w-full object-cover"
                 />
             ) : (
-                <div className="bg-foreground absolute inset-0 -z-20" />
+                <div className="absolute inset-0 bg-[#0e1411]" />
             )}
 
+            {/* Gradient overlay */}
             <div
-                className="absolute inset-0 -z-10 bg-black/70"
+                className="absolute inset-0"
                 aria-hidden="true"
+                style={{
+                    background:
+                        'linear-gradient(180deg, rgba(14,20,17,0.35) 0%, rgba(14,20,17,0.5) 45%, rgba(14,20,17,0.96) 100%)',
+                }}
             />
 
-            <div className="section-container relative py-28 text-center">
-                {logo ? (
-                    <motion.img
-                        initial={{ opacity: 0, y: 16 }}
+            <div
+                className="relative mx-auto w-full"
+                style={{ maxWidth: '1320px', padding: '0 36px 56px' }}
+            >
+                <div className="flex flex-col items-start gap-4">
+                    {logo ? (
+                        <motion.img
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
+                            src={logo}
+                            alt=""
+                            className="h-16 w-16 object-contain rounded-xl"
+                        />
+                    ) : null}
+
+                    <motion.span
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                        src={logo}
-                        alt=""
-                        className="mx-auto mb-7 h-20 w-20 object-contain"
-                    />
-                ) : null}
+                        transition={{ duration: 0.55 }}
+                        className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold tracking-wide uppercase"
+                    >
+                        Mention
+                    </motion.span>
 
-                <motion.p
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.05 }}
-                    className="mb-5 text-xs font-semibold tracking-[0.22em] text-white/70 uppercase"
-                >
-                    Mention
-                </motion.p>
-
-                <motion.h1
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.7, delay: 0.1 }}
-                    className="mx-auto max-w-4xl text-3xl font-extrabold text-white md:text-5xl lg:text-6xl"
-                >
-                    {department.name}
-                </motion.h1>
-
-                {department.description ? (
-                    <motion.p
+                    <motion.h1
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.7, delay: 0.2 }}
-                        className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/85 md:text-lg"
+                        transition={{ duration: 0.7, delay: 0.1 }}
+                        className="font-display max-w-4xl font-black text-white uppercase leading-[0.95] tracking-[-0.04em]"
+                        style={{ fontSize: 'clamp(42px, 6vw, 72px)' }}
                     >
-                        {department.description}
-                    </motion.p>
-                ) : null}
+                        {department.name}
+                    </motion.h1>
+
+                    {department.description ? (
+                        <motion.p
+                            initial={{ opacity: 0, y: 24 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.7, delay: 0.2 }}
+                            className="max-w-2xl text-lg leading-relaxed mt-4"
+                            style={{ color: '#c3cec8' }}
+                        >
+                            {department.description}
+                        </motion.p>
+                    ) : null}
+                </div>
             </div>
         </section>
     );
@@ -114,44 +125,48 @@ const DetailBlock = ({
     title: string;
     body: string;
 }) => (
-    <div className="border-border bg-card border p-6">
+    <div className="bg-card rounded-[22px] p-8 border border-border">
         <div className="mb-4 flex items-center gap-2.5">
             <span className="text-primary">{icon}</span>
-            <h4 className="text-foreground text-sm font-bold tracking-wide uppercase">
+            <h4 className="font-sans text-xs font-bold tracking-[0.16em] uppercase text-muted-foreground">
                 {title}
             </h4>
         </div>
-        <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
+        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
             {body}
         </p>
     </div>
 );
 
-/**
- * Parcours en maître/détail persistant.
- *
- * L'ancienne page remplaçait entièrement son contenu au clic sur un parcours,
- * obligeant à revenir en arrière pour en consulter un autre. Ici la liste
- * reste visible : comparer deux parcours ne coûte plus qu'un clic.
- */
+/** Parcours */
 const Programs = ({ programs }: { programs: Program[] }) => {
     const [activeId, setActiveId] = useState<number>(programs[0].id);
     const active = programs.find((p) => p.id === activeId) ?? programs[0];
 
     return (
-        <section id="parcours" className="band-light section border-border border-y">
-            <div className="section-container">
-                <SectionHeading
-                    eyebrow="Formations"
-                    title="Nos parcours"
-                    subtitle="Chaque parcours mène à des compétences et des débouchés qui lui sont propres."
-                />
+        <section id="parcours" className="band-dark py-[104px]">
+            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+                
+                {/* En-tête de section */}
+                <div className="mb-12">
+                    <h2
+                        className="font-display font-black uppercase text-foreground"
+                        style={{
+                            fontSize: 'clamp(40px, 4vw, 56px)',
+                            lineHeight: 1,
+                            letterSpacing: '-0.04em',
+                        }}
+                    >
+                        Nos parcours
+                    </h2>
+                    <p className="mt-4 text-base leading-relaxed text-muted-foreground max-w-2xl">
+                        Chaque parcours mène à des compétences et des débouchés qui lui sont propres.
+                    </p>
+                </div>
 
                 <div className="grid gap-8 lg:grid-cols-12">
                     <nav className="lg:col-span-4">
-                        {/* Défilement horizontal sur mobile, colonne sur grand
-                            écran : la liste reste accessible dans les deux cas. */}
-                        <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-0 lg:overflow-visible lg:pb-0">
+                        <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0">
                             {programs.map((program) => {
                                 const isActive = program.id === active.id;
                                 return (
@@ -159,10 +174,10 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                                         key={program.id}
                                         onClick={() => setActiveId(program.id)}
                                         aria-current={isActive}
-                                        className={`shrink-0 border px-5 py-4 text-left text-sm font-bold lg:w-full lg:shrink lg:border-b-0 lg:last:border-b ${
+                                        className={`shrink-0 rounded-full px-6 py-3.5 text-left text-sm font-bold transition-all lg:w-full lg:rounded-xl lg:px-5 lg:py-4 ${
                                             isActive
-                                                ? 'bg-primary text-primary-foreground border-primary'
-                                                : 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border'
                                         }`}
                                     >
                                         {program.title}
@@ -179,17 +194,17 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                         transition={{ duration: 0.3 }}
                         className="lg:col-span-8"
                     >
-                        <h3 className="text-foreground mb-4 text-2xl md:text-3xl">
+                        <h3 className="font-display font-bold text-3xl mb-4 text-foreground">
                             {active.title}
                         </h3>
 
                         {active.description ? (
-                            <p className="text-muted-foreground mb-8 leading-relaxed">
+                            <p className="text-muted-foreground mb-8 text-base leading-relaxed">
                                 {active.description}
                             </p>
                         ) : null}
 
-                        <div className="grid gap-5 md:grid-cols-2">
+                        <div className="grid gap-4 md:grid-cols-2">
                             {active.competences ? (
                                 <DetailBlock
                                     icon={<GraduationCap className="h-5 w-5" />}
@@ -228,31 +243,33 @@ export default function DepartmentShow({ department, cms }: Props) {
                             <Programs programs={department.programs} />
                         ) : null}
 
-                        <section className="band-dark section">
-                            <div className="section-container text-center">
-                                <h2 className="text-foreground text-2xl md:text-3xl">
-                                    Intéressé par cette mention ?
-                                </h2>
-                                <p className="text-muted-foreground mx-auto mt-4 max-w-xl">
-                                    Contactez-nous pour tout savoir sur les
-                                    modalités d'inscription.
-                                </p>
+                        {/* CTA final */}
+                        <section className="band-dark pb-[104px]" style={{ borderTop: '1px solid var(--border)' }}>
+                            <div className="mx-auto w-full px-9 pt-[80px]" style={{ maxWidth: '1320px' }}>
+                                <div className="bg-[#35cf7f] text-[#0e1411] rounded-[28px] py-[72px] px-[56px] text-center">
+                                    <h2 className="font-display font-black uppercase text-[clamp(36px,5vw,56px)] leading-[0.98] tracking-[-0.04em] m-0">
+                                        Intéressé par cette mention ?
+                                    </h2>
+                                    <p className="mt-5 mx-auto max-w-[620px] text-lg leading-[1.58] font-medium text-[#0e1411]/90">
+                                        Contactez-nous pour tout savoir sur les modalités d'inscription et de candidature.
+                                    </p>
 
-                                <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                                    <Link
-                                        href="/#contact"
-                                        className="bg-primary text-primary-foreground inline-flex items-center gap-2 px-8 py-3.5 text-sm font-bold uppercase"
-                                    >
-                                        Nous contacter
-                                        <ArrowRight className="h-4 w-4" />
-                                    </Link>
+                                    <div className="mt-9 flex justify-center gap-3.5 flex-wrap">
+                                        <Link
+                                            href="/#contact"
+                                            className="px-[34px] py-[17px] rounded-full bg-[#0e1411] text-white text-[15px] font-bold transition-colors hover:bg-white hover:text-[#0e1411] inline-flex items-center gap-2"
+                                        >
+                                            Nous contacter
+                                            <ArrowRight className="h-4 w-4" />
+                                        </Link>
 
-                                    <Link
-                                        href="/#filiere"
-                                        className="border-border text-foreground hover:bg-accent hover:text-accent-foreground inline-flex items-center gap-2 border px-8 py-3.5 text-sm font-bold uppercase"
-                                    >
-                                        Voir les autres mentions
-                                    </Link>
+                                        <Link
+                                            href="/#filiere"
+                                            className="px-[32px] py-[17px] rounded-full border border-[#0e1411]/35 text-[#0e1411] text-[15px] font-semibold hover:bg-[#0e1411]/10"
+                                        >
+                                            Voir les autres mentions
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </section>

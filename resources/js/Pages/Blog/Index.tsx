@@ -12,7 +12,6 @@ import { motion } from 'framer-motion';
 import { ArrowRight, CalendarDays, MapPin, Pin } from 'lucide-react';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
-import { SectionHeading } from '../../page/landing/components/section-heading';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
 
 interface Paginated {
@@ -36,7 +35,6 @@ const FILTERS: { key: PostType | null; label: string; countKey: string }[] = [
     { key: 'evenement', label: 'Événements', countKey: 'evenement' },
 ];
 
-/** Repère de date : période pour un événement, date de parution sinon. */
 function dateLine(post: Post): { icon: React.ReactNode; text: string } | null {
     if (post.type === 'evenement' && post.event_start_at) {
         return {
@@ -71,12 +69,12 @@ const PostCard = ({
         >
             <Link
                 href={`/actualites/${post.slug}`}
-                className={`border-border bg-card group flex h-full border ${
+                className={`group flex h-full overflow-hidden rounded-[22px] border border-border bg-card transition-colors hover:bg-accent ${
                     featured ? 'flex-col md:flex-row' : 'flex-col'
                 }`}
             >
                 <div
-                    className={`bg-muted relative overflow-hidden ${
+                    className={`relative overflow-hidden bg-muted ${
                         featured
                             ? 'md:w-1/2 md:shrink-0 aspect-[16/10] md:aspect-auto'
                             : 'aspect-[16/10]'
@@ -90,17 +88,17 @@ const PostCard = ({
                         />
                     ) : null}
 
-                    <span className="bg-primary text-primary-foreground absolute top-0 left-0 px-3 py-1.5 text-[10px] font-bold tracking-[0.14em] uppercase">
+                    <span className="absolute top-4 left-4 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase text-primary-foreground tracking-wider">
                         {POST_TYPE_LABELS[post.type] ?? 'Publication'}
                     </span>
                 </div>
 
                 <div
-                    className={`flex flex-1 flex-col p-6 ${featured ? 'md:p-9' : ''}`}
+                    className={`flex flex-1 flex-col p-7 ${featured ? 'md:p-9' : ''}`}
                 >
-                    <div className="text-muted-foreground mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
+                    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-muted-foreground">
                         {post.is_pinned ? (
-                            <span className="text-primary inline-flex items-center gap-1">
+                            <span className="inline-flex items-center gap-1 text-primary">
                                 <Pin className="h-3 w-3" />
                                 Épinglé
                             </span>
@@ -119,8 +117,8 @@ const PostCard = ({
                     </div>
 
                     <h2
-                        className={`text-foreground group-hover:text-primary font-bold ${
-                            featured ? 'text-2xl md:text-3xl' : 'text-lg'
+                        className={`font-display font-bold text-foreground transition-colors group-hover:text-primary ${
+                            featured ? 'text-2xl md:text-3xl' : 'text-xl'
                         }`}
                     >
                         {post.title}
@@ -128,7 +126,7 @@ const PostCard = ({
 
                     {post.excerpt ? (
                         <p
-                            className={`text-muted-foreground mt-3 leading-relaxed ${
+                            className={`mt-3 leading-relaxed text-muted-foreground ${
                                 featured ? 'line-clamp-4' : 'line-clamp-3 text-sm'
                             }`}
                         >
@@ -137,13 +135,13 @@ const PostCard = ({
                     ) : null}
 
                     {post.location ? (
-                        <p className="text-muted-foreground mt-3 inline-flex items-center gap-1.5 text-xs">
+                        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                             <MapPin className="h-3.5 w-3.5" />
                             {post.location}
                         </p>
                     ) : null}
 
-                    <span className="text-primary mt-auto inline-flex items-center gap-1.5 pt-6 text-xs font-bold uppercase">
+                    <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-xs font-bold uppercase text-primary">
                         Lire
                         <ArrowRight className="h-3.5 w-3.5" />
                     </span>
@@ -157,8 +155,6 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
     const blog = useSection('blog');
     const activeType = filters.type ?? null;
 
-    // Sur la première page sans filtre, la publication la plus récente occupe
-    // toute la largeur : elle donne un point d'entrée clair à la page.
     const showFeatured = posts.current_page === 1 && !activeType;
 
     return (
@@ -166,20 +162,34 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
             <Navbar />
 
             <main className="flex-1">
-                <section className="band-light section border-border border-b">
-                    <div className="section-container">
-                        <SectionHeading
-                            eyebrow={String(blog.eyebrow ?? 'Actualités')}
-                            title={String(blog.title ?? 'Actualités & Annonces')}
-                            subtitle={String(blog.subtitle ?? '')}
-                        />
+                <section className="band-dark py-[104px]">
+                    <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+                        
+                        {/* Header */}
+                        <div className="mb-12 text-center">
+                            <h1
+                                className="font-display font-black uppercase text-foreground"
+                                style={{
+                                    fontSize: 'clamp(40px, 5vw, 64px)',
+                                    lineHeight: 1,
+                                    letterSpacing: '-0.04em',
+                                }}
+                            >
+                                {String(blog.title ?? 'Actualités & Annonces')}
+                            </h1>
+                            {blog.subtitle ? (
+                                <p className="mt-4 text-base leading-relaxed text-muted-foreground mx-auto max-w-2xl">
+                                    {String(blog.subtitle)}
+                                </p>
+                            ) : null}
+                        </div>
 
+                        {/* Filtres style pilules */}
                         <div className="mb-12 flex flex-wrap justify-center gap-2">
                             {FILTERS.map((filter) => {
                                 const isActive = activeType === filter.key;
                                 const count = counts[filter.countKey] ?? 0;
 
-                                // Un filtre sans publication n'est pas proposé.
                                 if (count === 0 && filter.key !== null) return null;
 
                                 return (
@@ -190,10 +200,10 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                                 ? `/actualites?type=${filter.key}`
                                                 : '/actualites'
                                         }
-                                        className={`border px-5 py-2.5 text-xs font-bold tracking-wide uppercase ${
+                                        className={`rounded-full px-5 py-2.5 text-xs font-bold tracking-wide uppercase transition-colors ${
                                             isActive
-                                                ? 'bg-primary text-primary-foreground border-primary'
-                                                : 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground'
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border'
                                         }`}
                                     >
                                         {filter.label}
@@ -206,13 +216,12 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                         </div>
 
                         {posts.data.length === 0 ? (
-                            <div className="border-border border border-dashed py-24 text-center">
+                            <div className="rounded-[22px] border border-border border-dashed py-24 text-center">
                                 <h3 className="text-foreground text-lg font-bold">
                                     Aucune publication
                                 </h3>
                                 <p className="text-muted-foreground mt-2 text-sm">
-                                    Revenez bientôt pour suivre l'actualité de
-                                    l'ASJA.
+                                    Revenez bientôt pour suivre l'actualité de l'ASJA.
                                 </p>
                             </div>
                         ) : (
@@ -251,7 +260,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                                     ? 'page'
                                                     : undefined
                                             }
-                                            className={`flex h-11 w-11 items-center justify-center border text-sm font-bold ${
+                                            className={`flex h-11 w-11 items-center justify-center rounded-full border text-sm font-bold transition-colors ${
                                                 page === posts.current_page
                                                     ? 'bg-primary text-primary-foreground border-primary'
                                                     : 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground'

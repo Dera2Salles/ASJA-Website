@@ -2,8 +2,8 @@ import asjaDark from '@/assets/Asja-dark-quality.jpg';
 import backgroundImage from '@/assets/Lieu_espace/Asja-devant-quality-2.jpg';
 import { cmsImage, useSection } from '@/lib/cms';
 import { useThemeContext } from '@/page/theme/useThemeContext';
+import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
 
 export const Description = () => {
     const { isDark } = useThemeContext();
@@ -15,91 +15,105 @@ export const Description = () => {
             ?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const background = isDark
-        ? cmsImage(hero.background_image_dark, asjaDark)
-        : cmsImage(hero.background_image, backgroundImage);
+    // Force dark version since the site is strictly in dark mode
+    const background = cmsImage(hero.background_image_dark, asjaDark);
+
+    const badgeText = String(
+        hero.badge ?? 'Rentrée 2026 · Inscriptions ouvertes',
+    );
+    const titleText = String(hero.title ?? '');
+    const highlightText = String(hero.title_highlight ?? '');
+    const subtitleText = String(hero.subtitle ?? '');
+    const ctaLabel = String(hero.cta_label ?? 'Découvrir nos filières');
 
     return (
         <section
             id="description"
-            className="relative flex min-h-[calc(100svh-4.25rem)] w-full items-center justify-center overflow-hidden"
+            className="relative flex min-h-[88vh] w-full items-end overflow-hidden"
         >
+            {/* Background image */}
             <img
                 src={background}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 -z-20 h-full w-full object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
             />
 
+            {/* Gradient overlay */}
             <div
-                className="absolute inset-0 -z-10 bg-black/70"
+                className="absolute inset-0"
                 aria-hidden="true"
+                style={{
+                    background:
+                        'linear-gradient(180deg, rgba(14,20,17,0.35) 0%, rgba(14,20,17,0.5) 45%, rgba(14,20,17,0.96) 100%)',
+                }}
             />
 
-            <div className="section-container relative py-32 text-center">
-                <motion.p
-                    initial={{ opacity: 0, y: 20 }}
+            {/* Content */}
+            <div
+                className="relative mx-auto w-full"
+                style={{ maxWidth: '1320px', padding: '0 36px 72px' }}
+            >
+                {/* Pill badge */}
+                <motion.span
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="mb-6 text-xs font-semibold tracking-[0.22em] text-white/70 uppercase"
+                    transition={{ duration: 0.55, ease: 'easeOut' }}
+                    className="bg-primary text-primary-foreground inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-bold tracking-wide uppercase"
                 >
-                    Antsirabe · Antsohihy · Madagascar
-                </motion.p>
+                    {badgeText}
+                </motion.span>
 
+                {/* H1 */}
                 <motion.h1
                     initial={{ opacity: 0, y: 28 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.75, ease: 'easeOut' }}
-                    className="mx-auto max-w-4xl text-4xl font-extrabold text-white md:text-6xl lg:text-7xl"
+                    transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
+                    className="font-display mt-[26px] max-w-[1080px] font-black text-white uppercase leading-[0.94] tracking-[-0.045em]"
+                    style={{ fontSize: 'clamp(56px, 8vw, 104px)' }}
                 >
-                    {String(hero.title ?? '')}
+                    {titleText}
+                    {highlightText && (
+                        <>
+                            <br />
+                            <span className="text-primary">{highlightText}</span>
+                        </>
+                    )}
                 </motion.h1>
 
-                <motion.p
-                    initial={{ opacity: 0, y: 28 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                        duration: 0.75,
-                        delay: 0.15,
-                        ease: 'easeOut',
-                    }}
-                    className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/85 md:text-xl"
-                >
-                    {String(hero.subtitle ?? '')}
-                </motion.p>
-
+                {/* Row: subtitle + buttons */}
                 <motion.div
                     initial={{ opacity: 0, y: 28 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.75, delay: 0.3, ease: 'easeOut' }}
-                    className="mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row"
+                    transition={{ duration: 0.7, delay: 0.22, ease: 'easeOut' }}
+                    className="mt-9 flex flex-row flex-wrap items-end justify-between gap-14"
                 >
-                    <button
-                        onClick={scrollToFiliere}
-                        className="bg-primary text-primary-foreground hover:bg-background hover:text-primary inline-flex cursor-pointer items-center gap-2 px-8 py-3.5 text-sm font-bold tracking-wide uppercase"
+                    {/* Left: subtitle */}
+                    <p
+                        className="max-w-[520px] text-lg leading-relaxed"
+                        style={{ color: '#c3cec8' }}
                     >
-                        {String(hero.cta_label ?? '')}
-                        <ArrowDown className="h-4 w-4" />
-                    </button>
+                        {subtitleText}
+                    </p>
 
-                    <a
-                        href="/actualites"
-                        className="inline-flex items-center gap-2 border border-white px-8 py-3.5 text-sm font-bold tracking-wide text-white uppercase hover:bg-white hover:text-black"
-                    >
-                        Actualités & événements
-                    </a>
+                    {/* Right: CTA buttons */}
+                    <div className="flex gap-3.5">
+                        <button
+                            onClick={scrollToFiliere}
+                            className="bg-primary text-primary-foreground cursor-pointer rounded-full px-8 py-4 text-base font-bold transition-colors hover:bg-white hover:text-black"
+                        >
+                            {ctaLabel}
+                        </button>
+
+                        <Link
+                            href="/actualites"
+                            className="rounded-full border border-white/35 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-white/10"
+                        >
+                            Actualités &amp; événements
+                        </Link>
+                    </div>
                 </motion.div>
             </div>
-
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.1 }}
-                className="absolute bottom-8 left-1/2 -translate-x-1/2"
-                aria-hidden="true"
-            >
-                <ArrowDown className="h-5 w-5 animate-bounce text-white/50" />
-            </motion.div>
         </section>
     );
 };
