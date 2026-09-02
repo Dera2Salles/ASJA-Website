@@ -1,4 +1,3 @@
-import { Separator } from '@/components/ui/separator';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { LogEntity } from '@/features/log/log.entity';
@@ -6,59 +5,29 @@ import type { LogEntity } from '@/features/log/log.entity';
 export const columns: ColumnDef<LogEntity>[] = [
     {
         accessorKey: 'action',
-        header: () => {
-            return (
-                <div className="flex w-full items-center justify-between">
-                    <p className="font-semibold dark:text-white">Action</p>
-                    <Separator
-                        orientation="vertical"
-                        className="data-[orientation=vertical]:h-10"
-                    />
-                </div>
-            );
-        },
+        header: () => <span>Action</span>,
         cell: ({ row }) => (
-            <p className="hidden py-2 md:flex dark:text-white">
+            <span className="text-foreground font-medium">
                 {row.getValue('action')}
-            </p>
+            </span>
         ),
     },
     {
         accessorKey: 'description',
-        header: () => {
-            return (
-                <div className="flex w-full items-center justify-between">
-                    <p className="font-semibold dark:text-white">Description</p>
-                    <Separator
-                        orientation="vertical"
-                        className="data-[orientation=vertical]:h-10"
-                    />
-                </div>
-            );
-        },
+        header: () => <span>Description</span>,
         cell: ({ row }) => (
-            <p className="hidden py-2 md:flex dark:text-white">
+            <span className="text-muted-foreground">
                 {row.getValue('description')}
-            </p>
+            </span>
         ),
     },
     {
         accessorKey: 'date',
-        header: () => {
-            return (
-                <div className="flex w-full items-center justify-between">
-                    <p className="font-semibold dark:text-white">Date</p>
-                    <Separator
-                        orientation="vertical"
-                        className="data-[orientation=vertical]:h-10"
-                    />
-                </div>
-            );
-        },
+        header: () => <span>Date</span>,
         cell: ({ row }) => (
-            <p className="hidden py-2 md:flex dark:text-white">
+            <span className="admin-mono text-muted-foreground">
                 {row.getValue('date')}
-            </p>
+            </span>
         ),
     },
 ];

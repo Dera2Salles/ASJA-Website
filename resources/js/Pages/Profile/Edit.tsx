@@ -1,107 +1,105 @@
+import { PageTitle } from '@/components/admin/primitives';
+import { Card } from '@/components/ui/card';
 import AdminLayout from '@/Layouts/AdminLayout';
 import { PageProps } from '@/types';
 import { Head } from '@inertiajs/react';
-import { motion } from 'framer-motion';
-import { ShieldCheck, Trash2, User } from 'lucide-react';
+import { ShieldCheck, Trash2, User as UserIcon } from 'lucide-react';
+import type { ElementType, ReactNode } from 'react';
 import DeleteUserForm from './Partials/DeleteUserForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
+
+/**
+ * Bloc de réglage : en-tête sous un filet, contenu en dessous. Le même
+ * gabarit que les autres écrans de l'administration, pour que le profil ne
+ * soit pas la seule page à parler une autre langue.
+ */
+const SettingsCard = ({
+    icon: Icon,
+    title,
+    description,
+    children,
+    tone = 'neutral',
+}: {
+    icon: ElementType;
+    title: string;
+    description: string;
+    children: ReactNode;
+    /** `danger` ne teinte que le titre — jamais la surface. */
+    tone?: 'neutral' | 'danger';
+}) => (
+    <Card className="gap-0 p-0">
+        <header className="border-border flex items-start gap-3 border-b px-5 py-4">
+            <Icon
+                className={
+                    tone === 'danger'
+                        ? 'text-destructive mt-0.5 size-4 shrink-0'
+                        : 'text-muted-foreground mt-0.5 size-4 shrink-0'
+                }
+                aria-hidden="true"
+            />
+            <div className="min-w-0">
+                <h2
+                    className={
+                        tone === 'danger'
+                            ? 'admin-section-title text-destructive'
+                            : 'admin-section-title'
+                    }
+                >
+                    {title}
+                </h2>
+                <p className="text-muted-foreground mt-1 text-sm">
+                    {description}
+                </p>
+            </div>
+        </header>
+
+        <div className="px-5 py-5">{children}</div>
+    </Card>
+);
 
 export default function Edit({
     mustVerifyEmail,
     status,
 }: PageProps<{ mustVerifyEmail: boolean; status?: string }>) {
     return (
-        <AdminLayout>
-            <Head title="Mon Profil" />
+        <AdminLayout breadcrumbs={[{ label: 'Mon profil' }]}>
+            <Head title="Mon profil" />
 
-            <div className="mx-auto max-w-5xl space-y-12 pb-20">
-                {}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-2"
+            <PageTitle
+                title="Mon profil"
+                description="Vos informations de compte et vos réglages de connexion."
+            />
+
+            <div className="grid max-w-3xl gap-4">
+                <SettingsCard
+                    icon={UserIcon}
+                    title="Informations personnelles"
+                    description="Le nom et l'adresse e-mail associés à votre compte."
                 >
-                    <h1 className="text-4xl font-black tracking-tight text-slate-900 lg:text-5xl dark:text-white">
-                        Gestion du{' '}
-                        <span className="text-primary dark:text-primary">
-                            Profil
-                        </span>
-                    </h1>
-                    <p className="font-medium text-slate-500 dark:text-zinc-400">
-                        Personnalisez vos informations et sécurisez votre accès.
-                    </p>
-                </motion.div>
+                    <UpdateProfileInformationForm
+                        mustVerifyEmail={mustVerifyEmail}
+                        status={status}
+                    />
+                </SettingsCard>
 
-                <div className="grid gap-10">
-                    {}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 }}
-                        className="glass overflow-hidden rounded-[2.5rem] border-none bg-white shadow-2xl dark:bg-zinc-950/50"
-                    >
-                        <div className="p-8 md:p-12">
-                            <div className="mb-10 flex items-center gap-4">
-                                <div className="bg-accent dark:bg-primary/10 text-primary dark:text-primary flex h-12 w-12 items-center justify-center rounded-2xl">
-                                    <User size={24} />
-                                </div>
-                                <h2 className="text-xl font-black tracking-tight text-slate-900 uppercase dark:text-white">
-                                    Informations Personnelles
-                                </h2>
-                            </div>
-                            <UpdateProfileInformationForm
-                                mustVerifyEmail={mustVerifyEmail}
-                                status={status}
-                            />
-                        </div>
-                    </motion.div>
+                <SettingsCard
+                    icon={ShieldCheck}
+                    title="Mot de passe"
+                    description="Un mot de passe long et unique protège l'ensemble du site."
+                >
+                    <UpdatePasswordForm />
+                </SettingsCard>
 
-                    {}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                        className="glass overflow-hidden rounded-[2.5rem] border-none bg-white shadow-2xl dark:bg-zinc-950/50"
-                    >
-                        <div className="p-8 md:p-12">
-                            <div className="mb-10 flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-400/10 dark:text-amber-400">
-                                    <ShieldCheck size={24} />
-                                </div>
-                                <h2 className="text-xl font-black tracking-tight text-slate-900 uppercase dark:text-white">
-                                    Sécurité du Compte
-                                </h2>
-                            </div>
-                            <UpdatePasswordForm />
-                        </div>
-                    </motion.div>
-
-                    {}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 }}
-                        className="overflow-hidden rounded-[2.5rem] border border-none border-rose-100/50 bg-rose-50/50 shadow-xl dark:border-rose-900/20 dark:bg-rose-950/10"
-                    >
-                        <div className="p-8 md:p-12">
-                            <div className="mb-10 flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-600/10">
-                                    <Trash2 size={24} />
-                                </div>
-                                <h2 className="text-xl font-black tracking-tight text-rose-600 uppercase">
-                                    Zone de Danger
-                                </h2>
-                            </div>
-                            <DeleteUserForm className="max-w-xl" />
-                        </div>
-                    </motion.div>
-                </div>
+                <SettingsCard
+                    icon={Trash2}
+                    tone="danger"
+                    title="Supprimer le compte"
+                    description="La suppression est définitive : rien n'est conservé."
+                >
+                    <DeleteUserForm />
+                </SettingsCard>
             </div>
-
-            {}
-            <div className="bg-primary/[0.03] pointer-events-none fixed top-[10%] right-[-5%] -z-10 h-[500px] w-[500px] rounded-full blur-[120px]" />
-            <div className="bg-primary/[0.02] pointer-events-none fixed bottom-[10%] left-[-5%] -z-10 h-[400px] w-[400px] rounded-full blur-[100px]" />
         </AdminLayout>
     );
 }

@@ -1,0 +1,700 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   ASJA Design System — brutaliste / noir·blanc·vert
+   Angles à 90°, aplats francs, bordures pleines. Aucune transparence,
+   aucun flou, aucun dégradé, aucun arrondi. Les composants utilisent
+   exclusivement les rôles sémantiques ci-dessous (bg-background,
+   text-foreground, border-border, ...), jamais les palettes Tailwind
+   brutes (gray, zinc, slate) en dur.
+   ========================================================================== */
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Archivo', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+    /* Design "C Vivant" : arrondis généreux sur cartes et boutons pill. */
+    --radius-none: 0px;
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 22px;
+    --radius-2xl: 28px;
+    --radius-3xl: 36px;
+    --radius-full: 999px;
+
+    /* --- Vert ASJA : un seul ton, en aplat, jamais dégradé ---------------
+       Vert franc plutôt que fluorescent : il reste l'accent dominant sans
+       vibrer contre les aplats clairs. */
+    --color-asja: #0c8042;
+    --color-asja-bright: #35cf7f;
+    --color-asja-deep: #08542c;
+    --color-asja-soft: #e6f3ec;
+
+    /* --- Échelle de gris (noir → blanc), aplats uniquement ---------------
+       Les deux extrémités s'arrêtent avant le noir et le blanc absolus. */
+    --color-ink-0: #161817;
+    --color-ink-50: #1c1f1d;
+    --color-ink-100: #242826;
+    --color-ink-200: #2f3331;
+    --color-ink-300: #454a47;
+    --color-ink-400: #676d6a;
+    --color-ink-500: #8b918e;
+    --color-ink-600: #aab0ad;
+    --color-ink-700: #cbcfcd;
+    --color-ink-800: #e1e4e2;
+    --color-ink-900: #f0f2f1;
+    --color-ink-1000: #fbfcfb;
+
+    /* --- Rôles sémantiques (mappés sur les variables :root) --------------- */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    /* Rôles attendus par le composant Sidebar de shadcn : sans eux, il
+       s'affichait sans couleurs. */
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Palette des graphiques, dérivée du vert ASJA. */
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+}
+
+/* --- Mode clair : fond blanc cassé, textes quasi-noirs pour un contraste maximal ---------- */
+:root {
+    --radius: 0px;
+
+    --background: #f3f5f4;
+    --foreground: #0f1210;          /* quasi-noir → identique au mode sombre inversé */
+    --card: #ffffff;
+    --card-foreground: #0f1210;
+    --popover: #ffffff;
+    --popover-foreground: #0f1210;
+
+    --primary: var(--color-asja);
+    --primary-foreground: #ffffff;
+    --secondary: #e9ecea;
+    --secondary-foreground: #0f1210;
+    --muted: #e9ecea;
+    --muted-foreground: #2f3331;    /* gris très foncé → était trop clair */
+    --accent: var(--color-asja-soft);
+    --accent-foreground: var(--color-asja-deep);
+
+    --destructive: #c1332b;
+    --destructive-foreground: #ffffff;
+
+    --border: #a8b0ac;              /* bordures plus visibles */
+    --input: #9aa09c;
+    --ring: var(--color-asja);
+
+    --sidebar: #ffffff;
+    --sidebar-foreground: #1c1f1d;
+    --sidebar-primary: var(--color-asja);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: var(--color-asja-soft);
+    --sidebar-accent-foreground: var(--color-asja-deep);
+    --sidebar-border: #dfe4e1;
+    --sidebar-ring: var(--color-asja);
+
+    --chart-1: #0c8042;
+    --chart-2: #35cf7f;
+    --chart-3: #08542c;
+    --chart-4: #7fdaa6;
+    --chart-5: #5f6663;
+}
+
+/* --- Mode sombre : vert profond forêt, texte blanc cassé, accent vert vif ---- */
+.dark {
+    --background: #0e1411;
+    --foreground: #f2f5f3;
+    --card: #1a241f;
+    --card-foreground: #f2f5f3;
+    --popover: #1a241f;
+    --popover-foreground: #f2f5f3;
+
+    --primary: var(--color-asja-bright);
+    --primary-foreground: #0e1411;
+    --secondary: #1f2b24;
+    --secondary-foreground: #f2f5f3;
+    --muted: #1a241f;
+    --muted-foreground: #9aa8a1;
+    --accent: #22302a;
+    --accent-foreground: #7fdaa6;
+
+    --destructive: #e0605a;
+    --destructive-foreground: #0e1411;
+
+    --border: #23302a;
+    --input: #2b3a33;
+    --ring: var(--color-asja-bright);
+
+    --sidebar: #12180f;
+    --sidebar-foreground: #f2f5f3;
+    --sidebar-primary: var(--color-asja-bright);
+    --sidebar-primary-foreground: #0e1411;
+    --sidebar-accent: #1a241f;
+    --sidebar-accent-foreground: #7fdaa6;
+    --sidebar-border: #23302a;
+    --sidebar-ring: var(--color-asja-bright);
+
+    --chart-1: #35cf7f;
+    --chart-2: #0c8042;
+    --chart-3: #7fdaa6;
+    --chart-4: #08542c;
+    --chart-5: #9aa8a1;
+}
+
+@layer base {
+    *:not(.app-shell, .app-shell *) {
+        border-radius: inherit;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+        font-feature-settings:
+            'rlig' 1,
+            'calt' 1;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-display);
+        @apply font-bold text-balance;
+    }
+
+    h1 {
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+    }
+
+    h2 {
+        letter-spacing: -0.015em;
+        line-height: 1.12;
+    }
+
+    h3 {
+        letter-spacing: -0.01em;
+        line-height: 1.2;
+    }
+
+    p {
+        text-wrap: pretty;
+    }
+
+    /* Focus visible vert plein, angles carrés, jamais adouci. */
+    :focus-visible {
+        outline: 2px solid var(--color-asja);
+        outline-offset: 2px;
+    }
+
+    /* Survols francs et instantanés : pas de transition, inversion nette. */
+    a:not(.app-shell *),
+    button:not(.app-shell *) {
+        transition: none;
+    }
+
+    /* Filet de sécurité brutaliste : neutralise tout flou, dégradé ou ombre
+       douce qui subsisterait dans des classes utilitaires non nettoyées.
+       Le focus (ring-*, box-shadow) reste actif car ciblé séparément. */
+    [class*='blur-']:not(.app-shell *),
+    [class*='backdrop-blur']:not(.app-shell *) {
+        filter: none !important;
+        backdrop-filter: none !important;
+    }
+
+    [class*='bg-gradient-to']:not(.app-shell *) {
+        background-image: none !important;
+    }
+
+    [class*='shadow-']:not(:focus-visible):not(:focus):not(.app-shell *),
+    .shadow:not(.app-shell *) {
+        box-shadow: none !important;
+    }
+}
+
+@layer utilities {
+    /* Rythme vertical partagé par toutes les sections de la landing. */
+    .section {
+        @apply py-20 md:py-28;
+    }
+
+    .section-container {
+        @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+    }
+
+    /* Sur-titre en capitales qui coiffe les titres de section. */
+    .eyebrow {
+        @apply text-primary font-sans text-xs font-bold tracking-[0.18em] uppercase;
+    }
+
+    /* Bordure franche pleine, remplace toute élévation/ombre. */
+    .border-frame {
+        border-width: 1px;
+        border-style: solid;
+        border-color: var(--border);
+    }
+
+    /* Bandes noir/blanc fixes pour l'alternance des sections : indépendantes
+       du bascule clair/sombre, elles portent leur propre jeu de rôles
+       sémantiques pour que bg-card, text-muted-foreground, border-foreground
+       etc. restent corrects à l'intérieur. */
+    .band-dark {
+        --background: #0e1411;
+        --foreground: #f2f5f3;
+        --card: #1a241f;
+        --card-foreground: #f2f5f3;
+        --popover: #1a241f;
+        --popover-foreground: #f2f5f3;
+        --muted: #1a241f;
+        --muted-foreground: #9aa8a1;
+        --accent: #22302a;
+        --accent-foreground: #7fdaa6;
+        --primary: var(--color-asja-bright);
+        --primary-foreground: #0e1411;
+        --border: #23302a;
+        background: var(--background);
+        color: var(--foreground);
+    }
+
+    .band-light {
+        --background: #f2f5f3;
+        --foreground: #0e1411;
+        --card: #ffffff;
+        --card-foreground: #0e1411;
+        --popover: #ffffff;
+        --popover-foreground: #0e1411;
+        --muted: #e6ece9;
+        --muted-foreground: #5b665f;
+        --accent: var(--color-asja-soft);
+        --accent-foreground: var(--color-asja-deep);
+        --primary: var(--color-asja);
+        --primary-foreground: #ffffff;
+        --border: #c8d0cc;
+        background: var(--background);
+        color: var(--foreground);
+    }
+
+
+
+    /* Animation de la bande défilante (marquee). */
+    .marquee-track {
+        display: flex;
+        width: 200%;
+        animation: asja-marquee 26s linear infinite;
+    }
+
+    @keyframes asja-marquee {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-50%); }
+    }
+
+    .scrollbar-premium::-webkit-scrollbar {
+
+        width: 8px;
+        height: 8px;
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-track {
+        background: var(--background);
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-thumb {
+        background: var(--border);
+    }
+
+    .scrollbar-premium::-webkit-scrollbar-thumb:hover {
+        background: var(--muted-foreground);
+    }
+}
+
+
+/* ==========================================================================
+   Administration & authentification — habillage « C Vivant »
+   La landing assume des surfaces claires, des angles généreux (22px sur les
+   cartes, pilules sur les actions), un seul vert d'accent et une typographie
+   Archivo massive. L'outil de gestion reprend ce vocabulaire, à une exception
+   près : la barre latérale reste le seul aplat sombre de l'écran, pour
+   séparer la navigation du plan de travail. Tout ce qui suit est contenu
+   dans `.app-shell` et n'affecte jamais les pages publiques.
+   ========================================================================== */
+
+.app-shell {
+    /* L'application est toujours claire : le thème sombre du site public ne
+       la traverse pas, seule la barre latérale porte le sombre. */
+    --background: #f2f5f3;
+    --foreground: #0e1411;
+    --card: #ffffff;
+    --card-foreground: #0e1411;
+    --popover: #ffffff;
+    --popover-foreground: #0e1411;
+
+    --primary: var(--color-asja);
+    --primary-foreground: #ffffff;
+    --secondary: #e6ece9;
+    --secondary-foreground: #0e1411;
+    --muted: #eef2f0;
+    --muted-foreground: #5b665f;
+    --accent: var(--color-asja-soft);
+    --accent-foreground: var(--color-asja-deep);
+
+    --destructive: #c1332b;
+    --destructive-foreground: #ffffff;
+
+    --border: #dde3e0;
+    --input: #cfd8d4;
+    --ring: var(--color-asja);
+
+    /* Barre latérale : aplat forêt, accent vert vif — le seul bloc sombre. */
+    --sidebar: #0e1411;
+    --sidebar-foreground: #c3cec8;
+    --sidebar-primary: var(--color-asja-bright);
+    --sidebar-primary-foreground: #0e1411;
+    --sidebar-accent: #1a241f;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #23302a;
+    --sidebar-ring: var(--color-asja-bright);
+
+    --chart-1: #0c8042;
+    --chart-2: #35cf7f;
+    --chart-3: #08542c;
+    --chart-4: #7fdaa6;
+    --chart-5: #8b918e;
+
+    /* Rayons repris de la landing : 22px sur les cartes, pilule sur tout ce
+       qui se clique. */
+    --radius: 14px;
+    --app-radius-sm: 10px;
+    --app-radius: 16px;
+    --app-radius-lg: 22px;
+    --app-radius-pill: 999px;
+
+    --app-shadow-sm: 0 1px 2px rgb(14 20 17 / 0.05);
+    --app-shadow: 0 2px 10px rgb(14 20 17 / 0.07), 0 1px 2px rgb(14 20 17 / 0.04);
+    --app-shadow-lg: 0 14px 32px rgb(14 20 17 / 0.1), 0 2px 6px rgb(14 20 17 / 0.05);
+
+    background: var(--background);
+    color: var(--foreground);
+    min-height: 100svh;
+}
+
+@layer utilities {
+    /* Surface de base : carte, panneau, ligne de tableau. */
+    .app-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--app-radius-lg);
+        box-shadow: var(--app-shadow-sm);
+    }
+
+    .app-elevated {
+        box-shadow: var(--app-shadow-lg);
+    }
+
+    /* Bloc vert plein, repris des encarts de la landing. */
+    .app-panel-green {
+        background: var(--color-asja);
+        border-radius: var(--app-radius-lg);
+        color: #ffffff;
+    }
+
+    /* Chiffre-clé : Archivo massif, comme les statistiques de la page
+       d'accueil. */
+    .app-figure {
+        font-family: var(--font-display);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+    }
+
+    /* Sur-titre en capitales espacées. */
+    .app-eyebrow {
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+
+    /* --- Formes ------------------------------------------------------- */
+
+    .app-shell [data-slot='card'] {
+        border-radius: var(--app-radius-lg);
+        box-shadow: var(--app-shadow-sm);
+    }
+
+    .app-shell [data-slot='dropdown-menu-content'],
+    .app-shell [data-slot='popover-content'],
+    .app-shell [data-slot='select-content'],
+    .app-shell [data-slot='dialog-content'],
+    .app-shell [data-slot='sheet-content'] {
+        border-radius: var(--app-radius);
+        box-shadow: var(--app-shadow-lg);
+    }
+
+    .app-shell [data-slot='dropdown-menu-item'],
+    .app-shell [data-slot='select-item'] {
+        border-radius: var(--app-radius-sm);
+    }
+
+    .app-shell input,
+    .app-shell textarea,
+    .app-shell select,
+    .app-shell [data-slot='select-trigger'] {
+        border-radius: var(--app-radius-sm);
+    }
+
+    /* Toute action se clique dans une pilule, comme sur la landing. */
+    .app-shell button,
+    .app-shell [data-slot='button'],
+    .app-shell [role='button'],
+    .app-shell [data-slot='badge'] {
+        border-radius: var(--app-radius-pill);
+    }
+
+    /* … sauf les cases à cocher et les commandes de la barre latérale, qui
+       gardent un rayon doux plutôt qu'un ovale. */
+    .app-shell [data-slot='checkbox'] {
+        border-radius: 6px;
+    }
+
+    .app-shell [data-sidebar='menu-button'],
+    .app-shell [data-sidebar='menu-sub-button'] {
+        border-radius: var(--app-radius-pill);
+    }
+
+    /* Entrée active de la barre latérale : aplat vert plein. */
+    .app-shell [data-sidebar='menu-button'][data-active='true'] {
+        background: var(--color-asja);
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    .app-shell [data-sidebar='menu-button'][data-active='true']:hover {
+        background: var(--color-asja-bright);
+        color: #0e1411;
+    }
+
+    /* --- Mouvement ---------------------------------------------------- */
+
+    .app-shell a,
+    .app-shell button {
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .app-card-interactive,
+    .app-interactive {
+        transition:
+            box-shadow 0.18s ease,
+            border-color 0.18s ease,
+            transform 0.18s ease;
+    }
+
+    .app-card-interactive:hover,
+    .app-interactive:hover {
+        border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
+        box-shadow: var(--app-shadow);
+        transform: translateY(-2px);
+    }
+}
+
+/* --- Corps d'article ------------------------------------------------------
+   Le HTML produit par l'éditeur n'est pas mis en forme par lui-même. Le projet
+   n'embarque pas @tailwindcss/typography (les classes prose-* y étaient sans
+   effet), la mise en forme est donc définie ici, dans le langage du site. */
+.article-content {
+    color: var(--muted-foreground);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+}
+
+.article-content > * + * {
+    margin-top: 1.25rem;
+}
+
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.article-content h2 {
+    margin-top: 2.75rem;
+    font-size: 1.75rem;
+    letter-spacing: -0.015em;
+}
+
+.article-content h3 {
+    margin-top: 2.25rem;
+    font-size: 1.35rem;
+}
+
+.article-content h4 {
+    margin-top: 2rem;
+    font-size: 1.1rem;
+}
+
+.article-content a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.article-content strong {
+    color: var(--foreground);
+    font-weight: 700;
+}
+
+.article-content ul,
+.article-content ol {
+    padding-left: 1.5rem;
+}
+
+.article-content ul {
+    list-style: disc;
+}
+
+.article-content ol {
+    list-style: decimal;
+}
+
+.article-content li + li {
+    margin-top: 0.5rem;
+}
+
+.article-content blockquote {
+    border-left: 3px solid var(--primary);
+    background: var(--muted);
+    padding: 1rem 1.25rem;
+    font-style: italic;
+}
+
+.article-content img {
+    width: 100%;
+    border: 1px solid var(--border);
+}
+
+.article-content hr {
+    border: 0;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+}
+
+.article-content code {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+}
+
+.article-content pre {
+    background: var(--muted);
+    border: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+}
+
+.article-content pre code {
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.article-content table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.article-content th,
+.article-content td {
+    border: 1px solid var(--border);
+    padding: 0.6rem 0.85rem;
+    text-align: left;
+}
+
+.article-content th {
+    background: var(--muted);
+    color: var(--foreground);
+    font-weight: 700;
+}
+
+/* --- Éditeur riche TipTap ------------------------------------------------- */
+.ProseMirror {
+    min-height: 500px;
+    padding: 2rem;
+    outline: none;
+}
+
+.ProseMirror p {
+    margin-bottom: 1.25rem;
+    line-height: 1.75;
+}
+
+.ProseMirror h1 {
+    @apply text-foreground mt-8 mb-6 text-4xl font-bold;
+}
+
+.ProseMirror h2 {
+    @apply text-foreground mt-6 mb-4 text-2xl font-bold;
+}
+
+.ProseMirror blockquote {
+    @apply border-primary bg-muted text-muted-foreground my-6 border-l-4 py-4 pl-6 italic;
+}
+
+.ProseMirror ul {
+    @apply mb-4 list-disc pl-6;
+}
+
+.ProseMirror ol {
+    @apply mb-4 list-decimal pl-6;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
+    -webkit-text-fill-color: var(--foreground) !important;
+}

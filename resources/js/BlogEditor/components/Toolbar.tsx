@@ -156,7 +156,7 @@ export function Toolbar({
                 className="hidden"
             />
 
-            <div className="flex flex-wrap items-center gap-1 border-b bg-gradient-to-r from-green-50/50 to-white p-3 dark:from-zinc-900/40 dark:to-zinc-950/40">
+ <div className="flex flex-wrap items-center gap-1 border-b p-3">
                 {}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -234,7 +234,7 @@ export function Toolbar({
                 <Separator orientation="vertical" className="h-6" />
 
                 {}
-                <div className="flex items-center gap-0.5 rounded-md border bg-white p-0.5 dark:bg-gray-800">
+ <div className="flex items-center gap-0.5 rounded-md border bg-card p-0.5">
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Toggle
@@ -243,7 +243,7 @@ export function Toolbar({
                                 onPressedChange={() =>
                                     editor.chain().focus().toggleBold().run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                             >
                                 <Bold className="h-4 w-4" />
                             </Toggle>
@@ -259,7 +259,7 @@ export function Toolbar({
                                 onPressedChange={() =>
                                     editor.chain().focus().toggleItalic().run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                             >
                                 <Italic className="h-4 w-4" />
                             </Toggle>
@@ -279,7 +279,7 @@ export function Toolbar({
                                         .toggleUnderline()
                                         .run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                             >
                                 <UnderlineIcon className="h-4 w-4" />
                             </Toggle>
@@ -295,7 +295,7 @@ export function Toolbar({
                                 onPressedChange={() =>
                                     editor.chain().focus().toggleStrike().run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                             >
                                 <Strikethrough className="h-4 w-4" />
                             </Toggle>
@@ -317,7 +317,7 @@ export function Toolbar({
                                         .toggleSuperscript()
                                         .run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                             >
                                 <SuperscriptIcon className="h-4 w-4" />
                             </Toggle>
@@ -337,7 +337,7 @@ export function Toolbar({
                                         .toggleSubscript()
                                         .run()
                                 }
-                                className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                             >
                                 <SubscriptIcon className="h-4 w-4" />
                             </Toggle>

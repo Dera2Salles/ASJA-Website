@@ -1,130 +1,194 @@
 'use client';
 
+import Logo from '@/assets/Logo/asja-logo.png';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarRail,
 } from '@/components/ui/sidebar';
-
-import Logo from '@/assets/Logo/asja-logo.png';
-import { Button } from '@/components/ui/button';
-import { Link } from '@inertiajs/react';
+import { ChevronsUpDown, ExternalLink, LogOut, Moon, Sun } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
-import {
-    MdBarChart,
-    MdExitToApp,
-    MdFileOpen,
-    MdNewspaper,
-    MdPeople,
-    MdSyncLock,
-} from 'react-icons/md';
-
 import { useAdminDashboardContext } from '../bloc/useAdminContext';
+import { ADMIN_NAV_GROUPS } from '../nav-config';
 
 export const AppSidebar = ({
     changePage,
+    activeIndex,
+    isDark,
+    onToggleTheme,
 }: {
     changePage: Dispatch<SetStateAction<number>>;
+    activeIndex: number;
+    isDark: boolean;
+    onToggleTheme: () => void;
 }) => {
-    const data = {
-        navMain: [
-            {
-                title: 'Statistique des étudiants',
-                url: '#',
-                icon: MdBarChart,
-                click: changePage,
-            },
+    const { logOut, adminData } = useAdminDashboardContext();
 
-            {
-                title: 'Liste des étudiants',
-                url: '#',
-                icon: MdPeople,
-                click: changePage,
-            },
-            {
-                title: 'Liste des document',
-                url: '#',
-                icon: MdFileOpen,
-                click: changePage,
-            },
+    const fullName = adminData
+        ? `${adminData.name} ${adminData.lastName ?? ''}`.trim()
+        : 'Administrateur';
 
-            {
-                title: 'Annonce',
-                url: '#',
-                icon: MdNewspaper,
-                click: changePage,
-            },
-            {
-                title: 'Historique',
-                url: '#',
-                icon: MdSyncLock,
-                click: changePage,
-            },
-        ],
-    };
-    const { logOut } = useAdminDashboardContext();
-
-    const handleLogout = () => {
-        logOut();
-    };
+    const initials = fullName.slice(0, 2).toUpperCase();
 
     return (
-        <Sidebar collapsible="offcanvas" variant="inset">
-            <SidebarHeader>
+        <Sidebar collapsible="icon">
+            <SidebarHeader className="p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
+                            size="lg"
                             asChild
-                            className="h-15 hover:bg-transparent"
+                            className="hover:bg-sidebar-accent h-14"
                         >
-                            <a
-                                className="flex cursor-pointer"
-                                onClick={() => (window.location.href = '/')}
-                            >
-                                <img className="h-14 w-14" src={Logo} />
-                                <h1 className="mt-1 py-5 font-semibold text-gray-900 dark:text-white">
-                                    Université ASJA
-                                </h1>
+                            <a href="/">
+                                <div className="border-border bg-card flex aspect-square size-8 items-center justify-center border">
+                                    <img
+                                        src={Logo}
+                                        alt=""
+                                        className="size-5 object-contain"
+                                    />
+                                </div>
+                                <div className="grid flex-1 text-left leading-tight">
+                                    <span className="text-sidebar-foreground truncate text-sm font-semibold">
+                                        ASJA
+                                    </span>
+                                    <span className="text-muted-foreground truncate text-xs">
+                                        Administration
+                                    </span>
+                                </div>
                             </a>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
+
             <SidebarContent>
-                <SidebarGroup>
-                    <SidebarGroupContent className="flex flex-col gap-2">
-                        <SidebarMenu>
-                            {data.navMain.map((item, index) => (
-                                <SidebarMenuItem key={item.title}>
-                                    <SidebarMenuButton asChild>
-                                        <Link href={item.url}>
-                                            {item.icon && <item.icon />}
+                {ADMIN_NAV_GROUPS.map((group) => (
+                    <SidebarGroup key={group.label} className="px-3">
+                        <SidebarGroupLabel className="px-3">
+                            {group.label}
+                        </SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                {group.items.map((item) => (
+                                    <SidebarMenuItem key={item.title}>
+                                        <SidebarMenuButton
+                                            tooltip={item.title}
+                                            isActive={activeIndex === item.page}
+                                            onClick={() =>
+                                                changePage(item.page)
+                                            }
+                                            className="h-9 cursor-pointer text-sm"
+                                        >
+                                            <item.icon className="size-4" />
                                             <span>{item.title}</span>
-                                        </Link>
-                                    </SidebarMenuButton>
-                                </SidebarMenuItem>
-                            ))}
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
+                                        </SidebarMenuButton>
+                                    </SidebarMenuItem>
+                                ))}
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+                ))}
             </SidebarContent>
-            <SidebarFooter>
-                <Button
-                    onClick={handleLogout}
-                    className="flex w-full cursor-pointer bg-transparent p-6 hover:bg-transparent"
-                >
-                    <p className="flex items-center gap-1 text-xl text-red-600">
-                        {' '}
-                        <MdExitToApp /> Se deconnecter
-                    </p>
-                </Button>
+
+            <SidebarFooter className="p-3">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <SidebarMenuButton
+                                    size="lg"
+                                    className="hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent h-12 cursor-pointer"
+                                >
+                                    <Avatar className="size-8">
+                                        <AvatarImage
+                                            src={adminData?.imageUrl}
+                                        />
+                                        <AvatarFallback className="bg-muted text-muted-foreground text-xs font-medium">
+                                            {initials}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div className="grid flex-1 text-left leading-tight">
+                                        <span className="text-sidebar-foreground truncate text-sm font-medium">
+                                            {fullName}
+                                        </span>
+                                        <span className="text-muted-foreground truncate text-xs">
+                                            Administrateur
+                                        </span>
+                                    </div>
+                                    <ChevronsUpDown className="ml-auto size-4" />
+                                </SidebarMenuButton>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent
+                                side="right"
+                                align="end"
+                                className="w-56"
+                            >
+                                <DropdownMenuLabel className="font-normal">
+                                    <p className="text-sm font-medium">
+                                        {fullName}
+                                    </p>
+                                    <p className="text-muted-foreground text-xs">
+                                        Administrateur
+                                    </p>
+                                </DropdownMenuLabel>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem asChild>
+                                    <a
+                                        href="/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        <ExternalLink className="size-4" />
+                                        Voir le site
+                                    </a>
+                                </DropdownMenuItem>
+
+                                <DropdownMenuItem onSelect={onToggleTheme}>
+                                    {isDark ? (
+                                        <Sun className="size-4" />
+                                    ) : (
+                                        <Moon className="size-4" />
+                                    )}
+                                    {isDark ? 'Thème clair' : 'Thème sombre'}
+                                </DropdownMenuItem>
+
+                                <DropdownMenuSeparator />
+
+                                <DropdownMenuItem
+                                    variant="destructive"
+                                    onSelect={logOut}
+                                >
+                                    <LogOut className="size-4" />
+                                    Se déconnecter
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </SidebarMenuItem>
+                </SidebarMenu>
             </SidebarFooter>
+
+            <SidebarRail />
         </Sidebar>
     );
 };

@@ -1,91 +1,80 @@
+import { StatusBadge } from '@/components/admin/primitives';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
-
+import { Separator } from '@/components/ui/separator';
 import type { UserDto } from '@/features/mention/user.dto';
-import { MdCancel, MdPerson } from 'react-icons/md';
+import { User, X } from 'lucide-react';
 import { useModalContext } from '../bloc/useModalContext';
+
+/** Ligne « libellé / valeur » d'une fiche : le libellé reste gris et discret. */
+const Field = ({ label, value }: { label: string; value?: string }) => (
+    <div className="flex items-baseline justify-between gap-4">
+        <span className="admin-label shrink-0">{label}</span>
+        <span className="text-foreground min-w-0 truncate text-sm">
+            {value || '—'}
+        </span>
+    </div>
+);
 
 export const StudentInformation = ({ student }: { student: UserDto }) => {
     const { closeStudentInfo } = useModalContext();
 
     return (
-        <div className="flex w-1/3 flex-col gap-5">
-            <Card className="border-l-4 border-l-green-600 p-5 transition-all duration-500">
-                <MdCancel
-                    onClick={() => {
-                        closeStudentInfo();
-                    }}
-                    className="absolute cursor-pointer text-4xl text-green-600 transition-all duration-300 hover:scale-125 dark:text-white"
-                />
-                <section className="flex justify-center">
-                    <p className="text-2xl font-bold text-green-600">
-                        Etudiant
+        <Card className="w-full max-w-lg gap-0 p-0">
+            <header className="border-border flex items-center justify-between gap-3 border-b px-5 py-4">
+                <p className="text-foreground text-sm font-medium">
+                    Fiche étudiant
+                </p>
+                <button
+                    type="button"
+                    onClick={closeStudentInfo}
+                    aria-label="Fermer la fiche"
+                    className="text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-8 items-center justify-center"
+                >
+                    <X className="size-4" aria-hidden="true" />
+                </button>
+            </header>
+
+            <div className="flex items-center gap-4 px-5 py-5">
+                <Avatar className="size-16">
+                    <AvatarImage src={student.imageUrl} alt="" />
+                    <AvatarFallback className="bg-muted text-muted-foreground">
+                        <User className="size-6" aria-hidden="true" />
+                    </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                    <p className="admin-section-title truncate">
+                        {student.name} {student.lastName}
                     </p>
-                </section>
-                <section className="flex justify-center gap-12 px-5 pb-7">
-                    {student.imageUrl ? (
-                        <div className="rounded-full border-5 border-green-700 p-1">
-                            <img
-                                src={student.imageUrl}
-                                alt="Photo de profil"
-                                className="size-50 rounded-full object-cover transition-all duration-200"
-                            />
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-center rounded-full bg-gradient-to-br from-zinc-400 to-zinc-500 font-semibold text-white">
-                            <MdPerson className="z-100 size-50 p-2" />
-                        </div>
-                    )}
-                    <section className="flex flex-col justify-center gap-1 font-semibold">
-                        <p>
-                            Nom :{' '}
-                            <span className="font-normal">
-                                {student.name}
-                            </span>{' '}
-                        </p>
-                        <p>
-                            Prenom :{' '}
-                            <span className="font-normal">
-                                {student.lastName}
-                            </span>{' '}
-                        </p>
-                        <p>
-                            Matricule:
-                            <span className="font-normal">
-                                {' '}
-                                {student.identifier}
-                            </span>{' '}
-                        </p>
-                        <p>
-                            Contact:{' '}
-                            <span className="font-normal">
-                                {' '}
-                                {student.contact}
-                            </span>{' '}
-                        </p>
-                        <p>
-                            Niveau:{' '}
-                            <span className="font-normal">
-                                {' '}
-                                {student.level}
-                            </span>
-                        </p>
-                        <p>
-                            Mention :{' '}
-                            <span className="font-normal">
-                                {' '}
-                                {student.mention}
-                            </span>{' '}
-                        </p>
-                        <p>
-                            Branche:{' '}
-                            <span className="font-normal">
-                                {' '}
-                                {student.branche}
-                            </span>{' '}
-                        </p>
-                    </section>
-                </section>
-            </Card>
-        </div>
+                    <p className="admin-mono text-muted-foreground mt-0.5">
+                        {student.identifier}
+                    </p>
+                </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-3 px-5 py-5">
+                <Field label="Contact" value={student.contact} />
+                <Field label="Mention" value={student.mention} />
+                <Field label="Niveau" value={student.level} />
+                <Field label="Branche" value={student.branche} />
+            </div>
+
+            <Separator />
+
+            <div className="flex flex-wrap items-center gap-2 px-5 py-4">
+                <span className="admin-label mr-1">Tranches</span>
+                <StatusBadge tone={student.Premier ? 'success' : 'danger'}>
+                    1re
+                </StatusBadge>
+                <StatusBadge tone={student.Deuxieme ? 'success' : 'danger'}>
+                    2e
+                </StatusBadge>
+                <StatusBadge tone={student.Troisieme ? 'success' : 'danger'}>
+                    3e
+                </StatusBadge>
+            </div>
+        </Card>
     );
 };

@@ -1,39 +1,50 @@
-import { Card } from '@/components/ui/card';
-
-import { Avatar } from '@/components/ui/avatar';
-import { MdCancel } from 'react-icons/md';
-import { useModalContext } from '../bloc/useModalContext';
-
 import logo from '@/assets/Logo/asja-logo.png';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
+import { Card } from '@/components/ui/card';
+import { X } from 'lucide-react';
+import { useModalContext } from '../bloc/useModalContext';
 
 export const PostInformation = () => {
     const { closePostInformation, post } = useModalContext();
 
     return (
-        <div className="flex w-1/3 flex-col gap-5">
-            <MdCancel
-                onClick={() => {
-                    closePostInformation();
-                }}
-                className="relative top-5 right-10 cursor-pointer text-4xl text-white transition-all duration-300 hover:scale-125"
-            />
-            <Card className="p-5 transition-all duration-500">
-                <section className="flex items-center gap-3">
-                    <Avatar className="size-11">
-                        <img src={logo} />
+        <Card className="max-h-[85vh] w-full max-w-lg gap-0 overflow-y-auto p-0">
+            <header className="border-border bg-card sticky top-0 flex items-center justify-between gap-3 border-b px-5 py-4">
+                <div className="flex min-w-0 items-center gap-3">
+                    <Avatar className="size-8">
+                        <AvatarImage src={logo} alt="" />
                     </Avatar>
-                    <p className="text-xl font-semibold">{post?.title}</p>
-                </section>
-                <p>{post?.description}</p>
+                    <p className="text-foreground truncate text-sm font-medium">
+                        {post?.title}
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onClick={closePostInformation}
+                    aria-label="Fermer l'annonce"
+                    className="text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-8 shrink-0 items-center justify-center"
+                >
+                    <X className="size-4" aria-hidden="true" />
+                </button>
+            </header>
+
+            <div className="space-y-4 px-5 py-5">
                 {post?.imageUrl && (
-                    <div className="aspect-[16/9]">
-                        <img src={post?.imageUrl} className="rounded-2xl" />
+                    <div className="border-border aspect-[16/9] overflow-hidden border">
+                        <img
+                            src={post.imageUrl}
+                            alt=""
+                            className="size-full object-cover"
+                        />
                     </div>
                 )}
-                <p className="flex justify-end text-gray-500">
-                    Publie le , {post?.date}
+
+                <p className="text-foreground text-sm whitespace-pre-line">
+                    {post?.description}
                 </p>
-            </Card>
-        </div>
+
+                <p className="admin-meta">Publié le {post?.date}</p>
+            </div>
+        </Card>
     );
 };

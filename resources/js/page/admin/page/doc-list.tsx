@@ -14,9 +14,11 @@ export const Doclist = () => {
     } = useModalContext();
 
     useScrollLock(isAddDocVisible || isDeleteConfirmationVisible);
+
     return (
-        <section className="flex h-full flex-col dark:bg-zinc-900">
+        <>
             <DocDataTable />
+
             {isAddDocVisible && (
                 <Modal>
                     <CardAddDoc />
@@ -25,12 +27,12 @@ export const Doclist = () => {
             {isDeleteConfirmationVisible && (
                 <Modal>
                     <DeleteModalConfirmation
-                        text=" Voulez-vous vraiment supprimer ce document?"
+                        text="Ce document sera définitivement supprimé."
                         confirm={deleteCallBack}
                         cancel={cancelCallBack}
                     />
                 </Modal>
             )}
-        </section>
+        </>
     );
 };

@@ -1,16 +1,12 @@
+import { FieldError } from '@/components/admin/primitives';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
-import { AlertCircle, CheckCircle2, KeyRound, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { FormEventHandler, useRef } from 'react';
 
-export default function UpdatePasswordForm({
-    className = '',
-}: {
-    className?: string;
-}) {
+export default function UpdatePasswordForm() {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -49,124 +45,67 @@ export default function UpdatePasswordForm({
     };
 
     return (
-        <section className={className}>
-            <form onSubmit={updatePassword} className="max-w-xl space-y-8">
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="current_password"
-                            className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
-                        >
-                            Mot de passe actuel
-                        </Label>
-                        <div className="relative">
-                            <Input
-                                id="current_password"
-                                ref={currentPasswordInput}
-                                value={data.current_password}
-                                onChange={(e) =>
-                                    setData('current_password', e.target.value)
-                                }
-                                type="password"
-                                className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
-                                autoComplete="current-password"
-                            />
-                            <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
-                        </div>
-                        {errors.current_password && (
-                            <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                <AlertCircle size={10} />{' '}
-                                {errors.current_password}
-                            </p>
-                        )}
-                    </div>
+        <form onSubmit={updatePassword} className="max-w-md space-y-5">
+            <div className="space-y-2">
+                <Label htmlFor="current_password">Mot de passe actuel</Label>
+                <Input
+                    id="current_password"
+                    ref={currentPasswordInput}
+                    type="password"
+                    value={data.current_password}
+                    onChange={(e) =>
+                        setData('current_password', e.target.value)
+                    }
+                    autoComplete="current-password"
+                    aria-invalid={Boolean(errors.current_password)}
+                />
+                <FieldError>{errors.current_password}</FieldError>
+            </div>
 
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="password"
-                            className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
-                        >
-                            Nouveau mot de passe
-                        </Label>
-                        <div className="relative">
-                            <Input
-                                id="password"
-                                ref={passwordInput}
-                                value={data.password}
-                                onChange={(e) =>
-                                    setData('password', e.target.value)
-                                }
-                                type="password"
-                                className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
-                                autoComplete="new-password"
-                            />
-                            <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
-                        </div>
-                        {errors.password && (
-                            <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                <AlertCircle size={10} /> {errors.password}
-                            </p>
-                        )}
-                    </div>
+            <div className="space-y-2">
+                <Label htmlFor="password">Nouveau mot de passe</Label>
+                <Input
+                    id="password"
+                    ref={passwordInput}
+                    type="password"
+                    value={data.password}
+                    onChange={(e) => setData('password', e.target.value)}
+                    autoComplete="new-password"
+                    aria-invalid={Boolean(errors.password)}
+                />
+                <FieldError>{errors.password}</FieldError>
+            </div>
 
-                    <div className="space-y-2">
-                        <Label
-                            htmlFor="password_confirmation"
-                            className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
-                        >
-                            Confirmer le mot de passe
-                        </Label>
-                        <div className="relative">
-                            <Input
-                                id="password_confirmation"
-                                value={data.password_confirmation}
-                                onChange={(e) =>
-                                    setData(
-                                        'password_confirmation',
-                                        e.target.value,
-                                    )
-                                }
-                                type="password"
-                                className="focus:ring-ring/20 h-12 rounded-xl border-none bg-slate-50 px-4 pr-10 font-bold focus:ring-2 dark:bg-white/5"
-                                autoComplete="new-password"
-                            />
-                            <KeyRound className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 text-slate-300" />
-                        </div>
-                        {errors.password_confirmation && (
-                            <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                <AlertCircle size={10} />{' '}
-                                {errors.password_confirmation}
-                            </p>
-                        )}
-                    </div>
-                </div>
+            <div className="space-y-2">
+                <Label htmlFor="password_confirmation">
+                    Confirmer le nouveau mot de passe
+                </Label>
+                <Input
+                    id="password_confirmation"
+                    type="password"
+                    value={data.password_confirmation}
+                    onChange={(e) =>
+                        setData('password_confirmation', e.target.value)
+                    }
+                    autoComplete="new-password"
+                    aria-invalid={Boolean(errors.password_confirmation)}
+                />
+                <FieldError>{errors.password_confirmation}</FieldError>
+            </div>
 
-                <div className="flex items-center gap-6 pt-4">
-                    <Button
-                        disabled={processing}
-                        className="bg-primary dark:bg-primary shadow-primary/20 flex h-12 gap-2 rounded-xl px-8 font-black text-white shadow-xl transition-all hover:scale-105 active:scale-95"
-                    >
-                        {processing && (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                        )}
-                        Mettre à jour
-                    </Button>
+            <div className="flex items-center gap-3 pt-1">
+                <Button type="submit" size="sm" disabled={processing}>
+                    {processing && <Loader2 className="size-4 animate-spin" />}
+                    Mettre à jour
+                </Button>
 
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out duration-300"
-                        enterFrom="opacity-0 translate-x-4"
-                        enterTo="opacity-100 translate-x-0"
-                        leave="transition ease-in-out duration-300"
-                        leaveTo="opacity-0 translate-x-4"
-                    >
-                        <p className="text-primary dark:text-primary flex items-center gap-2 text-sm font-black">
-                            <CheckCircle2 size={18} />
-                            Mot de passe mis à jour
-                        </p>
-                    </Transition>
-                </div>
-            </form>
-        </section>
+                {recentlySuccessful && (
+                    <p className="admin-meta flex items-center gap-1.5">
+                        <Check className="size-3.5" aria-hidden="true" />
+                        Mot de passe mis à jour
+                    </p>
+                )}
+            </div>
+        </form>
     );
 }

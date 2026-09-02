@@ -1,5 +1,4 @@
-import asjaDark from '@/assets/Asja-dark-quality.jpg';
-import backgroundImage from '@/assets/Lieu_espace/Asja-devant-quality-2.jpg';
+import asjaDark from '@/assets/Lieu_espace/Devant_asja.jpg';
 import { cmsImage, useSection } from '@/lib/cms';
 import { useThemeContext } from '@/page/theme/useThemeContext';
 import { Link } from '@inertiajs/react';
@@ -16,7 +15,7 @@ export const Description = () => {
     };
 
     // Force dark version since the site is strictly in dark mode
-    const background = cmsImage(hero.background_image_dark, asjaDark);
+    const background = cmsImage(hero.background_image, asjaDark);
 
     const badgeText = String(
         hero.badge ?? 'Rentrée 2026 · Inscriptions ouvertes',
@@ -69,14 +68,16 @@ export const Description = () => {
                     initial={{ opacity: 0, y: 28 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
-                    className="font-display mt-[26px] max-w-[1080px] font-black text-white uppercase leading-[0.94] tracking-[-0.045em]"
+                    className="font-display mt-[26px] max-w-[1080px] leading-[0.94] font-black tracking-[-0.045em] text-white uppercase"
                     style={{ fontSize: 'clamp(56px, 8vw, 104px)' }}
                 >
                     {titleText}
                     {highlightText && (
                         <>
                             <br />
-                            <span className="text-primary">{highlightText}</span>
+                            <span className="text-primary">
+                                {highlightText}
+                            </span>
                         </>
                     )}
                 </motion.h1>

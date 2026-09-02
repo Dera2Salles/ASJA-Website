@@ -1,10 +1,37 @@
-import { Badge } from '@/components/ui/badge';
+import {
+    EmptyState,
+    KpiCard,
+    KpiRow,
+    PageTitle,
+    StatusBadge,
+} from '@/components/admin/primitives';
+import { RowActions } from '@/components/admin/row-actions';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Link, router } from '@inertiajs/react';
-import { motion } from 'framer-motion';
-import { ArrowRight, EyeOff, Layers, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    ExternalLink,
+    Layers,
+    Pencil,
+    Plus,
+    Search,
+    SearchX,
+    Trash2,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
 interface Department {
@@ -17,220 +44,291 @@ interface Department {
     programs_count: number;
 }
 
+type Visibility = 'all' | 'visible' | 'hidden';
+
+/**
+ * Vignette d'une mention. La carte ne se soulève pas et ne porte pas d'ombre :
+ * elle se détache par son filet, et son seul indice de couleur est la pastille
+ * de statut. Les actions restent visibles en permanence — les révéler au
+ * survol les rendait inatteignables au clavier.
+ */
+const DepartmentCard = ({
+    department,
+    onDelete,
+}: {
+    department: Department;
+    onDelete: (department: Department) => void;
+}) => (
+    <Card className="app-card-interactive gap-0 py-0">
+        <CardContent className="flex h-full flex-col gap-4 p-4">
+            <div className="flex items-start justify-between gap-3">
+                <div className="flex min-w-0 items-center gap-3">
+                    <span className="border-border bg-muted flex size-10 shrink-0 items-center justify-center overflow-hidden border">
+                        {department.logo ? (
+                            <img
+                                src={`/storage/${department.logo}`}
+                                alt=""
+                                className="size-full object-contain p-1"
+                            />
+                        ) : (
+                            <Layers
+                                className="text-muted-foreground size-4"
+                                aria-hidden="true"
+                            />
+                        )}
+                    </span>
+
+                    <div className="min-w-0">
+                        <p className="text-foreground truncate text-sm font-medium">
+                            {department.name}
+                        </p>
+                        <p className="admin-mono text-muted-foreground truncate">
+                            /{department.slug}
+                        </p>
+                    </div>
+                </div>
+
+                <RowActions
+                    actions={[
+                        {
+                            label: 'Modifier',
+                            icon: Pencil,
+                            onSelect: () =>
+                                router.visit(
+                                    route(
+                                        'admin.departments.edit',
+                                        department.id,
+                                    ),
+                                ),
+                        },
+                        {
+                            label: 'Voir sur le site',
+                            icon: ExternalLink,
+                            onSelect: () =>
+                                window.open(
+                                    route('department.show', department.slug),
+                                    '_blank',
+                                    'noopener,noreferrer',
+                                ),
+                        },
+                        {
+                            label: 'Supprimer',
+                            icon: Trash2,
+                            onSelect: () => onDelete(department),
+                            danger: true,
+                        },
+                    ]}
+                />
+            </div>
+
+            {/* Chiffres de la mention, alignés en chasse fixe pour que les
+                cartes se comparent d'un coup d'œil. */}
+            <div className="border-border mt-auto flex items-end justify-between gap-3 border-t pt-3">
+                <div>
+                    <p className="admin-mono text-foreground text-base">
+                        {department.programs_count}
+                    </p>
+                    <p className="admin-label">Programmes</p>
+                </div>
+
+                <div className="text-right">
+                    <p className="admin-mono text-muted-foreground text-base">
+                        {department.sort_order}
+                    </p>
+                    <p className="admin-label">Ordre</p>
+                </div>
+
+                <StatusBadge
+                    tone={department.is_visible ? 'success' : 'warning'}
+                >
+                    {department.is_visible ? 'En ligne' : 'Masquée'}
+                </StatusBadge>
+            </div>
+        </CardContent>
+    </Card>
+);
+
 export default function DepartmentsIndex({
     departments,
 }: {
     departments: Department[];
 }) {
-    const handleDelete = (id: number, name: string) => {
-        if (confirm(`Supprimer le département "${name}" définitivement ?`)) {
-            router.delete(route('admin.departments.destroy', id), {
-                onSuccess: () => toast.success('Département supprimé'),
-            });
-        }
+    const [query, setQuery] = useState('');
+    const [visibility, setVisibility] = useState<Visibility>('all');
+    const [pendingDelete, setPendingDelete] = useState<Department | null>(null);
+
+    const visibleCount = departments.filter((d) => d.is_visible).length;
+    const programCount = departments.reduce(
+        (sum, d) => sum + d.programs_count,
+        0,
+    );
+
+    const filtered = useMemo(() => {
+        const needle = query.trim().toLowerCase();
+        return departments.filter((department) => {
+            const matchesQuery =
+                !needle ||
+                department.name.toLowerCase().includes(needle) ||
+                department.slug.toLowerCase().includes(needle);
+            const matchesVisibility =
+                visibility === 'all' ||
+                (visibility === 'visible' && department.is_visible) ||
+                (visibility === 'hidden' && !department.is_visible);
+            return matchesQuery && matchesVisibility;
+        });
+    }, [departments, query, visibility]);
+
+    const confirmDelete = () => {
+        if (!pendingDelete) return;
+        router.delete(route('admin.departments.destroy', pendingDelete.id), {
+            onSuccess: () => toast.success('Mention supprimée'),
+            onFinish: () => setPendingDelete(null),
+        });
     };
+
+    const isFiltered = query.trim() !== '' || visibility !== 'all';
 
     return (
         <AdminLayout breadcrumbs={[{ label: 'Mentions' }]}>
-            <div className="space-y-12 pb-20">
-                {}
-                <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="space-y-1"
-                    >
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground lg:text-4xl">
-                            Nos{' '}
-                            <span className="text-primary dark:text-primary">
-                                Départements
-                            </span>
-                        </h1>
-                        <p className="text-muted-foreground text-base">
-                            {departments.length} mention(s) académique(s)
-                            gérée(s).
-                        </p>
-                    </motion.div>
+            <Head title="Mentions" />
 
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                    >
+            <PageTitle
+                title="Mentions"
+                description="Structurez l'offre académique publiée sur le site."
+                actions={
+                    <Button asChild size="sm">
                         <Link href={route('admin.departments.create')}>
-                            <Button className="dark:bg-primary h-11 gap-2 rounded-lg bg-card px-6 font-semibold text-white transition-all hover:bg-card">
-                                <Plus
-                                    size={18}
-                                    className="transition-transform group-hover:rotate-90"
-                                />
-                                Nouveau département
-                            </Button>
+                            <Plus className="size-4" />
+                            Nouvelle mention
                         </Link>
-                    </motion.div>
+                    </Button>
+                }
+            />
+
+            <KpiRow className="xl:grid-cols-3">
+                <KpiCard
+                    label="Mentions"
+                    value={departments.length}
+                    icon={Layers}
+                />
+                <KpiCard
+                    label="En ligne"
+                    value={visibleCount}
+                    icon={ExternalLink}
+                />
+                <KpiCard
+                    label="Programmes"
+                    value={programCount}
+                    icon={Layers}
+                />
+            </KpiRow>
+
+            {/* Recherche et filtre de visibilité : le tri se fait à l'écran,
+                la liste étant courte par nature. */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="relative w-full max-w-sm">
+                    <Search
+                        className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+                        aria-hidden="true"
+                    />
+                    <Input
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        placeholder="Rechercher une mention…"
+                        aria-label="Rechercher une mention"
+                        className="h-9 pl-9"
+                    />
                 </div>
 
-                {}
-                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {departments.length === 0 && (
-                        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 py-20 md:col-span-2 lg:col-span-3 dark:border-white/5">
-                            <div className="bg-accent mb-4 flex h-20 w-20 items-center justify-center rounded-full">
-                                <Layers
-                                    className="text-primary"
-                                    size={32}
-                                    strokeWidth={1.5}
-                                />
-                            </div>
-                            <h2 className="mb-2 text-xl font-bold text-foreground">
-                                Aucun département
-                            </h2>
-                            <p className="text-muted-foreground mb-6 text-sm">
-                                Commencez par structurer votre offre académique.
-                            </p>
-                            <Link href={route('admin.departments.create')}>
-                                <Button
-                                    variant="outline"
-                                    className="border-border text-primary hover:bg-accent h-10 rounded-lg px-6 font-semibold"
-                                >
-                                    Créer le premier
-                                </Button>
-                            </Link>
-                        </div>
-                    )}
-
-                    {departments.map((dept, i) => (
-                        <motion.div
-                            key={dept.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}
-                        >
-                            <Card className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-md dark:border-white/5 /50">
-                                {}
-                                <div className="bg-primary absolute top-0 left-0 z-10 h-1.5 w-full" />
-
-                                <CardContent className="p-6 pt-8">
-                                    <div className="mb-4 flex items-start justify-between">
-                                        <div className="bg-accent flex h-12 w-12 items-center justify-center rounded-lg transition-transform group-hover:scale-105">
-                                            {dept.logo ? (
-                                                <img
-                                                    src={`/storage/${dept.logo}`}
-                                                    alt=""
-                                                    className="h-10 w-10 object-contain"
-                                                />
-                                            ) : (
-                                                <Layers className="text-primary h-8 w-8" />
-                                            )}
-                                        </div>
-
-                                        <div className="flex translate-x-4 gap-1 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
-                                            <Link
-                                                href={route(
-                                                    'admin.departments.edit',
-                                                    dept.id,
-                                                )}
-                                            >
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    className="hover:text-primary hover:bg-accent h-8 w-8 rounded-lg text-muted-foreground transition-all active:scale-90"
-                                                >
-                                                    <Pencil
-                                                        size={14}
-                                                    />
-                                                </Button>
-                                            </Link>
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        dept.id,
-                                                        dept.name,
-                                                    )
-                                                }
-                                                className="h-8 w-8 rounded-lg text-muted-foreground transition-all hover:bg-rose-50 hover:text-rose-600 active:scale-95"
-                                            >
-                                                <Trash2
-                                                    size={14}
-                                                />
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        <div>
-                                            <div className="mb-1 flex items-center gap-2">
-                                                <h3 className="truncate text-base font-bold tracking-tight text-foreground uppercase">
-                                                    {dept.name}
-                                                </h3>
-                                                {!dept.is_visible && (
-                                                    <EyeOff className="h-4 w-4 text-amber-500" />
-                                                )}
-                                            </div>
-                                            <code className="text-muted-foreground rounded bg-muted px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase dark:bg-card/5">
-                                                /{dept.slug}
-                                            </code>
-                                        </div>
-
-                                        <div className="flex items-center justify-between border-t border-border pt-4 dark:border-white/5">
-                                            <div className="flex flex-col">
-                                                <span className="text-lg leading-none font-bold text-foreground">
-                                                    {dept.programs_count}
-                                                </span>
-                                                <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
-                                                    Programmes
-                                                </span>
-                                            </div>
-
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-primary dark:text-primary text-xs font-bold">
-                                                    #{dept.sort_order}
-                                                </span>
-                                                <span className="text-muted-foreground text-[10px] font-bold tracking-widest uppercase">
-                                                    Ordre
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="pt-3">
-                                            <Link
-                                                href={route(
-                                                    'department.show',
-                                                    dept.slug,
-                                                )}
-                                                target="_blank"
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    className="hover:bg-primary group/btn h-10 w-full justify-between rounded-lg bg-muted text-[10px] font-bold tracking-wider uppercase transition-all hover:text-white dark:bg-card/5"
-                                                >
-                                                    Voir sur le site
-                                                    <ArrowRight
-                                                        size={12}
-                                                        className="transition-transform group-hover/btn:translate-x-1"
-                                                    />
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </div>
-
-                                    {!dept.is_visible && (
-                                        <div className="absolute top-4 right-4 transition-opacity group-hover:opacity-0">
-                                            <Badge
-                                                variant="outline"
-                                                className="border-amber-500/20 bg-amber-500/5 text-[8px] font-bold tracking-widest text-amber-500 uppercase"
-                                            >
-                                                Masqué
-                                            </Badge>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </div>
+                <Tabs
+                    value={visibility}
+                    onValueChange={(value) =>
+                        setVisibility(value as Visibility)
+                    }
+                >
+                    <TabsList>
+                        <TabsTrigger value="all">Toutes</TabsTrigger>
+                        <TabsTrigger value="visible">En ligne</TabsTrigger>
+                        <TabsTrigger value="hidden">Masquées</TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </div>
 
-            {}
+            {filtered.length === 0 ? (
+                <Card className="py-0">
+                    {isFiltered ? (
+                        <EmptyState
+                            icon={SearchX}
+                            title="Aucune mention ne correspond"
+                            description="Ajustez la recherche ou le filtre de visibilité."
+                            action={
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                        setQuery('');
+                                        setVisibility('all');
+                                    }}
+                                >
+                                    Réinitialiser les filtres
+                                </Button>
+                            }
+                        />
+                    ) : (
+                        <EmptyState
+                            icon={Layers}
+                            title="Aucune mention"
+                            description="Commencez par structurer votre offre académique."
+                            action={
+                                <Button asChild variant="outline" size="sm">
+                                    <Link
+                                        href={route('admin.departments.create')}
+                                    >
+                                        <Plus className="size-4" />
+                                        Créer la première
+                                    </Link>
+                                </Button>
+                            }
+                        />
+                    )}
+                </Card>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                    {filtered.map((department) => (
+                        <DepartmentCard
+                            key={department.id}
+                            department={department}
+                            onDelete={setPendingDelete}
+                        />
+                    ))}
+                </div>
+            )}
+
+            {/* La confirmation native du navigateur ne suivait pas la charte
+                et n'était pas stylable. */}
+            <AlertDialog
+                open={pendingDelete !== null}
+                onOpenChange={(open) => !open && setPendingDelete(null)}
+            >
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            Supprimer « {pendingDelete?.name} » ?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Cette mention et ses{' '}
+                            {pendingDelete?.programs_count ?? 0} programme(s)
+                            seront définitivement supprimés du site.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete}>
+                            Supprimer
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AdminLayout>
     );
 }

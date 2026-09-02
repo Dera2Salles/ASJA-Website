@@ -11,4 +11,6 @@ export type PageProps<
     auth: {
         user: User;
     };
+    /** Sommaire des sections éditables (clé => libellé), partagé par Inertia. */
+    cmsSections?: Record<string, string>;
 };

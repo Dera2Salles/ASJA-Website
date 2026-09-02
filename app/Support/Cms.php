@@ -29,6 +29,31 @@ class Cms
     }
 
     /**
+     * Sommaire des sections éditables : clé => libellé.
+     *
+     * Sert au sommaire de la barre latérale de l'administration, qui a besoin
+     * des seuls intitulés sans embarquer tout le schéma sur chaque page.
+     *
+     * @return array<string, string>
+     */
+    public static function sections(): array
+    {
+        $sections = [];
+
+        foreach (static::schema() as $key => $section) {
+            $sections[$key] = $section['label'] ?? $key;
+        }
+
+        return $sections;
+    }
+
+    /** Première section du schéma : la section affichée par défaut. */
+    public static function defaultSection(): ?string
+    {
+        return array_key_first(static::schema());
+    }
+
+    /**
      * Contenu résolu d'une section : les valeurs enregistrées, complétées par
      * les valeurs par défaut du schéma pour tout ce qui n'a jamais été édité.
      */

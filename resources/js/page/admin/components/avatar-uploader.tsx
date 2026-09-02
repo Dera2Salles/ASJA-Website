@@ -1,11 +1,12 @@
+import { ImagePlus } from 'lucide-react';
 import React, { useRef } from 'react';
-import { MdPerson } from 'react-icons/md';
 
 interface AvatarProps {
     image: string;
     onCallBack: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/** Sélecteur de photo de profil : cadre neutre, aucune couleur de marque. */
 export const AvatarUploader: React.FC<AvatarProps> = ({
     image,
     onCallBack,
@@ -17,23 +18,26 @@ export const AvatarUploader: React.FC<AvatarProps> = ({
     };
 
     return (
-        <div className="flex flex-col items-center gap-2 pb-13">
-            <div
-                className="group relative cursor-pointer"
+        <div className="flex flex-col items-center gap-3">
+            <button
+                type="button"
                 onClick={handleAvatarClick}
+                aria-label="Choisir une photo de profil"
+                className="border-input hover:border-muted-foreground size-32 overflow-hidden border"
             >
                 {image ? (
                     <img
                         src={image}
                         alt="Photo de profil"
-                        className="size-50 rounded-full border border-gray-200 object-cover transition-all duration-200 group-hover:border-green-400"
+                        className="size-full object-cover"
                     />
                 ) : (
-                    <div className="flex items-center justify-center rounded-full bg-gradient-to-br from-zinc-400 to-zinc-500 font-semibold text-white">
-                        <MdPerson className="z-100 size-50 p-2" />
-                    </div>
+                    <span className="bg-muted text-muted-foreground flex size-full items-center justify-center">
+                        <ImagePlus className="size-6" aria-hidden="true" />
+                    </span>
                 )}
-            </div>
+            </button>
+
             <input
                 ref={fileInputRef}
                 type="file"
@@ -41,8 +45,9 @@ export const AvatarUploader: React.FC<AvatarProps> = ({
                 onChange={onCallBack}
                 className="hidden"
             />
-            {image ? null : (
-                <p className="font-semibold text-green-700 transition-all duration-500 dark:text-white">
+
+            {!image && (
+                <p className="text-muted-foreground text-xs">
                     Ajouter une photo
                 </p>
             )}

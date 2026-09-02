@@ -1,7 +1,8 @@
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import axios from 'axios';
-import { ImageUp, Loader2, Trash2 } from 'lucide-react';
+import { ImageUp, Loader2, RotateCcw } from 'lucide-react';
 import { useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 
@@ -48,12 +49,12 @@ function ImageField({
 
     return (
         <div className="flex items-center gap-4">
-            <div className="bg-muted border-border h-20 w-32 shrink-0 overflow-hidden rounded-lg border">
+            <div className="bg-muted border-border h-20 w-32 shrink-0 overflow-hidden border">
                 {value ? (
                     <img
                         src={value}
                         alt=""
-                        className="h-full w-full object-cover"
+                        className="size-full object-cover"
                     />
                 ) : (
                     <div className="text-muted-foreground flex h-full items-center justify-center text-xs">
@@ -62,7 +63,7 @@ function ImageField({
                 )}
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-start gap-2">
                 <input
                     ref={inputRef}
                     type="file"
@@ -74,29 +75,33 @@ function ImageField({
                         e.target.value = '';
                     }}
                 />
-                <button
+
+                <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() => inputRef.current?.click()}
                     disabled={uploading}
-                    className="border-border text-foreground hover:border-primary hover:text-primary inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors disabled:opacity-50"
                 >
                     {uploading ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <Loader2 className="size-4 animate-spin" />
                     ) : (
-                        <ImageUp className="h-3.5 w-3.5" />
+                        <ImageUp className="size-4" />
                     )}
                     {value ? 'Remplacer' : 'Téléverser'}
-                </button>
+                </Button>
 
                 {value ? (
-                    <button
+                    <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => onChange('')}
-                        className="text-muted-foreground hover:text-destructive inline-flex cursor-pointer items-center gap-1.5 text-xs transition-colors"
+                        className="text-muted-foreground h-auto px-1 py-1 text-xs font-normal"
                     >
-                        <Trash2 className="h-3 w-3" />
+                        <RotateCcw className="size-3" />
                         Rétablir l'image par défaut
-                    </button>
+                    </Button>
                 ) : null}
             </div>
         </div>
@@ -105,12 +110,21 @@ function ImageField({
 
 /** Rend un champ simple (tout sauf les listes, gérées par ListEditor). */
 export function CmsField({
+    id,
     schema,
     value,
+    suggestions,
     onChange,
 }: {
+    /** Rattache le champ à son `<label>` ; absent dans les listes répétables. */
+    id?: string;
     schema: FieldSchema;
     value: FieldValue;
+    /**
+     * Valeurs déjà employées ailleurs dans la même liste, proposées en
+     * autocomplétion. Elles n'imposent rien : le champ reste libre.
+     */
+    suggestions?: string[];
     onChange: (value: FieldValue) => void;
 }) {
     if (schema.type === 'image') {
@@ -125,6 +139,7 @@ export function CmsField({
     if (schema.type === 'textarea' || schema.type === 'html') {
         return (
             <Textarea
+                id={id}
                 rows={schema.type === 'html' ? 8 : 4}
                 value={String(value ?? '')}
                 onChange={(e) => onChange(e.target.value)}
@@ -133,20 +148,37 @@ export function CmsField({
         );
     }
 
+    const listId =
+        suggestions && suggestions.length > 0 && id
+            ? `${id}-options`
+            : undefined;
+
     return (
-        <Input
-            type={schema.type === 'number' ? 'number' : 'text'}
-            inputMode={schema.type === 'number' ? 'numeric' : undefined}
-            value={String(value ?? '')}
-            onChange={(e) =>
-                onChange(
-                    schema.type === 'number'
-                        ? e.target.value === ''
-                            ? ''
-                            : Number(e.target.value)
-                        : e.target.value,
-                )
-            }
-        />
+        <>
+            <Input
+                id={id}
+                type={schema.type === 'number' ? 'number' : 'text'}
+                inputMode={schema.type === 'number' ? 'numeric' : undefined}
+                list={listId}
+                value={String(value ?? '')}
+                onChange={(e) =>
+                    onChange(
+                        schema.type === 'number'
+                            ? e.target.value === ''
+                                ? ''
+                                : Number(e.target.value)
+                            : e.target.value,
+                    )
+                }
+            />
+
+            {listId && (
+                <datalist id={listId}>
+                    {suggestions!.map((option) => (
+                        <option key={option} value={option} />
+                    ))}
+                </datalist>
+            )}
+        </>
     );
 }

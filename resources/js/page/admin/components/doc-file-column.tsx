@@ -1,53 +1,51 @@
 import type { DocEntity } from '@/features/doc/doc.entity';
 import type { ColumnDef } from '@tanstack/react-table';
-import { Files } from 'lucide-react';
-import { DeleteDocButton } from './delete-doc-button';
+import { FileText } from 'lucide-react';
+import { DocRowActions } from './doc-row-actions';
 
 export const columns: ColumnDef<DocEntity>[] = [
     {
         accessorKey: 'lessonTitle',
-        header: () => {
-            return <p className="pl-10 text-gray-500">Nom du fichier</p>;
-        },
+        header: () => <span>Nom du fichier</span>,
         cell: ({ row }) => (
-            <div className="flex gap-2 pl-2">
-                <Files className="text-green-600" />
-                <p className="font-semibold">{row.getValue('lessonTitle')}</p>
+            <div className="flex items-center gap-2">
+                {/* Icône en gris : aucune icône colorée dans la charte. */}
+                <FileText
+                    className="text-muted-foreground size-4 shrink-0"
+                    aria-hidden="true"
+                />
+                <span className="text-foreground truncate font-medium">
+                    {row.getValue('lessonTitle')}
+                </span>
             </div>
         ),
     },
     {
         accessorKey: 'author',
-        header: () => {
-            return <p className="text-gray-500">Nom de l'auteur</p>;
-        },
+        header: () => <span>Auteur</span>,
         cell: ({ row }) => (
-            <p className="py-2 pr-15 text-gray-500">{row.getValue('author')}</p>
+            <span className="text-muted-foreground">
+                {row.getValue('author')}
+            </span>
         ),
     },
     {
         accessorKey: 'fileSize',
-        header: () => {
-            return <p className="text-gray-500">Taille du fichier</p>;
-        },
+        header: () => <span>Taille</span>,
         cell: ({ row }) => (
-            <p className="py-2 pr-20 text-gray-500">
-                {row.getValue('fileSize')} MB
-            </p>
+            <span className="admin-mono text-muted-foreground">
+                {row.getValue('fileSize')} Mo
+            </span>
         ),
     },
-
     {
-        accessorKey: 'id',
-        header: () => {},
+        id: 'actions',
+        header: () => <span className="sr-only">Actions</span>,
         enableHiding: false,
-        cell: ({ row }) => {
-            return (
-                <DeleteDocButton
-                    id={row.getValue('id')}
-                    fileName={row.original.fileName as string}
-                />
-            );
-        },
+        cell: ({ row }) => (
+            <div className="flex justify-end">
+                <DocRowActions doc={row.original} />
+            </div>
+        ),
     },
 ];

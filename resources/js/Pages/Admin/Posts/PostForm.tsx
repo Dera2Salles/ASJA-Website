@@ -1,7 +1,12 @@
+import { BlogEditor } from '@/BlogEditor/components/BlogEditor';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { BlogEditor } from '@/BlogEditor/components/BlogEditor';
-import { POST_TYPE_LABELS, postImage, type Post, type PostType } from '@/lib/posts';
+import {
+    POST_TYPE_LABELS,
+    postImage,
+    type Post,
+    type PostType,
+} from '@/lib/posts';
 import { Link, router } from '@inertiajs/react';
 import {
     CalendarClock,
@@ -124,7 +129,9 @@ export function PostForm({ post }: { post?: Post }) {
                 forceFormData: true,
                 onSuccess: () =>
                     toast.success(
-                        publish ? 'Publication en ligne.' : 'Brouillon enregistré.',
+                        publish
+                            ? 'Publication en ligne.'
+                            : 'Brouillon enregistré.',
                     ),
                 onError: (errs) => {
                     setErrors(errs as Record<string, string>);
@@ -145,37 +152,37 @@ export function PostForm({ post }: { post?: Post }) {
                 Retour aux publications
             </Link>
 
-            <h1 className="text-foreground mb-8 text-3xl">
+            <h1 className="admin-title mb-8">
                 {isEdit ? 'Modifier la publication' : 'Nouvelle publication'}
             </h1>
 
             <div className="space-y-6">
                 {/* Le type détermine où la publication apparaît sur le site et
                     quels champs sont pertinents. */}
-                <div className="border-border bg-card rounded-xl border p-6">
+                <div className="border-border bg-card border p-6">
                     <Field label="Type de publication">
                         <div className="flex flex-wrap gap-2">
-                            {(
-                                Object.keys(POST_TYPE_LABELS) as PostType[]
-                            ).map((type) => (
-                                <button
-                                    key={type}
-                                    type="button"
-                                    onClick={() => set('type', type)}
-                                    className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                                        data.type === type
-                                            ? 'bg-primary text-primary-foreground'
-                                            : 'border-border text-muted-foreground hover:text-foreground border'
-                                    }`}
-                                >
-                                    {POST_TYPE_LABELS[type]}
-                                </button>
-                            ))}
+                            {(Object.keys(POST_TYPE_LABELS) as PostType[]).map(
+                                (type) => (
+                                    <button
+                                        key={type}
+                                        type="button"
+                                        onClick={() => set('type', type)}
+                                        className={`cursor-pointer px-4 py-2 text-sm font-medium transition-colors ${
+                                            data.type === type
+                                                ? 'bg-primary text-primary-foreground'
+                                                : 'border-border text-muted-foreground hover:text-foreground border'
+                                        }`}
+                                    >
+                                        {POST_TYPE_LABELS[type]}
+                                    </button>
+                                ),
+                            )}
                         </div>
                     </Field>
                 </div>
 
-                <div className="border-border bg-card space-y-6 rounded-xl border p-6">
+                <div className="border-border bg-card space-y-6 border p-6">
                     <Field label="Titre" error={errors.title}>
                         <Input
                             value={data.title}
@@ -200,7 +207,9 @@ export function PostForm({ post }: { post?: Post }) {
                         <Field label="Catégorie" error={errors.category}>
                             <Input
                                 value={data.category}
-                                onChange={(e) => set('category', e.target.value)}
+                                onChange={(e) =>
+                                    set('category', e.target.value)
+                                }
                                 placeholder="Vie étudiante, Admission…"
                             />
                         </Field>
@@ -214,8 +223,14 @@ export function PostForm({ post }: { post?: Post }) {
                                         if (e.key === 'Enter') {
                                             e.preventDefault();
                                             const tag = newTag.trim();
-                                            if (tag && !data.tags.includes(tag)) {
-                                                set('tags', [...data.tags, tag]);
+                                            if (
+                                                tag &&
+                                                !data.tags.includes(tag)
+                                            ) {
+                                                set('tags', [
+                                                    ...data.tags,
+                                                    tag,
+                                                ]);
                                             }
                                             setNewTag('');
                                         }
@@ -231,7 +246,7 @@ export function PostForm({ post }: { post?: Post }) {
                                         }
                                         setNewTag('');
                                     }}
-                                    className="border-border text-muted-foreground hover:text-primary cursor-pointer rounded-lg border px-3 transition-colors"
+                                    className="border-border text-muted-foreground hover:text-primary cursor-pointer border px-3 transition-colors"
                                 >
                                     <Plus className="h-4 w-4" />
                                 </button>
@@ -242,7 +257,7 @@ export function PostForm({ post }: { post?: Post }) {
                                     {data.tags.map((tag) => (
                                         <span
                                             key={tag}
-                                            className="bg-accent text-accent-foreground inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+                                            className="bg-accent text-accent-foreground inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium"
                                         >
                                             {tag}
                                             <button
@@ -267,9 +282,12 @@ export function PostForm({ post }: { post?: Post }) {
                         </Field>
                     </div>
 
-                    <Field label="Image de couverture" error={errors.cover_image}>
+                    <Field
+                        label="Image de couverture"
+                        error={errors.cover_image}
+                    >
                         <div className="flex items-center gap-4">
-                            <div className="bg-muted border-border h-24 w-40 shrink-0 overflow-hidden rounded-lg border">
+                            <div className="bg-muted border-border h-24 w-40 shrink-0 overflow-hidden border">
                                 {preview ? (
                                     <img
                                         src={preview}
@@ -283,7 +301,7 @@ export function PostForm({ post }: { post?: Post }) {
                                 )}
                             </div>
 
-                            <label className="border-border text-foreground hover:border-primary hover:text-primary inline-flex cursor-pointer items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-colors">
+                            <label className="border-border text-foreground hover:border-primary hover:text-primary inline-flex cursor-pointer items-center gap-2 border px-4 py-2 text-sm font-medium transition-colors">
                                 <ImageUp className="h-4 w-4" />
                                 Choisir une image
                                 <input
@@ -308,7 +326,7 @@ export function PostForm({ post }: { post?: Post }) {
                 {/* Champs propres aux événements : masqués pour les autres types
                     plutôt qu'affichés vides. */}
                 {isEvent ? (
-                    <div className="border-border bg-card space-y-6 rounded-xl border p-6">
+                    <div className="border-border bg-card space-y-6 border p-6">
                         <h2 className="text-foreground flex items-center gap-2 text-lg">
                             <CalendarClock className="text-primary h-4 w-4" />
                             Détails de l'événement
@@ -352,9 +370,9 @@ export function PostForm({ post }: { post?: Post }) {
                     </div>
                 ) : null}
 
-                <div className="border-border bg-card rounded-xl border p-6">
+                <div className="border-border bg-card border p-6">
                     <Field label="Contenu" error={errors.content}>
-                        <div className="border-border overflow-hidden rounded-lg border">
+                        <div className="border-border overflow-hidden border">
                             <BlogEditor
                                 content={data.content}
                                 onChange={(content) => set('content', content)}
@@ -363,7 +381,7 @@ export function PostForm({ post }: { post?: Post }) {
                     </Field>
                 </div>
 
-                <div className="border-border bg-card space-y-6 rounded-xl border p-6">
+                <div className="border-border bg-card space-y-6 border p-6">
                     <Field
                         label="Date de publication"
                         error={errors.published_at}
@@ -372,7 +390,9 @@ export function PostForm({ post }: { post?: Post }) {
                         <Input
                             type="datetime-local"
                             value={data.published_at}
-                            onChange={(e) => set('published_at', e.target.value)}
+                            onChange={(e) =>
+                                set('published_at', e.target.value)
+                            }
                         />
                     </Field>
 
@@ -395,7 +415,7 @@ export function PostForm({ post }: { post?: Post }) {
                         type="button"
                         disabled={processing}
                         onClick={() => submit(false)}
-                        className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-lg border px-5 py-2.5 text-sm font-semibold transition-colors disabled:opacity-60"
+                        className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer border px-5 py-2.5 text-sm font-semibold transition-colors disabled:opacity-60"
                     >
                         Enregistrer le brouillon
                     </button>
@@ -404,7 +424,7 @@ export function PostForm({ post }: { post?: Post }) {
                         type="button"
                         disabled={processing}
                         onClick={() => submit(true)}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors disabled:opacity-60"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 inline-flex cursor-pointer items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-colors disabled:opacity-60"
                     >
                         {processing ? (
                             <Loader2 className="h-4 w-4 animate-spin" />

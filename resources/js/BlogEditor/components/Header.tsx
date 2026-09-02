@@ -7,17 +7,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-import {
-    Eye,
-    EyeOff,
-    Maximize2,
-    Minimize2,
-    Moon,
-    Save,
-    Sun,
-} from 'lucide-react';
-
-import { useTheme } from './ThemeContext';
+import { Eye, EyeOff, Maximize2, Minimize2, Save } from 'lucide-react';
 
 interface HeaderProps {
     wordCount: number;
@@ -40,28 +30,26 @@ export function Header({
     onSave,
     onToggleFullscreen,
 }: HeaderProps) {
-    const { theme, toggleTheme } = useTheme();
-
     return (
-        <div className="flex flex-col items-start justify-between border-b bg-gradient-to-r from-green-50/50 to-white p-3 sm:flex-row sm:items-center dark:border-green-900/30 dark:from-zinc-900/40 dark:to-zinc-950/40">
+ <div className="flex flex-col items-start justify-between border-b p-3 sm:flex-row sm:items-center">
             <div className="mb-2 flex items-center gap-4 sm:mb-0">
                 <div className="flex items-center gap-2">
                     <Badge
                         variant="outline"
-                        className="font-mono dark:border-green-900/50 dark:text-green-400"
+ className="font-mono"
                     >
                         {wordCount} mots
                     </Badge>
                     <Badge
                         variant="outline"
-                        className="font-mono dark:border-green-900/50 dark:text-green-400"
+ className="font-mono"
                     >
                         {charCount} caractères
                     </Badge>
                     {lastSave && (
                         <Badge
                             variant="secondary"
-                            className="bg-green-100/50 text-xs text-green-800 dark:bg-green-900/20 dark:text-green-400"
+ className="bg-muted text-xs text-foreground"
                         >
                             Sauvegardé: {lastSave}
                         </Badge>
@@ -70,26 +58,6 @@ export function Header({
             </div>
 
             <div className="flex items-center gap-2">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={toggleTheme}
-                            className="h-8"
-                        >
-                            {theme === 'dark' ? (
-                                <Sun className="h-4 w-4" />
-                            ) : (
-                                <Moon className="h-4 w-4" />
-                            )}
-                        </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                        {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-                    </TooltipContent>
-                </Tooltip>
-
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Toggle

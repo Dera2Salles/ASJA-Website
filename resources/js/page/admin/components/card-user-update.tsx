@@ -1,21 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { MdCancel, MdPerson2, MdPhone } from 'react-icons/md';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 
 import { useAdminDashboardContext } from '../bloc/useAdminContext';
-
-import { Input } from '@/components/ui/input';
-import { classes, mentions } from '@/core/types';
 import { useModalContext } from '../bloc/useModalContext';
+import { AudienceSelects } from './audience-selects';
 import { AvatarUploader } from './avatar-uploader';
+import { Field, FormCard } from './form-card';
 
 export const CardUpdateUser = () => {
     const {
@@ -39,189 +30,82 @@ export const CardUpdateUser = () => {
 
     const { closeUpdateUser } = useModalContext();
 
-    return (
-        <div className="flex w-1/2 flex-col gap-5">
-            <Card className="border-t-5 border-t-green-600 p-5 transition-all duration-500">
-                <CardContent>
-                    <MdCancel
-                        onClick={() => {
-                            setName('');
-                            setLastName('');
-                            setContact('');
-                            setImage('');
-                            setImage('');
-                            setLevel('');
-                            setBranche('');
-                            setMention('');
-                            closeUpdateUser();
-                        }}
-                        className="absolute cursor-pointer text-4xl text-green-600 transition-all duration-300 hover:scale-125 dark:text-white"
-                    />
-                    <p className="flex w-full justify-center pb-10 text-3xl font-semibold text-gray-500">
-                        Modification les informations
-                    </p>
-                    <AvatarUploader
-                        image={image as string}
-                        onCallBack={handleImageChange}
-                    />
-                    <form>
-                        <div className="grid w-full items-center gap-4">
-                            <div className="flex flex-col space-y-1.5">
-                                <div className="flex gap-3">
-                                    <div className="flex w-1/2 flex-col">
-                                        <Label
-                                            htmlFor="name"
-                                            className="text-lg font-semibold text-green-700"
-                                        >
-                                            Nom
-                                        </Label>
-                                        <div className="relative w-full">
-                                            <MdPerson2 className="absolute top-1/2 left-3 -translate-y-1/2 text-xl text-gray-400" />
-                                            <Input
-                                                placeholder="Nom"
-                                                className="bg-gray-200 pr-3 pl-10"
-                                                onChange={(e) =>
-                                                    setName(e.target.value)
-                                                }
-                                                value={name}
-                                            />
-                                        </div>
-                                    </div>{' '}
-                                    <div className="flex w-1/2 flex-col">
-                                        {' '}
-                                        <Label
-                                            htmlFor="name"
-                                            className="text-lg font-semibold text-green-700"
-                                        >
-                                            Prénom
-                                        </Label>
-                                        <div className="relative w-full">
-                                            <MdPerson2 className="absolute top-1/2 left-3 -translate-y-1/2 text-xl text-gray-400" />
-                                            <Input
-                                                className="bg-gray-200 pr-3 pl-10"
-                                                onChange={(e) =>
-                                                    setLastName(e.target.value)
-                                                }
-                                                placeholder="Prénom"
-                                                value={lastName}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
+    /* La fermeture vide le formulaire : sans cela, les valeurs du dernier
+       étudiant modifié réapparaîtraient à l'ouverture suivante. */
+    const close = () => {
+        setName('');
+        setLastName('');
+        setContact('');
+        setImage('');
+        closeUpdateUser();
+    };
 
-                                <Label
-                                    htmlFor="name"
-                                    className="text-lg font-semibold text-green-700"
-                                >
-                                    Contact
-                                </Label>
-                                <div className="relative w-full">
-                                    <MdPhone className="absolute top-1/2 left-3 -translate-y-1/2 text-xl text-gray-400" />
-                                    <Input
-                                        className="bg-gray-200 pr-3 pl-10"
-                                        type="number"
-                                        onChange={(e) =>
-                                            setContact(e.target.value)
-                                        }
-                                        value={contact}
-                                    />
-                                </div>
-                            </div>
-                            <div className="flex flex-col py-2.5">
-                                <div className="flex gap-4">
-                                    <Select
-                                        value={mention}
-                                        onValueChange={setMention}
-                                    >
-                                        <SelectTrigger className="w-full bg-gray-200">
-                                            <SelectValue placeholder="Mention" />
-                                        </SelectTrigger>
-                                        <SelectContent className="z-[900]">
-                                            {Object.keys(mentions).map(
-                                                (mainBranche) => (
-                                                    <SelectItem
-                                                        key={mainBranche}
-                                                        value={mainBranche}
-                                                    >
-                                                        {mainBranche.replace(
-                                                            /_/g,
-                                                            '   ',
-                                                        )}
-                                                    </SelectItem>
-                                                ),
-                                            )}
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={setLevel}
-                                        value={level}
-                                    >
-                                        <SelectTrigger className="w-full bg-gray-200">
-                                            <SelectValue placeholder="Niveau" />
-                                        </SelectTrigger>
-                                        <SelectContent className="z-[900]">
-                                            {classes.map((level) => (
-                                                <SelectItem
-                                                    key={level}
-                                                    value={level}
-                                                >
-                                                    {level}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <Select
-                                        onValueChange={setBranche}
-                                        value={branche}
-                                        disabled={
-                                            !mention ||
-                                            level == 'L1' ||
-                                            level == 'L2'
-                                        }
-                                    >
-                                        <SelectTrigger className="w-full bg-gray-100">
-                                            <SelectValue placeholder="Branche" />
-                                        </SelectTrigger>
-                                        <SelectContent className="z-[900]">
-                                            {mention &&
-                                                mentions[mention] &&
-                                                mentions[mention][level] &&
-                                                mentions[mention][level].map(
-                                                    (branche) => (
-                                                        <SelectItem
-                                                            key={branche}
-                                                            value={branche}
-                                                        >
-                                                            {branche}
-                                                        </SelectItem>
-                                                    ),
-                                                )}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </CardContent>
-                <CardFooter className="p-0">
-                    <Button
-                        className="flex w-full cursor-pointer bg-green-700 p-6 hover:bg-green-900"
-                        onClick={async () => {
-                            await updateUserInformation();
-                            setName('');
-                            setLastName('');
-                            setContact('');
-                            setImage('');
-                            setLevel('');
-                            setBranche('');
-                            setMention('');
-                            closeUpdateUser();
-                        }}
-                    >
-                        <p className="text-xl">Modifier</p>
+    return (
+        <FormCard
+            title="Modifier l'étudiant"
+            description="Mettez à jour l'identité et l'affectation."
+            onClose={close}
+            footer={
+                <>
+                    <Button variant="outline" size="sm" onClick={close}>
+                        Annuler
                     </Button>
-                </CardFooter>
-            </Card>
-        </div>
+                    <Button size="sm" onClick={updateUserInformation}>
+                        Enregistrer
+                    </Button>
+                </>
+            }
+        >
+            <form className="space-y-5">
+                <AvatarUploader
+                    image={image as string}
+                    onCallBack={handleImageChange}
+                />
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Field label="Nom" htmlFor="update-name">
+                        <Input
+                            id="update-name"
+                            onChange={(e) => setName(e.target.value)}
+                            value={name.toLocaleUpperCase()}
+                        />
+                    </Field>
+
+                    <Field label="Prénom" htmlFor="update-lastname">
+                        <Input
+                            id="update-lastname"
+                            onChange={(e) => setLastName(e.target.value)}
+                            value={lastName}
+                        />
+                    </Field>
+
+                    <Field
+                        label="Contact"
+                        htmlFor="update-contact"
+                        className="sm:col-span-2"
+                    >
+                        <Input
+                            id="update-contact"
+                            type="tel"
+                            inputMode="tel"
+                            onChange={(e) => setContact(e.target.value)}
+                            value={contact}
+                        />
+                    </Field>
+                </div>
+
+                <Separator />
+
+                <AudienceSelects
+                    mention={mention}
+                    level={level}
+                    branche={branche}
+                    onMentionChange={setMention}
+                    onLevelChange={setLevel}
+                    onBrancheChange={setBranche}
+                    brancheDisabledForBaseLevels
+                />
+            </form>
+        </FormCard>
     );
 };

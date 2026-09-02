@@ -25,9 +25,11 @@ export const Studentlist = () => {
             isDeleteConfirmationVisible ||
             isUpdateUserVisible,
     );
+
     return (
-        <section className="flex h-full flex-col dark:bg-zinc-900">
+        <>
             <StudentTable />
+
             {isAddStudentCardVisible && (
                 <Modal>
                     <CardInputUser />
@@ -43,16 +45,15 @@ export const Studentlist = () => {
                     <StudentInformation student={student as UserDto} />
                 </Modal>
             )}
-
             {isDeleteConfirmationVisible && (
                 <Modal>
                     <DeleteModalConfirmation
-                        text=" Voulez-vous vraiment supprimer cette etudiant?"
+                        text="Cet étudiant et ses données seront définitivement supprimés."
                         cancel={cancelCallBack}
                         confirm={deleteCallBack}
                     />
                 </Modal>
             )}
-        </section>
+        </>
     );
 };

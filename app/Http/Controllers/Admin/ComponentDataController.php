@@ -20,11 +20,25 @@ use Inertia\Response;
  */
 class ComponentDataController extends Controller
 {
-    public function index(): Response
+    /**
+     * La section affichée vit dans l'URL (`?section=faq`) : le sommaire est
+     * remonté dans la barre latérale de l'administration, et une section
+     * précise redevient donc adressable, partageable et navigable au retour
+     * arrière du navigateur.
+     */
+    public function index(Request $request): Response
     {
+        $sections = array_keys(Cms::schema());
+        $requested = $request->query('section');
+
+        $active = in_array($requested, $sections, true)
+            ? $requested
+            : Cms::defaultSection();
+
         return Inertia::render('Admin/ComponentData/Index', [
             'schema' => Cms::schema(),
             'content' => Cms::all(),
+            'activeSection' => $active,
         ]);
     }
 

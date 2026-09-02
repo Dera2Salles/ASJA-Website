@@ -1,91 +1,49 @@
-import { Separator } from '@/components/ui/separator';
 import type { ColumnDef } from '@tanstack/react-table';
 
 import type { PostDto } from '@/features/post/post.dto';
-import { DeletePostButton } from './delete-post-button';
+import { PostRowActions } from './post-row-actions';
 
 export const columns: ColumnDef<PostDto>[] = [
     {
         accessorKey: 'title',
-        header: () => {
-            return (
-                <div className="flex w-full items-center justify-between">
-                    <p className="font-semibold dark:text-white">Titre</p>
-                    <Separator
-                        orientation="vertical"
-                        className="data-[orientation=vertical]:h-10"
-                    />
-                </div>
-            );
-        },
+        header: () => <span>Titre</span>,
         cell: ({ row }) => (
-            <p className="hidden py-2 font-bold md:flex dark:text-white">
+            <span className="text-foreground font-medium">
                 {row.getValue('title')}
-            </p>
+            </span>
         ),
     },
     {
         accessorKey: 'description',
-        header: () => {
-            return (
-                <div className="flex w-full items-center justify-between">
-                    <p className="font-semibold dark:text-white">Description</p>
-                    <Separator
-                        orientation="vertical"
-                        className="data-[orientation=vertical]:h-10"
-                    />
-                </div>
-            );
-        },
+        header: () => <span>Description</span>,
         cell: ({ row }) => {
             const description: string = row.getValue('description');
-            const limitWord = 100;
             return (
-                <p className="hidden py-2 md:flex dark:text-white">
-                    {description.length > 30
-                        ? description.slice(0, limitWord) + ' ...'
-                        : description}
-                </p>
+                <span className="text-muted-foreground line-clamp-2 max-w-md">
+                    {description}
+                </span>
             );
         },
     },
     {
         accessorKey: 'nothing',
-        header: () => {
-            return (
-                <div className="flex w-full items-center justify-between">
-                    <p className="font-semibold dark:text-white">Addressé</p>
-                    <Separator
-                        orientation="vertical"
-                        className="data-[orientation=vertical]:h-10"
-                    />
-                </div>
-            );
-        },
+        header: () => <span>Destinataires</span>,
         cell: ({ row }) => {
             const post: PostDto = row.original;
-            return (
-                <p className="hidden py-2 md:flex dark:text-white">
-                    {post.level == 'L3' ||
-                    post.level == 'M1' ||
-                    post.level == 'M2'
-                        ? post.mention + ' ' + post.level + ' ' + post.branche
-                        : post.mention + ' ' + post.level}
-                </p>
-            );
+            const audience = ['L3', 'M1', 'M2'].includes(post.level)
+                ? `${post.mention} ${post.level} ${post.branche}`
+                : `${post.mention} ${post.level}`;
+            return <span className="text-muted-foreground">{audience}</span>;
         },
     },
     {
-        accessorKey: 'id',
-        header: () => {},
+        id: 'actions',
+        header: () => <span className="sr-only">Actions</span>,
         enableHiding: false,
-        cell: ({ row }) => {
-            return (
-                <DeletePostButton
-                    id={row.getValue('id')}
-                    fileName={row.original.fileName as string}
-                />
-            );
-        },
+        cell: ({ row }) => (
+            <div className="flex justify-end">
+                <PostRowActions post={row.original} />
+            </div>
+        ),
     },
 ];

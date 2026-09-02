@@ -1,4 +1,11 @@
 import {
+    CommandPalette,
+    CommandSearchTrigger,
+    useCommandPalette,
+    type CommandEntry,
+} from '@/components/admin/command-palette';
+import { useAdminTheme } from '@/components/admin/use-admin-theme';
+import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -12,13 +19,18 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { useThemeContext } from '@/page/theme/useThemeContext';
-import { ThemeProvider } from '@/page/theme/useThemeProvider';
-import { Link } from '@inertiajs/react';
-import { Moon, Sun } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
+import { PageProps } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
+import { Bell, ExternalLink, Moon, PanelsTopLeft, Sun } from 'lucide-react';
 import { PropsWithChildren, ReactNode } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { AdminSidebar } from './Partials/AdminSidebar';
+import { AdminSidebar, MENU_GROUPS } from './Partials/AdminSidebar';
 
 export interface Crumb {
     label: string;
@@ -32,104 +44,199 @@ interface Props {
     actions?: ReactNode;
 }
 
-const ThemeToggle = () => {
-    const { toggleTheme, isDark } = useThemeContext();
-
-    return (
-        <button
-            onClick={toggleTheme}
-            aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
-            className="text-muted-foreground hover:bg-accent hover:text-accent-foreground inline-flex size-8 cursor-pointer items-center justify-center rounded-md"
-        >
-            {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-        </button>
-    );
-};
+/** Bouton d'icône de la barre supérieure : neutre, carré, avec son libellé. */
+const TopBarButton = ({
+    label,
+    onClick,
+    children,
+}: {
+    label: string;
+    onClick?: () => void;
+    children: ReactNode;
+}) => (
+    <Tooltip>
+        <TooltipTrigger asChild>
+            <button
+                type="button"
+                onClick={onClick}
+                aria-label={label}
+                className="text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-8 items-center justify-center"
+            >
+                {children}
+            </button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+);
 
 function AdminShell({
     breadcrumbs = [],
     actions,
     children,
 }: PropsWithChildren<Props>) {
+    const { open, setOpen } = useCommandPalette();
+    const { isDark, toggleTheme } = useAdminTheme();
+
+    /* La palette reprend l'arborescence de la barre latérale : une seule
+       source pour la navigation, quel que soit le point d'entrée. */
+    const entries: CommandEntry[] = MENU_GROUPS.flatMap((group) =>
+        group.items.map((item) => ({
+            id: item.route,
+            label: item.title,
+            icon: item.icon,
+            group: group.label,
+            onSelect: () => router.visit(route(item.route)),
+        })),
+    );
+
+    /* Les sections du contenu rejoignent la palette au même titre que les
+       pages : « Foire aux questions » se rejoint en trois frappes depuis
+       n'importe où, sans passer par l'écran de contenu. */
+    const { props } = usePage<PageProps>();
+
+    Object.entries(props.cmsSections ?? {}).forEach(([key, label]) => {
+        entries.push({
+            id: `cms-${key}`,
+            label,
+            icon: PanelsTopLeft,
+            group: 'Contenu du site',
+            onSelect: () =>
+                router.visit(
+                    route('admin.component-data.index', { section: key }),
+                ),
+        });
+    });
+
     return (
-        <SidebarProvider>
-            <AdminSidebar />
+        <div className={cn('admin-shell app-shell', isDark && 'dark')}>
+            <Toaster position="top-right" />
 
-            <SidebarInset>
-                {/* Barre supérieure collante : le repère de navigation et les
-                    actions de la page restent atteignables au défilement. */}
-                <header className="bg-background/80 sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 backdrop-blur-sm">
-                    <SidebarTrigger className="-ml-1" />
-                    <Separator
-                        orientation="vertical"
-                        className="mr-1 data-[orientation=vertical]:h-4"
-                    />
+            <SidebarProvider>
+                <AdminSidebar isDark={isDark} onToggleTheme={toggleTheme} />
 
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem className="hidden sm:block">
-                                {breadcrumbs.length === 0 ? (
-                                    <BreadcrumbPage>
-                                        Administration
-                                    </BreadcrumbPage>
-                                ) : (
-                                    <BreadcrumbLink asChild>
-                                        <Link href={route('admin.dashboard')}>
+                <SidebarInset>
+                    {/* Barre supérieure collante de 56px : repère de
+                        navigation à gauche, outils transverses à droite. */}
+                    <header className="border-border bg-background sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 md:px-6">
+                        <SidebarTrigger className="-ml-1" />
+                        <Separator
+                            orientation="vertical"
+                            className="mr-1 data-[orientation=vertical]:h-4"
+                        />
+
+                        <Breadcrumb>
+                            <BreadcrumbList className="text-sm">
+                                <BreadcrumbItem className="hidden sm:block">
+                                    {breadcrumbs.length === 0 ? (
+                                        <BreadcrumbPage className="font-medium">
                                             Administration
-                                        </Link>
-                                    </BreadcrumbLink>
-                                )}
-                            </BreadcrumbItem>
+                                        </BreadcrumbPage>
+                                    ) : (
+                                        <BreadcrumbLink asChild>
+                                            <Link
+                                                href={route('admin.dashboard')}
+                                            >
+                                                Administration
+                                            </Link>
+                                        </BreadcrumbLink>
+                                    )}
+                                </BreadcrumbItem>
 
-                            {breadcrumbs.map((crumb, i) => (
-                                <span
-                                    key={`${crumb.label}-${i}`}
-                                    className="contents"
-                                >
-                                    <BreadcrumbSeparator className="hidden sm:block" />
-                                    <BreadcrumbItem>
-                                        {crumb.href &&
-                                        i < breadcrumbs.length - 1 ? (
-                                            <BreadcrumbLink asChild>
-                                                <Link href={crumb.href}>
+                                {breadcrumbs.map((crumb, i) => (
+                                    <span
+                                        key={`${crumb.label}-${i}`}
+                                        className="contents"
+                                    >
+                                        <BreadcrumbSeparator className="hidden sm:block" />
+                                        <BreadcrumbItem>
+                                            {crumb.href &&
+                                            i < breadcrumbs.length - 1 ? (
+                                                <BreadcrumbLink asChild>
+                                                    <Link href={crumb.href}>
+                                                        {crumb.label}
+                                                    </Link>
+                                                </BreadcrumbLink>
+                                            ) : (
+                                                <BreadcrumbPage className="font-medium">
                                                     {crumb.label}
-                                                </Link>
-                                            </BreadcrumbLink>
-                                        ) : (
-                                            <BreadcrumbPage>
-                                                {crumb.label}
-                                            </BreadcrumbPage>
-                                        )}
-                                    </BreadcrumbItem>
-                                </span>
-                            ))}
-                        </BreadcrumbList>
-                    </Breadcrumb>
+                                                </BreadcrumbPage>
+                                            )}
+                                        </BreadcrumbItem>
+                                    </span>
+                                ))}
+                            </BreadcrumbList>
+                        </Breadcrumb>
 
-                    <div className="ml-auto flex items-center gap-2">
-                        {actions}
-                        <ThemeToggle />
+                        <div className="ml-auto flex items-center gap-1.5">
+                            <CommandSearchTrigger
+                                onClick={() => setOpen(true)}
+                            />
+
+                            {actions}
+
+                            <TopBarButton label="Notifications">
+                                <Bell className="size-4" aria-hidden="true" />
+                            </TopBarButton>
+
+                            <TopBarButton
+                                label={
+                                    isDark
+                                        ? 'Passer en thème clair'
+                                        : 'Passer en thème sombre'
+                                }
+                                onClick={toggleTheme}
+                            >
+                                {isDark ? (
+                                    <Sun
+                                        className="size-4"
+                                        aria-hidden="true"
+                                    />
+                                ) : (
+                                    <Moon
+                                        className="size-4"
+                                        aria-hidden="true"
+                                    />
+                                )}
+                            </TopBarButton>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <a
+                                        href={route('home')}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Voir le site public"
+                                        className="text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-8 items-center justify-center"
+                                    >
+                                        <ExternalLink
+                                            className="size-4"
+                                            aria-hidden="true"
+                                        />
+                                    </a>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    Voir le site public
+                                </TooltipContent>
+                            </Tooltip>
+                        </div>
+                    </header>
+
+                    {/* Zone principale : rythme de 24px, largeur fluide. */}
+                    <div className="flex w-full flex-1 flex-col space-y-6 p-4 md:p-6">
+                        {children}
                     </div>
-                </header>
+                </SidebarInset>
+            </SidebarProvider>
 
-                <div className="flex flex-1 flex-col gap-6 p-4 md:p-6">
-                    {children}
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+            <CommandPalette
+                open={open}
+                onOpenChange={setOpen}
+                entries={entries}
+            />
+        </div>
     );
 }
 
 export default function AdminLayout(props: PropsWithChildren<Props>) {
-    return (
-        // `app-shell` lève, pour l'administration uniquement, les remises à
-        // zéro brutalistes du site public (angles droits, absence d'ombre et
-        // de transition) dont dépendent les composants shadcn.
-        <ThemeProvider>
-            <div className="app-shell">
-                <Toaster position="top-right" />
-                <AdminShell {...props} />
-            </div>
-        </ThemeProvider>
-    );
+    return <AdminShell {...props} />;
 }
