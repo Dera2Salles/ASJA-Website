@@ -1,7 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { MdWarning } from 'react-icons/md';
+import { AlertTriangle } from 'lucide-react';
 
+/**
+ * Confirmation de suppression. Le rouge ne porte que sur l'icône, le titre et
+ * le bouton d'action : jamais en aplat sur la carte.
+ */
 export const DeleteModalConfirmation = ({
     text,
     cancel,
@@ -10,27 +14,31 @@ export const DeleteModalConfirmation = ({
     text: string;
     cancel: () => void;
     confirm: () => Promise<void>;
-}) => {
-    return (
-        <div className="flex w-1/3 flex-col gap-5">
-            <Card className="items-center border-l-5 border-l-red-600 p-5 transition-all duration-500">
-                <MdWarning className="text-7xl text-red-600 dark:text-white" />
-                <p className="font-semibold">{text}</p>
-                <section className="flex justify-end gap-3">
-                    <Button
-                        onClick={cancel}
-                        className="cursor-pointer bg-gray-400 dark:bg-gray-300 dark:hover:bg-gray-200"
-                    >
-                        Annuler
-                    </Button>
-                    <Button
-                        onClick={confirm}
-                        className="cursor-pointer bg-red-600 text-white hover:bg-red-700"
-                    >
-                        Supprimer
-                    </Button>
-                </section>
-            </Card>
+}) => (
+    <Card
+        role="alertdialog"
+        aria-modal="true"
+        className="w-full max-w-md gap-0 p-6"
+    >
+        <div className="flex gap-4">
+            <span className="border-border text-destructive flex size-9 shrink-0 items-center justify-center border">
+                <AlertTriangle className="size-4" aria-hidden="true" />
+            </span>
+            <div className="min-w-0 space-y-1">
+                <p className="text-foreground text-sm font-medium">
+                    Confirmer la suppression
+                </p>
+                <p className="text-muted-foreground text-sm">{text}</p>
+            </div>
         </div>
-    );
-};
+
+        <div className="mt-6 flex justify-end gap-2">
+            <Button variant="outline" size="sm" onClick={cancel}>
+                Annuler
+            </Button>
+            <Button variant="destructive" size="sm" onClick={confirm}>
+                Supprimer
+            </Button>
+        </div>
+    </Card>
+);

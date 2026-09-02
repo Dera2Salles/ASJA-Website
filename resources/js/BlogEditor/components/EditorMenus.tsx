@@ -30,9 +30,9 @@ export function EditorMenus({
         <>
             <FloatingMenu
                 editor={editor}
-                className="bg-popover flex flex-col gap-1 rounded-lg border p-2 shadow-xl dark:border-green-900/30"
+ className="bg-popover flex flex-col gap-1 rounded-lg border p-2 shadow-xl"
             >
-                <div className="mb-1 text-xs font-medium text-zinc-500 dark:text-green-400/60">
+ <div className="mb-1 text-xs font-medium text-muted-foreground">
                     Insérer
                 </div>
                 <div className="flex gap-1">
@@ -46,7 +46,7 @@ export function EditorMenus({
                                 .toggleHeading({ level: 1 })
                                 .run()
                         }
-                        className="text-lg font-bold text-green-900 dark:text-green-400"
+ className="text-lg font-bold text-foreground"
                     >
                         H1
                     </Button>
@@ -60,7 +60,7 @@ export function EditorMenus({
                                 .toggleHeading({ level: 2 })
                                 .run()
                         }
-                        className="text-base font-bold text-green-900 dark:text-green-400"
+ className="text-base font-bold text-foreground"
                     >
                         H2
                     </Button>
@@ -74,7 +74,7 @@ export function EditorMenus({
                                 .toggleHeading({ level: 3 })
                                 .run()
                         }
-                        className="font-bold text-green-900 dark:text-green-400"
+ className="font-bold text-foreground"
                     >
                         H3
                     </Button>
@@ -82,7 +82,7 @@ export function EditorMenus({
                         size="sm"
                         variant="ghost"
                         onClick={onAddImage}
-                        className="text-green-600 dark:text-green-400"
+ className="text-foreground"
                     >
                         <ImageIcon className="h-4 w-4" />
                     </Button>
@@ -91,7 +91,7 @@ export function EditorMenus({
 
             <BubbleMenu
                 editor={editor}
-                className="bg-popover flex gap-1 rounded-lg border p-2 shadow-xl dark:border-green-900/30"
+ className="bg-popover flex gap-1 rounded-lg border p-2 shadow-xl"
             >
                 <Toggle
                     size="sm"
@@ -99,7 +99,7 @@ export function EditorMenus({
                     onPressedChange={() =>
                         editor.chain().focus().toggleBold().run()
                     }
-                    className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                 >
                     <Bold className="h-4 w-4" />
                 </Toggle>
@@ -109,7 +109,7 @@ export function EditorMenus({
                     onPressedChange={() =>
                         editor.chain().focus().toggleItalic().run()
                     }
-                    className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                 >
                     <Italic className="h-4 w-4" />
                 </Toggle>
@@ -119,7 +119,7 @@ export function EditorMenus({
                     onPressedChange={() =>
                         editor.chain().focus().toggleUnderline().run()
                     }
-                    className="h-8 w-8 data-[state=on]:bg-green-100 dark:data-[state=on]:bg-green-900/50"
+ className="h-8 w-8 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
                 >
                     <UnderlineIcon className="h-4 w-4" />
                 </Toggle>
@@ -127,7 +127,7 @@ export function EditorMenus({
                     size="sm"
                     variant="ghost"
                     onClick={onAddLink}
-                    className="h-8 text-green-600 dark:text-green-400"
+ className="h-8 text-foreground"
                 >
                     <LinkIcon className="h-4 w-4" />
                 </Button>
@@ -135,7 +135,7 @@ export function EditorMenus({
                     size="sm"
                     variant="ghost"
                     onClick={onClearFormatting}
-                    className="h-8 text-zinc-500"
+ className="h-8 text-muted-foreground"
                 >
                     <Eraser className="h-4 w-4" />
                 </Button>

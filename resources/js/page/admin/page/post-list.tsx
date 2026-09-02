@@ -18,9 +18,11 @@ export const Postlist = () => {
     useScrollLock(
         isPostInformationVisible || isAddPost || isDeleteConfirmationVisible,
     );
+
     return (
-        <section className="flex h-full flex-col dark:bg-zinc-900">
+        <>
             <PostTable />
+
             {isPostInformationVisible && (
                 <Modal>
                     <PostInformation />
@@ -31,16 +33,15 @@ export const Postlist = () => {
                     <CardAddPost />
                 </Modal>
             )}
-
             {isDeleteConfirmationVisible && (
                 <Modal>
                     <DeleteModalConfirmation
-                        text=" Voulez-vous vraiment supprimer cette annonce?"
+                        text="Cette annonce sera définitivement supprimée."
                         cancel={cancelCallBack}
                         confirm={deleteCallBack}
                     />
                 </Modal>
             )}
-        </section>
+        </>
     );
 };

@@ -1,49 +1,115 @@
+import { CommandSearchTrigger } from '@/components/admin/command-palette';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { Separator } from '@/components/ui/separator';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-
-import { useTheme } from '@/page/theme/useTheme';
-import { Moon, Sun } from 'lucide-react';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Bell, Moon, Sun } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useAdminDashboardContext } from '../bloc/useAdminContext';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+/** Bouton d'icône de la barre supérieure : neutre, carré, toujours nommé. */
+const TopBarButton = ({
+    label,
+    onClick,
+    children,
+}: {
+    label: string;
+    onClick?: () => void;
+    children: ReactNode;
+}) => (
+    <Tooltip>
+        <TooltipTrigger asChild>
+            <button
+                type="button"
+                onClick={onClick}
+                aria-label={label}
+                className="text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-8 items-center justify-center"
+            >
+                {children}
+            </button>
+        </TooltipTrigger>
+        <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+);
 
-const DropButton = ({ name }: { name: string }) => {
-    return (
-        <div className="flex w-full items-center justify-between gap-2 rounded-2xl py-2">
-            {' '}
-            <Avatar className="size-11">
-                <AvatarFallback className="dark:bg-zinc-600 dark:text-white">
-                    <AvatarImage src={name} />
-                </AvatarFallback>
-            </Avatar>
-        </div>
-    );
-};
-
-export const NavBar = () => {
+export const NavBar = ({
+    title,
+    isDark,
+    onToggleTheme,
+    onOpenSearch,
+}: {
+    title: string;
+    isDark: boolean;
+    onToggleTheme: () => void;
+    onOpenSearch: () => void;
+}) => {
     const { adminData } = useAdminDashboardContext();
-    const { toggleTheme, isDark } = useTheme();
-    return (
-        <header className="flex h-15 shrink-0 items-center gap-2 border-b transition-all duration-500 ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 dark:bg-zinc-800">
-            <div className="flex w-full items-center justify-between gap-1 px-4 lg:gap-2 lg:px-6">
-                <section className="flex items-center gap-5">
-                    {' '}
-                    <SidebarTrigger className="-ml-1 text-green-700 hover:text-green-700" />
-                    <p className="hidden font-semibold md:flex">
-                        Administrateur : {adminData?.name}
-                    </p>
-                </section>
 
-                <div className="mr-5 flex items-center justify-end">
-                    <div className="flex">
-                        <button
-                            className="cursor-pointer px-5 text-green-700"
-                            onClick={toggleTheme}
-                        >
-                            {isDark ? <Sun /> : <Moon />}
-                        </button>
-                    </div>
-                    <DropButton name={adminData?.name as string} />
-                </div>
+    const initials = adminData
+        ? `${adminData.name?.[0] ?? ''}${adminData.lastName?.[0] ?? ''}`.toUpperCase()
+        : 'AD';
+
+    return (
+        <header className="border-border bg-background sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b px-4 md:px-6">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+                orientation="vertical"
+                className="mr-1 data-[orientation=vertical]:h-4"
+            />
+
+            <Breadcrumb>
+                <BreadcrumbList className="text-sm">
+                    <BreadcrumbItem className="hidden sm:block">
+                        Administration
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden sm:block" />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage className="font-medium">
+                            {title}
+                        </BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
+
+            <div className="ml-auto flex items-center gap-1.5">
+                <CommandSearchTrigger onClick={onOpenSearch} />
+
+                <TopBarButton label="Notifications">
+                    <Bell className="size-4" aria-hidden="true" />
+                </TopBarButton>
+
+                <TopBarButton
+                    label={
+                        isDark
+                            ? 'Passer en thème clair'
+                            : 'Passer en thème sombre'
+                    }
+                    onClick={onToggleTheme}
+                >
+                    {isDark ? (
+                        <Sun className="size-4" aria-hidden="true" />
+                    ) : (
+                        <Moon className="size-4" aria-hidden="true" />
+                    )}
+                </TopBarButton>
+
+                <Avatar className="ml-1 size-8">
+                    <AvatarImage src={adminData?.imageUrl} />
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs font-medium">
+                        {initials}
+                    </AvatarFallback>
+                </Avatar>
             </div>
         </header>
     );

@@ -1,22 +1,12 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { MdCancel, MdNewspaper } from 'react-icons/md';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 import { useAdminDashboardContext } from '../bloc/useAdminContext';
-
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
-import { classes, mentions } from '@/core/types';
 import { useModalContext } from '../bloc/useModalContext';
+import { AudienceSelects } from './audience-selects';
+import { Field, FormCard } from './form-card';
 import { UploadAndViewImage } from './upload-view-image';
 
 export const CardAddPost = () => {
@@ -39,143 +29,60 @@ export const CardAddPost = () => {
     const { closeAddPost } = useModalContext();
 
     return (
-        <div className="flex w-1/2 flex-col gap-5">
-            <Card className="p-5 transition-all duration-500">
-                <MdCancel
-                    onClick={() => {
-                        closeAddPost();
-                    }}
-                    className="absolute cursor-pointer text-4xl text-green-600 transition-all duration-300 hover:scale-125 dark:text-white"
+        <FormCard
+            title="Nouvelle annonce"
+            description="Rédigez l'annonce et choisissez ses destinataires."
+            onClose={closeAddPost}
+            footer={
+                <>
+                    <Button variant="outline" size="sm" onClick={closeAddPost}>
+                        Annuler
+                    </Button>
+                    <Button size="sm" onClick={sendPost}>
+                        Publier
+                    </Button>
+                </>
+            }
+        >
+            <form className="space-y-5">
+                <Field label="Titre" htmlFor="post-title">
+                    <Input
+                        id="post-title"
+                        placeholder="Reprise des cours"
+                        value={postTitle}
+                        onChange={(e) => setPostTitle(e.target.value)}
+                    />
+                </Field>
+
+                <Field label="Message" htmlFor="post-description">
+                    <Textarea
+                        id="post-description"
+                        rows={6}
+                        placeholder="Écrivez votre annonce…"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+                </Field>
+
+                <Field label="Illustration" hint="Optionnelle, au ratio 16/9.">
+                    <UploadAndViewImage
+                        image={image as string}
+                        onCallBack={handleImageChange}
+                    />
+                </Field>
+
+                <Separator />
+
+                <AudienceSelects
+                    mention={mention}
+                    level={level}
+                    branche={branche}
+                    onMentionChange={setMention}
+                    onLevelChange={setLevel}
+                    onBrancheChange={setBranche}
+                    brancheDisabledForBaseLevels
                 />
-                <p className="flex w-full justify-center text-3xl font-semibold text-gray-500">
-                    Publier une annonce
-                </p>
-                <ScrollArea className="h-[80vh]">
-                    <CardContent>
-                        <form>
-                            <div className="grid w-full items-center gap-4">
-                                <Label
-                                    htmlFor="name"
-                                    className="text-lg font-semibold text-green-700"
-                                >
-                                    Titre
-                                </Label>
-                                <div className="relative w-full">
-                                    <MdNewspaper className="absolute top-1/2 left-3 -translate-y-1/2 text-xl text-gray-400" />
-                                    <Input
-                                        className="bg-gray-200 pr-3 pl-10"
-                                        onChange={(e) =>
-                                            setPostTitle(e.target.value)
-                                        }
-                                        value={postTitle.toLocaleUpperCase()}
-                                    />
-                                </div>
-
-                                <Label
-                                    htmlFor="name"
-                                    className="text-lg font-semibold text-green-700"
-                                >
-                                    Description
-                                </Label>
-                                <Textarea
-                                    placeholder="Ecrivez votre annonce"
-                                    value={description}
-                                    onChange={(e) =>
-                                        setDescription(e.target.value)
-                                    }
-                                    className="h-30"
-                                />
-
-                                <div className="flex flex-col justify-between gap-5 py-2.5">
-                                    <UploadAndViewImage
-                                        image={image as string}
-                                        onCallBack={handleImageChange}
-                                    />
-                                    <div className="flex gap-4">
-                                        <Select
-                                            value={mention}
-                                            onValueChange={setMention}
-                                        >
-                                            <SelectTrigger className="w-full bg-gray-200">
-                                                <SelectValue placeholder="Mention" />
-                                            </SelectTrigger>
-                                            <SelectContent className="z-[900]">
-                                                {Object.keys(mentions).map(
-                                                    (mainBranche) => (
-                                                        <SelectItem
-                                                            key={mainBranche}
-                                                            value={mainBranche}
-                                                        >
-                                                            {mainBranche.replace(
-                                                                /_/g,
-                                                                '   ',
-                                                            )}
-                                                        </SelectItem>
-                                                    ),
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                        <Select
-                                            onValueChange={setLevel}
-                                            value={level}
-                                        >
-                                            <SelectTrigger className="w-full bg-gray-200">
-                                                <SelectValue placeholder="Niveau" />
-                                            </SelectTrigger>
-                                            <SelectContent className="z-[900]">
-                                                {classes.map((level) => (
-                                                    <SelectItem
-                                                        key={level}
-                                                        value={level}
-                                                    >
-                                                        {level}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <Select
-                                            onValueChange={setBranche}
-                                            value={branche}
-                                            disabled={
-                                                !mention ||
-                                                level == 'L1' ||
-                                                level == 'L2'
-                                            }
-                                        >
-                                            <SelectTrigger className="w-full bg-gray-100">
-                                                <SelectValue placeholder="Branche" />
-                                            </SelectTrigger>
-                                            <SelectContent className="z-[900]">
-                                                {mention &&
-                                                    mentions[mention] &&
-                                                    mentions[mention][level] &&
-                                                    mentions[mention][
-                                                        level
-                                                    ].map((branche) => (
-                                                        <SelectItem
-                                                            key={branche}
-                                                            value={branche}
-                                                        >
-                                                            {branche}
-                                                        </SelectItem>
-                                                    ))}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </CardContent>
-                    <CardFooter className="p-0">
-                        <Button
-                            className="flex w-full cursor-pointer bg-green-700 p-6 hover:bg-green-900"
-                            onClick={sendPost}
-                        >
-                            <p className="text-xl">Publier</p>
-                        </Button>
-                    </CardFooter>
-                </ScrollArea>
-            </Card>
-        </div>
+            </form>
+        </FormCard>
     );
 };

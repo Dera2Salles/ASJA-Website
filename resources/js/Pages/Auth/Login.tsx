@@ -6,14 +6,27 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import { useLangue } from '@/page/lang/useLang';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import {
-    AlertCircle,
-    ArrowRight,
-    Loader2,
-    LogIn,
-    ShieldCheck
-} from 'lucide-react';
+import { AlertCircle, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { FormEventHandler } from 'react';
+
+const fieldLabel =
+    'text-muted-foreground text-[11px] font-bold uppercase tracking-[0.14em]';
+
+const fieldInput =
+    'border-border bg-card text-foreground placeholder:text-muted-foreground h-12 px-4 text-[15px] font-medium';
+
+/** Message d'erreur d'un champ, en rouge, sous le champ concerné. */
+const FieldError = ({ message }: { message?: string }) =>
+    message ? (
+        <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-destructive flex items-center gap-1.5 text-[12.5px] font-semibold"
+        >
+            <AlertCircle size={13} />
+            {message}
+        </motion.p>
+    ) : null;
 
 export default function Login({
     status,
@@ -41,144 +54,130 @@ export default function Login({
         <GuestLayout>
             <Head title={translate('loginPage.seConnecter')} />
 
-            <div className="space-y-8">
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center space-y-2"
+            <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+                <p className="app-eyebrow text-primary">Connexion</p>
+                <h1
+                    className="app-figure text-foreground mt-2.5 uppercase"
+                    style={{ fontSize: 'clamp(32px, 4vw, 44px)' }}
                 >
-                    <h2 className="text-3xl font-black text-foreground dark:text-white uppercase tracking-tight">
-                        {translate('loginPage.seConnecter')}
-                    </h2>
-                    <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em]">
-                        Accédez à votre espace ASJA
-                    </p>
+                    Bon retour
+                </h1>
+                <p className="text-muted-foreground mt-3 text-[15px]">
+                    Accédez à votre espace ASJA.
+                </p>
+            </motion.div>
+
+            {status && (
+                <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="border-primary bg-accent text-accent-foreground mt-8 flex items-center gap-3 rounded-2xl border p-4 text-sm font-semibold"
+                >
+                    <ShieldCheck className="size-5 shrink-0" />
+                    {status}
                 </motion.div>
+            )}
 
-                {status && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="p-4 border border-primary bg-background text-primary text-sm font-bold flex items-center gap-3"
-                    >
-                        <ShieldCheck className="w-5 h-5" />
-                        {status}
-                    </motion.div>
-                )}
+            <motion.form
+                onSubmit={submit}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+                className="mt-9 space-y-5"
+            >
+                <div className="space-y-2">
+                    <Label htmlFor="email" className={fieldLabel}>
+                        Adresse e-mail
+                    </Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={data.email}
+                        className={fieldInput}
+                        autoComplete="username"
+                        placeholder="votre@email.com"
+                        onChange={(e) => setData('email', e.target.value)}
+                        required
+                        autoFocus
+                    />
+                    <FieldError message={errors.email} />
+                </div>
 
-                <form onSubmit={submit} className="space-y-6">
-                    <div className="space-y-5">
-                        <div className="space-y-2">
-                            <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest ml-1 text-muted-foreground">
-                                Adresse Email
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                name="email"
-                                value={data.email}
-                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
-                                autoComplete="username"
-                                placeholder="votre@email.com"
-                                onChange={(e) => setData('email', e.target.value)}
-                                required
-                                autoFocus
-                            />
-                            {errors.email && (
-                                <motion.p
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="text-rose-500 text-[10px] font-black uppercase tracking-tight flex items-center gap-1 ml-1"
-                                >
-                                    <AlertCircle size={12} /> {errors.email}
-                                </motion.p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between px-1">
-                                <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                                    {translate('loginPage.mdp')}
-                                </Label>
-                                {canResetPassword && (
-                                    <Link
-                                        href={route('password.request')}
-                                        className="text-[10px] text-primary hover:text-primary font-black uppercase tracking-widest transition-all"
-                                    >
-                                        Oublié ?
-                                    </Link>
-                                )}
-                            </div>
-                            <Input
-                                id="password"
-                                type="password"
-                                name="password"
-                                value={data.password}
-                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
-                                autoComplete="current-password"
-                                placeholder="••••••••"
-                                onChange={(e) => setData('password', e.target.value)}
-                                required
-                            />
-                            {errors.password && (
-                                <motion.p
-                                    initial={{ opacity: 0, x: -10 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="text-rose-500 text-[10px] font-black uppercase tracking-tight flex items-center gap-1 ml-1"
-                                >
-                                    <AlertCircle size={12} /> {errors.password}
-                                </motion.p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-between px-1">
-                        <div className="flex items-center space-x-3 group cursor-pointer">
-                            <Checkbox
-                                id="remember"
-                                checked={data.remember}
-                                onCheckedChange={(checked) => setData('remember', checked as boolean)}
-                                className="w-5 h-5 border border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            />
-                            <Label 
-                                htmlFor="remember" 
-                                className="text-xs font-bold text-muted-foreground group-hover:text-muted-foreground transition-colors cursor-pointer"
-                            >
-                                Se souvenir de moi
-                            </Label>
-                        </div>
-                    </div>
-
-                    <div className="pt-4">
-                        <Button 
-                            disabled={processing}
-                            className="w-full h-12 bg-primary border border-border hover:bg-background hover:text-primary text-primary-foreground font-black uppercase tracking-widest flex gap-3 group/btn"
-                        >
-                            {processing ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : (
-                                <>
-                                    <LogIn className="w-5 h-5" />
-                                    <span>{translate('loginPage.seConnecter')}</span>
-                                    <ArrowRight className="w-5 h-5 ml-auto opacity-0 group-hover:opacity-100" />
-                                </>
-                            )}
-                        </Button>
-                    </div>
-
-                    <div className="pt-6 text-center">
-                        <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
-                            {translate('loginPage.question')}{' '}
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-4">
+                        <Label htmlFor="password" className={fieldLabel}>
+                            {translate('loginPage.mdp')}
+                        </Label>
+                        {canResetPassword && (
                             <Link
-                                href={route('register')}
-                                className="text-primary hover:text-primary ml-1 underline underline-offset-4"
+                                href={route('password.request')}
+                                className="text-primary text-[12px] font-bold hover:underline"
                             >
-                                {translate('loginPage.inscription')}
+                                Mot de passe oublié ?
                             </Link>
-                        </p>
+                        )}
                     </div>
-                </form>
-            </div>
+                    <Input
+                        id="password"
+                        type="password"
+                        name="password"
+                        value={data.password}
+                        className={fieldInput}
+                        autoComplete="current-password"
+                        placeholder="••••••••"
+                        onChange={(e) => setData('password', e.target.value)}
+                        required
+                    />
+                    <FieldError message={errors.password} />
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                    <Checkbox
+                        id="remember"
+                        checked={data.remember}
+                        onCheckedChange={(checked) =>
+                            setData('remember', checked as boolean)
+                        }
+                        className="border-input data-[state=checked]:bg-primary data-[state=checked]:border-primary size-[18px]"
+                    />
+                    <Label
+                        htmlFor="remember"
+                        className="text-muted-foreground cursor-pointer text-[13.5px] font-semibold"
+                    >
+                        Se souvenir de moi
+                    </Label>
+                </div>
+
+                <Button
+                    disabled={processing}
+                    size="lg"
+                    className="group mt-2 w-full font-bold"
+                >
+                    {processing ? (
+                        <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                        <>
+                            {translate('loginPage.seConnecter')}
+                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
+                    )}
+                </Button>
+
+                <p className="text-muted-foreground pt-2 text-center text-[13.5px] font-medium">
+                    {translate('loginPage.question')}{' '}
+                    <Link
+                        href={route('register')}
+                        className="text-primary font-bold underline underline-offset-4"
+                    >
+                        {translate('loginPage.inscription')}
+                    </Link>
+                </p>
+            </motion.form>
         </GuestLayout>
     );
 }

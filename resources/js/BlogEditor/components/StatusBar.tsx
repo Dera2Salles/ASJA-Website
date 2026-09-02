@@ -20,7 +20,7 @@ export function StatusBar({
     const currentSize = parseInt(fontSize.replace('px', ''));
 
     return (
-        <div className="flex flex-wrap items-center justify-between border-t bg-green-50/30 p-2 text-xs text-zinc-500 dark:border-green-900/30 dark:bg-zinc-900/40 dark:text-zinc-400">
+ <div className="flex flex-wrap items-center justify-between border-t bg-muted/40 p-2 text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1">
                     <HelpCircle className="h-3 w-3" />
@@ -33,7 +33,7 @@ export function StatusBar({
                 <button
                     onClick={onDecreaseFont}
                     disabled={canDecrease}
-                    className="rounded p-1 hover:bg-gray-200 disabled:opacity-50 dark:hover:bg-gray-700"
+ className="rounded p-1 hover:bg-accent disabled:opacity-50"
                 >
                     <Minus className="h-3 w-3" />
                 </button>
@@ -41,7 +41,7 @@ export function StatusBar({
                 <button
                     onClick={onIncreaseFont}
                     disabled={canIncrease}
-                    className="rounded p-1 hover:bg-gray-200 disabled:opacity-50 dark:hover:bg-gray-700"
+ className="rounded p-1 hover:bg-accent disabled:opacity-50"
                 >
                     <Plus className="h-3 w-3" />
                 </button>

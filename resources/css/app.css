@@ -68,6 +68,11 @@
     --color-accent-foreground: var(--accent-foreground);
     --color-destructive: var(--destructive);
     --color-destructive-foreground: var(--destructive-foreground);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-destructive-surface: var(--destructive-surface);
+    --color-success-surface: var(--success-surface);
+    --color-warning-surface: var(--warning-surface);
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
@@ -96,7 +101,7 @@
     --radius: 0px;
 
     --background: #f3f5f4;
-    --foreground: #0f1210;          /* quasi-noir → identique au mode sombre inversé */
+    --foreground: #0f1210; /* quasi-noir → identique au mode sombre inversé */
     --card: #ffffff;
     --card-foreground: #0f1210;
     --popover: #ffffff;
@@ -107,14 +112,19 @@
     --secondary: #e9ecea;
     --secondary-foreground: #0f1210;
     --muted: #e9ecea;
-    --muted-foreground: #2f3331;    /* gris très foncé → était trop clair */
+    --muted-foreground: #2f3331; /* gris très foncé → était trop clair */
     --accent: var(--color-asja-soft);
     --accent-foreground: var(--color-asja-deep);
 
     --destructive: #c1332b;
     --destructive-foreground: #ffffff;
+    --destructive-surface: #fbeceb;
+    --success: var(--color-asja);
+    --success-surface: var(--color-asja-soft);
+    --warning: #b45309;
+    --warning-surface: #fdf4e7;
 
-    --border: #a8b0ac;              /* bordures plus visibles */
+    --border: #a8b0ac; /* bordures plus visibles */
     --input: #9aa09c;
     --ring: var(--color-asja);
 
@@ -154,6 +164,11 @@
 
     --destructive: #e0605a;
     --destructive-foreground: #0e1411;
+    --destructive-surface: #2a1614;
+    --success: var(--color-asja-bright);
+    --success-surface: #12251b;
+    --warning: #f0b429;
+    --warning-surface: #2a1f0a;
 
     --border: #23302a;
     --input: #2b3a33;
@@ -311,8 +326,6 @@
         color: var(--foreground);
     }
 
-
-
     /* Animation de la bande défilante (marquee). */
     .marquee-track {
         display: flex;
@@ -321,12 +334,15 @@
     }
 
     @keyframes asja-marquee {
-        from { transform: translateX(0); }
-        to   { transform: translateX(-50%); }
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
     }
 
     .scrollbar-premium::-webkit-scrollbar {
-
         width: 8px;
         height: 8px;
     }
@@ -344,35 +360,83 @@
     }
 }
 
-
 /* ==========================================================================
-   Administration — habillage « application »
-   Le site public assume un parti pris brutaliste (angles droits, aplats,
-   aucune ombre). Un outil de gestion utilisé quotidiennement demande
-   l'inverse : des surfaces douces, une profondeur lisible et des transitions
-   qui rendent les états compréhensibles. Tout ce qui suit est donc contenu
-   dans `.app-shell` et n'affecte jamais les pages publiques.
+   Administration & authentification — habillage « atelier clair »
+   La landing reste brutaliste et contrastée ; l'outil de gestion, lui, se lit
+   pendant des heures. Il adopte donc le vocabulaire des consoles modernes :
+   fond gris très clair, surfaces blanches détourées d'un simple filet, angles
+   modérés (12px), un seul aplat vert pour l'élément actif. La barre latérale
+   redevient claire — la séparation se fait par la bordure, pas par le noir.
+   Tout ce qui suit est contenu dans `.app-shell` et n'affecte jamais les
+   pages publiques.
    ========================================================================== */
 
 .app-shell {
-    --radius: 0.625rem;
+    /* L'application est toujours claire : le thème sombre du site public ne
+       la traverse pas. */
+    --background: #f3f5f4;
+    --foreground: #141816;
+    --card: #ffffff;
+    --card-foreground: #141816;
+    --popover: #ffffff;
+    --popover-foreground: #141816;
 
-    --app-radius-sm: 6px;
-    --app-radius: 10px;
+    --primary: var(--color-asja);
+    --primary-foreground: #ffffff;
+    --secondary: #eef1ef;
+    --secondary-foreground: #141816;
+    --muted: #f3f5f4;
+    --muted-foreground: #6b7472;
+    --accent: var(--color-asja-soft);
+    --accent-foreground: var(--color-asja-deep);
+
+    --destructive: #c1332b;
+    --destructive-foreground: #ffffff;
+
+    /* Filets très légers : c'est eux qui portent la structure, pas l'ombre. */
+    --border: #e7eae9;
+    --input: #dfe4e1;
+    --ring: var(--color-asja);
+
+    /* Barre latérale claire, détourée par un filet unique. */
+    --sidebar: #ffffff;
+    --sidebar-foreground: #4a5250;
+    --sidebar-primary: var(--color-asja);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #f3f5f4;
+    --sidebar-accent-foreground: #141816;
+    --sidebar-border: #e7eae9;
+    --sidebar-ring: var(--color-asja);
+
+    --chart-1: #0c8042;
+    --chart-2: #35cf7f;
+    --chart-3: #08542c;
+    --chart-4: #7fdaa6;
+    --chart-5: #8b918e;
+
+    /* Angles mesurés : 12px sur les surfaces, 10px sur ce qui se clique,
+       8px sur les petits contrôles. Plus de pilules dans l'administration. */
+    --radius: 10px;
+    --app-radius-xs: 8px;
+    --app-radius-sm: 10px;
+    --app-radius: 12px;
     --app-radius-lg: 14px;
 
-    --app-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.05);
-    --app-shadow: 0 2px 8px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04);
-    --app-shadow-lg: 0 12px 28px oklch(0 0 0 / 0.1), 0 2px 6px oklch(0 0 0 / 0.05);
-}
+    /* Élévation quasi nulle : une carte se lit par sa bordure. */
+    --app-shadow-sm: 0 1px 2px rgb(16 24 40 / 0.04);
+    --app-shadow:
+        0 1px 3px rgb(16 24 40 / 0.06), 0 1px 2px rgb(16 24 40 / 0.04);
+    --app-shadow-lg:
+        0 12px 28px rgb(16 24 40 / 0.1), 0 2px 6px rgb(16 24 40 / 0.05);
 
-.dark .app-shell {
-    --app-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
-    --app-shadow: 0 2px 8px oklch(0 0 0 / 0.35), 0 1px 2px oklch(0 0 0 / 0.2);
-    --app-shadow-lg: 0 12px 28px oklch(0 0 0 / 0.45), 0 2px 6px oklch(0 0 0 / 0.3);
+    background: var(--background);
+    color: var(--foreground);
+    min-height: 100svh;
 }
 
 @layer utilities {
+    /* --- Surfaces ------------------------------------------------------ */
+
     /* Surface de base : carte, panneau, ligne de tableau. */
     .app-card {
         background: var(--card);
@@ -381,39 +445,658 @@
         box-shadow: var(--app-shadow-sm);
     }
 
-    .app-card-interactive {
-        transition:
-            box-shadow 0.18s ease,
-            border-color 0.18s ease,
-            transform 0.18s ease;
-    }
-
-    .app-card-interactive:hover {
-        border-color: color-mix(in oklab, var(--primary) 45%, var(--border));
-        box-shadow: var(--app-shadow);
-        transform: translateY(-1px);
-    }
-
     .app-elevated {
         box-shadow: var(--app-shadow-lg);
     }
 
-    /* Champs et boutons : rayon commun pour éviter les mélanges d'angles. */
+    /* Panneau éditable : en-tête à gauche, groupe d'actions rondes à droite,
+       corps en dessous. C'est le motif structurant de tout le CMS. */
+    .app-panel {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--app-radius);
+        box-shadow: var(--app-shadow-sm);
+        overflow: hidden;
+    }
+
+    .app-panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.875rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    /* En-tête sans séparateur, quand le panneau n'a pas de corps distinct. */
+    .app-panel-head-flush {
+        border-bottom: 0;
+    }
+
+    .app-panel-body {
+        padding: 1.25rem;
+    }
+
+    /* Bouton d'action rond de 32px, aligné en série dans les en-têtes. */
+    .app-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--card);
+        color: var(--muted-foreground);
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .app-icon-btn:hover {
+        background: var(--secondary);
+        color: var(--foreground);
+    }
+
+    .app-icon-btn-danger:hover {
+        border-color: var(--destructive);
+        background: color-mix(in oklab, var(--destructive) 8%, #ffffff);
+        color: var(--destructive);
+    }
+
+    /* Bloc vert plein, repris des encarts de la landing. */
+    .app-panel-green {
+        background: var(--color-asja);
+        border-radius: var(--app-radius);
+        color: #ffffff;
+    }
+
+    /* Chiffre-clé : Archivo massif, comme les statistiques de la page
+       d'accueil. */
+    .app-figure {
+        font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1;
+    }
+
+    /* Sur-titre en capitales espacées. */
+    .app-eyebrow {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted-foreground);
+    }
+
+    /* Pastille de couleur qui identifie une mention sans cerner la carte. */
+    .app-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        flex-shrink: 0;
+    }
+
+    /* --- Formes -------------------------------------------------------- */
+
+    .app-shell [data-slot='card'] {
+        border-radius: var(--app-radius);
+        box-shadow: var(--app-shadow-sm);
+    }
+
+    .app-shell [data-slot='dropdown-menu-content'],
+    .app-shell [data-slot='popover-content'],
+    .app-shell [data-slot='select-content'],
+    .app-shell [data-slot='dialog-content'],
+    .app-shell [data-slot='sheet-content'] {
+        border-radius: var(--app-radius);
+        box-shadow: var(--app-shadow-lg);
+    }
+
+    .app-shell [data-slot='dropdown-menu-item'],
+    .app-shell [data-slot='select-item'] {
+        border-radius: var(--app-radius-xs);
+    }
+
     .app-shell input,
     .app-shell textarea,
     .app-shell select,
+    .app-shell [data-slot='select-trigger'] {
+        border-radius: var(--app-radius-sm);
+    }
+
+    /* Les actions ne sont plus des pilules : même angle que les champs, pour
+       que barre d'outils et formulaire s'alignent. */
     .app-shell button,
+    .app-shell [data-slot='button'],
     .app-shell [role='button'] {
         border-radius: var(--app-radius-sm);
     }
 
+    /* Sauf les boutons ronds explicites, qui gardent leur cercle. */
+    .app-shell .app-icon-btn,
+    .app-shell [data-slot='avatar'] {
+        border-radius: 999px;
+    }
+
+    .app-shell [data-slot='badge'] {
+        border-radius: 999px;
+    }
+
+    .app-shell [data-slot='checkbox'] {
+        border-radius: 6px;
+    }
+
+    /* --- Barre latérale ------------------------------------------------ */
+
+    .app-shell [data-sidebar='menu-button'],
+    .app-shell [data-sidebar='menu-sub-button'] {
+        border-radius: var(--app-radius-sm);
+        font-weight: 500;
+    }
+
+    /* Icônes en gris : seule l'entrée active porte la couleur. */
+    .app-shell [data-sidebar='menu-button'] svg {
+        color: #9aa3a0;
+    }
+
+    .app-shell [data-sidebar='menu-button']:hover {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+    }
+
+    .app-shell [data-sidebar='menu-button']:hover svg {
+        color: var(--foreground);
+    }
+
+    /* Entrée active : aplat vert plein, comme le bloc bleu de la référence. */
+    .app-shell [data-sidebar='menu-button'][data-active='true'],
+    .app-shell [data-sidebar='menu-button'][data-active='true']:hover {
+        background: var(--color-asja);
+        color: #ffffff;
+        font-weight: 600;
+    }
+
+    .app-shell [data-sidebar='menu-button'][data-active='true'] svg {
+        color: #ffffff;
+    }
+
+    /* Libellé de groupe : petit, gras, sombre — il structure la colonne. */
+    .app-shell [data-sidebar='group-label'] {
+        color: var(--foreground);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+    }
+
+    /* --- Mouvement ----------------------------------------------------- */
+
     .app-shell a,
-    .app-shell button {
+    .app-shell button,
+    .app-shell .app-icon-btn {
         transition:
             background-color 0.15s ease,
             border-color 0.15s ease,
             color 0.15s ease,
             box-shadow 0.15s ease;
+    }
+
+    .app-card-interactive,
+    .app-interactive {
+        transition:
+            box-shadow 0.18s ease,
+            border-color 0.18s ease;
+    }
+
+    /* Pas de soulèvement : la carte s'éclaire, elle ne bouge pas. */
+    .app-card-interactive:hover,
+    .app-interactive:hover {
+        border-color: #d3dad7;
+        box-shadow: var(--app-shadow);
+    }
+}
+
+/* ==========================================================================
+   Administration — direction artistique monochrome (resources/design.md)
+   Identité strictement noir & blanc, inspirée de Vercel / Linear / shadcn.
+   La hiérarchie ne repose que sur le contraste, le filet de 1px, l'espacement
+   et la typographie — jamais sur une couleur de marque.
+
+   Ce scope se pose EN PLUS de `.app-shell`, dont il ne garde que la mécanique
+   (formes, transitions). Il redéfinit tous les rôles de couleur, ce qui laisse
+   les pages publiques et l'authentification sur la palette verte « C Vivant ».
+   ========================================================================== */
+
+.admin-shell,
+body[data-admin-theme] {
+    /* Les titres de l'administration sont en sans-serif : pas d'Archivo
+       display ici, l'échelle typographique suffit à hiérarchiser. */
+    --font-display: var(--font-sans);
+
+    /* --- Clair : blanc pur, quasi-noir, échelle neutral --------------- */
+    --background: #ffffff;
+    --foreground: #0a0a0a;
+    --card: #ffffff;
+    --card-foreground: #0a0a0a;
+    --popover: #ffffff;
+    --popover-foreground: #0a0a0a;
+
+    /* Inversion complète : le primaire est noir en clair, blanc en sombre. */
+    --primary: #0a0a0a;
+    --primary-foreground: #fafafa;
+    --secondary: #f5f5f5;
+    --secondary-foreground: #0a0a0a;
+    --muted: #f5f5f5;
+    --muted-foreground: #737373;
+    --accent: #f5f5f5;
+    --accent-foreground: #0a0a0a;
+
+    /* Sémantiques désaturées : réservées aux badges de statut et aux
+       alertes, jamais en aplat sur de grandes surfaces. */
+    --destructive: #dc2626;
+    --destructive-foreground: #fafafa;
+    --destructive-surface: #fef2f2;
+    --success: #16a34a;
+    --success-surface: #f0fdf4;
+    --warning: #d97706;
+    --warning-surface: #fffbeb;
+
+    --border: #e5e5e5;
+    --input: #e5e5e5;
+    --ring: #0a0a0a;
+
+    /* Barre latérale : gris neutre séparé par un filet, pas par un aplat
+       sombre. L'entrée active se marque au fond `accent`, sans barre. */
+    --sidebar: #fafafa;
+    --sidebar-foreground: #0a0a0a;
+    --sidebar-primary: #0a0a0a;
+    --sidebar-primary-foreground: #fafafa;
+    --sidebar-accent: #ebebeb;
+    --sidebar-accent-foreground: #0a0a0a;
+    --sidebar-border: #e5e5e5;
+    --sidebar-ring: #0a0a0a;
+
+    /* Graphiques : rampe de gris. Aucune série n'est « la colorée ». */
+    --chart-1: #0a0a0a;
+    --chart-2: #404040;
+    --chart-3: #737373;
+    --chart-4: #a3a3a3;
+    --chart-5: #d4d4d4;
+
+    /* --- Réancrage des rôles de couleur ---------------------------------
+       `@theme` déclare les rôles Tailwind sur `:root` sous la forme
+       `--color-accent: var(--accent)`. Une propriété personnalisée est
+       substituée à l'endroit où elle est DÉCLARÉE : `--color-accent` vaut donc
+       définitivement le vert de `:root`, et les descendants héritent de cette
+       valeur déjà résolue. Résultat : `bg-primary`, `bg-accent`, `border-border`
+       et consorts continuaient d'afficher la palette « C Vivant » au cœur de
+       l'administration, malgré les tokens monochromes ci-dessus — seules les
+       règles écrites à la main (`.admin-*`) les respectaient.
+
+       Redéclarer l'indirection ici la fait résoudre sur la racine admin, où les
+       tokens sont noirs et blancs. Le site public n'est pas touché : sa propre
+       résolution sur `:root` reste inchangée. */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-destructive-surface: var(--destructive-surface);
+    --color-success: var(--success);
+    --color-success-surface: var(--success-surface);
+    --color-warning: var(--warning);
+    --color-warning-surface: var(--warning-surface);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    /* Angles vifs : l'administration n'a plus aucun rayon. Tous les alias
+       restent déclarés pour que les composants partagés continuent de les
+       lire — ils valent simplement zéro ici. */
+    --radius: 0px;
+    --radius-xs: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+    --app-radius-xs: 0px;
+    --app-radius-sm: 0px;
+    --app-radius: 0px;
+    --app-radius-lg: 0px;
+    --radius-full: 0px;
+
+    /* Aucune élévation sur les surfaces en flux : la bordure porte tout.
+       Seuls les calques flottants (menus, dialogues) reçoivent une ombre,
+       et elle reste sous le seuil d'un `shadow-lg`. */
+    --app-shadow-sm: none;
+    --app-shadow: none;
+    --app-shadow-lg: 0 4px 12px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.06);
+
+    background: var(--background);
+    color: var(--foreground);
+}
+
+/* --- Sombre : inversion complète -------------------------------------
+   `.admin-shell` redéclare les tokens clairs sur l'élément lui-même ; une
+   règle posée seulement sur `<body>` serait donc écrasée pour tous ses
+   descendants. La variante sombre doit viser la racine admin elle-même,
+   qu'elle porte la classe `dark` ou qu'elle hérite de l'attribut du body. */
+.admin-shell.dark,
+body[data-admin-theme='dark'] .admin-shell,
+body[data-admin-theme='dark'] {
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #0a0a0a;
+    --card-foreground: #fafafa;
+    --popover: #171717;
+    --popover-foreground: #fafafa;
+
+    --primary: #fafafa;
+    --primary-foreground: #0a0a0a;
+    --secondary: #171717;
+    --secondary-foreground: #fafafa;
+    --muted: #171717;
+    --muted-foreground: #a3a3a3;
+    --accent: #262626;
+    --accent-foreground: #fafafa;
+
+    --destructive: #f87171;
+    --destructive-foreground: #0a0a0a;
+    --destructive-surface: #2a1214;
+    --success: #4ade80;
+    --success-surface: #0d1f14;
+    --warning: #fbbf24;
+    --warning-surface: #241a06;
+
+    --border: #262626;
+    --input: #262626;
+    --ring: #d4d4d4;
+
+    --sidebar: #0a0a0a;
+    --sidebar-foreground: #fafafa;
+    --sidebar-primary: #fafafa;
+    --sidebar-primary-foreground: #0a0a0a;
+    --sidebar-accent: #1f1f1f;
+    --sidebar-accent-foreground: #fafafa;
+    --sidebar-border: #262626;
+    --sidebar-ring: #d4d4d4;
+
+    --chart-1: #fafafa;
+    --chart-2: #d4d4d4;
+    --chart-3: #a3a3a3;
+    --chart-4: #737373;
+    --chart-5: #404040;
+
+    --app-shadow-lg: 0 4px 12px rgb(0 0 0 / 0.5), 0 1px 3px rgb(0 0 0 / 0.4);
+}
+
+@layer utilities {
+    /* --- Typographie (échelle de design.md) ---------------------------- */
+
+    /* Titre de page. */
+    body[data-admin-theme] .admin-title {
+        font-size: 1.5rem;
+        line-height: 2rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        color: var(--foreground);
+    }
+
+    /* Titre de section. */
+    body[data-admin-theme] .admin-section-title {
+        font-size: 1.125rem;
+        line-height: 1.75rem;
+        font-weight: 500;
+        color: var(--foreground);
+    }
+
+    /* Ces règles de titre portent une couleur, et leur sélecteur est plus
+       spécifique qu'un utilitaire Tailwind : `text-destructive` posé sur un
+       `.admin-title` ou un `.admin-section-title` était donc écrasé sans un
+       mot. Une intention de couleur explicite doit primer. */
+    body[data-admin-theme] .admin-title.text-destructive,
+    body[data-admin-theme] .admin-section-title.text-destructive {
+        color: var(--destructive);
+    }
+
+    body[data-admin-theme] .admin-title.text-muted-foreground,
+    body[data-admin-theme] .admin-section-title.text-muted-foreground {
+        color: var(--muted-foreground);
+    }
+
+    /* Métadonnée : la ligne discrète sous un titre, une date, un compteur. */
+    body[data-admin-theme] .admin-meta {
+        font-size: 0.75rem;
+        line-height: 1rem;
+        color: var(--muted-foreground);
+    }
+
+    /* Libellé de groupe de navigation et sur-titre de carte KPI. */
+    body[data-admin-theme] .app-eyebrow,
+    body[data-admin-theme] .admin-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-transform: none;
+        color: var(--muted-foreground);
+    }
+
+    /* Chiffre de KPI : plus d'Archivo massif, une graisse semi-bold et des
+       chiffres à chasse fixe pour que les colonnes s'alignent. */
+    body[data-admin-theme] .app-figure,
+    body[data-admin-theme] .admin-figure {
+        font-family: var(--font-sans);
+        font-size: 1.875rem;
+        line-height: 2.25rem;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        font-variant-numeric: tabular-nums;
+        color: var(--foreground);
+    }
+
+    /* Chiffres, identifiants, montants et code en mono. */
+    body[data-admin-theme] .admin-mono {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+        font-size: 0.8125rem;
+    }
+
+    /* Variation d'un KPI : la couleur ne porte que sur le texte. */
+    body[data-admin-theme] .admin-delta-up {
+        color: var(--success);
+    }
+
+    body[data-admin-theme] .admin-delta-down {
+        color: var(--destructive);
+    }
+
+    /* --- Surfaces ------------------------------------------------------ */
+
+    /* Le panneau perd son ombre : un filet de 1px, rien d'autre. */
+    body[data-admin-theme] .app-panel,
+    body[data-admin-theme] .app-card,
+    body[data-admin-theme] [data-slot='card'] {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: none;
+    }
+
+    body[data-admin-theme] .app-card-interactive:hover,
+    body[data-admin-theme] .app-interactive:hover {
+        border-color: var(--muted-foreground);
+        box-shadow: none;
+    }
+
+    /* Le bloc vert plein n'a plus lieu d'être : il devient une surface
+       inversée, seul aplat fort autorisé par la charte. */
+    body[data-admin-theme] .app-panel-green {
+        background: var(--primary);
+        color: var(--primary-foreground);
+        border-radius: var(--radius);
+    }
+
+    /* Pastille de statut de 6px : le seul indice coloré d'un tableau. */
+    body[data-admin-theme] .app-dot,
+    body[data-admin-theme] .admin-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--muted-foreground);
+        flex-shrink: 0;
+    }
+
+    body[data-admin-theme] .admin-dot-success {
+        background: var(--success);
+    }
+
+    body[data-admin-theme] .admin-dot-danger {
+        background: var(--destructive);
+    }
+
+    body[data-admin-theme] .admin-dot-warning {
+        background: var(--warning);
+    }
+
+    /* --- Formes -------------------------------------------------------- */
+
+    /* Angles vifs, sans exception. Les alias `--radius-*` sont déjà remis à
+       zéro plus haut, ce qui neutralise toutes les classes `rounded-*` ;
+       cette règle attrape en plus les rayons écrits en dur dans les
+       composants partagés et dans les calques rendus en portail (menus,
+       dialogues, info-bulles), qui vivent sous `<body>` et non sous
+       `.admin-shell`. */
+    body[data-admin-theme],
+    body[data-admin-theme] *,
+    body[data-admin-theme] *::before,
+    body[data-admin-theme] *::after {
+        border-radius: 0;
+    }
+
+    /* Les boutons ronds et les badges pilules appartenaient au vocabulaire
+       « C Vivant ». Ici tout revient au rayon unique. */
+    body[data-admin-theme] .app-icon-btn {
+        border-radius: var(--app-radius-xs);
+        background: transparent;
+        border-color: transparent;
+        color: var(--muted-foreground);
+    }
+
+    body[data-admin-theme] .app-icon-btn:hover {
+        background: var(--accent);
+        color: var(--foreground);
+    }
+
+    body[data-admin-theme] .app-icon-btn-danger:hover {
+        background: var(--destructive-surface);
+        border-color: transparent;
+        color: var(--destructive);
+    }
+
+    /* Le badge brutaliste est en capitales grasses ; ici il redevient une
+       étiquette discrète, lisible en minuscules. */
+    body[data-admin-theme] [data-slot='badge'] {
+        border-radius: var(--app-radius-xs);
+        font-weight: 500;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    /* L'alerte destructive n'est plus un aplat rouge plein : texte et filet
+       colorés sur une surface rouge très pâle, comme le veut la charte. */
+    body[data-admin-theme] [data-slot='alert'].border-destructive {
+        background: var(--destructive-surface);
+        color: var(--destructive);
+        border-color: color-mix(in oklab, var(--destructive) 35%, transparent);
+    }
+
+    body[data-admin-theme]
+        [data-slot='alert'].border-destructive
+        [data-slot='alert-description'] {
+        color: var(--destructive);
+        opacity: 0.9;
+    }
+
+    /* --- Barre latérale ------------------------------------------------ */
+
+    /* Icônes neutres : aucune icône colorée dans toute l'administration. */
+    body[data-admin-theme] [data-sidebar='menu-button'] svg {
+        color: var(--muted-foreground);
+    }
+
+    body[data-admin-theme] [data-sidebar='menu-button']:hover svg,
+    body[data-admin-theme]
+        [data-sidebar='menu-button'][data-active='true']
+        svg {
+        color: var(--sidebar-accent-foreground);
+    }
+
+    /* Entrée active : fond `accent`, sans barre ni aplat coloré. */
+    body[data-admin-theme] [data-sidebar='menu-button'][data-active='true'],
+    body[data-admin-theme]
+        [data-sidebar='menu-button'][data-active='true']:hover {
+        background: var(--sidebar-accent);
+        color: var(--sidebar-accent-foreground);
+        font-weight: 500;
+    }
+
+    /* Libellé de groupe : petites capitales grises, comme le veut la charte. */
+    body[data-admin-theme] [data-sidebar='group-label'] {
+        color: var(--muted-foreground);
+        font-size: 0.75rem;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    /* --- Accessibilité -------------------------------------------------- */
+
+    /* Le focus vert global ne traverse pas l'administration : anneau neutre
+       de 2px, décalé de 2px, sur tout ce qui se focalise. */
+    body[data-admin-theme] :focus-visible {
+        outline: 2px solid var(--ring);
+        outline-offset: 2px;
+    }
+
+    /* --- Mouvement ----------------------------------------------------- */
+
+    /* 150ms sur le survol et l'ouverture de la barre latérale, rien de plus. */
+    body[data-admin-theme] a,
+    body[data-admin-theme] button,
+    body[data-admin-theme] [data-slot='button'],
+    body[data-admin-theme] .app-icon-btn,
+    body[data-admin-theme] [data-sidebar='menu-button'] {
+        transition:
+            background-color 0.15s ease,
+            border-color 0.15s ease,
+            color 0.15s ease;
     }
 }
 

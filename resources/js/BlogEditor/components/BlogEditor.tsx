@@ -58,7 +58,6 @@ const CustomTextAlign = TextAlign.extend({
 import { EditorMenus } from './EditorMenus';
 import { Header } from './Header';
 import { StatusBar } from './StatusBar';
-import { ThemeProvider, useTheme } from './ThemeContext';
 import { Toolbar } from './Toolbar';
 
 interface BlogEditorProps {
@@ -86,7 +85,6 @@ function BlogEditorContent({
     const [fontSize, setFontSize] = useState('16px');
     const [customColor, setCustomColor] = useState('#000000');
     const [lineHeight, setLineHeight] = useState('1.5');
-    const { theme } = useTheme();
     const [isUploading, setIsUploading] = useState(false);
 
     const editor = useEditor({
@@ -149,9 +147,9 @@ function BlogEditorContent({
         },
         editorProps: {
             attributes: {
-                class: `prose content-area prose-lg focus:outline-none min-h-[500px] p-6 dark:prose-invert ${
-                    theme === 'dark' ? 'dark' : ''
-                }`,
+                /* L'éditeur n'a plus de thème à lui : il suit celui de
+                   l'administration qui l'héberge, via la variante `dark:`. */
+                class: 'prose content-area prose-lg focus:outline-none min-h-[500px] p-6 dark:prose-invert',
                 style: `line-height: ${lineHeight};`,
             },
             handleKeyDown: (_, event) => {
@@ -331,7 +329,7 @@ function BlogEditorContent({
     return (
         <TooltipProvider>
             <div
-                className={`blog-editor-container overflow-hidden rounded-[2.5rem] border border-green-100/30 bg-white shadow-2xl transition-all duration-300 dark:border-green-900/20 dark:bg-zinc-950 ${
+ className={`blog-editor-container overflow-hidden rounded-[2.5rem] border border-border bg-card shadow-2xl transition-all duration-300 ${
                     isFullscreen
                         ? 'fixed inset-0 z-50 m-0 flex flex-col rounded-none'
                         : ''
@@ -378,14 +376,14 @@ function BlogEditorContent({
                 )}
 
                 {isUploading && (
-                    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50">
-                        <div className="rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+ <div className="absolute inset-0 z-50 flex items-center justify-center bg-foreground/50">
+ <div className="rounded-lg bg-card p-6 shadow-xl">
                             <div className="flex flex-col items-center gap-4">
                                 <div className="border-primary h-12 w-12 animate-spin rounded-full border-b-2"></div>
-                                <p className="font-medium text-gray-700 dark:text-gray-300">
+ <p className="font-medium text-foreground">
                                     Chargement de l&apos;image...
                                 </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
+ <p className="text-sm text-muted-foreground">
                                     Veuillez patienter
                                 </p>
                             </div>
@@ -410,7 +408,7 @@ function BlogEditorContent({
                             {Array.from({ length: 30 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="border-t border-green-500/5 dark:border-green-900/5"
+ className="border-t border-border"
                                     style={{
                                         height: `${parseInt(lineHeight) * 24}px`,
                                     }}
@@ -438,9 +436,5 @@ function BlogEditorContent({
 }
 
 export function BlogEditor(props: BlogEditorProps) {
-    return (
-        <ThemeProvider>
-            <BlogEditorContent {...props} />
-        </ThemeProvider>
-    );
+    return <BlogEditorContent {...props} />;
 }

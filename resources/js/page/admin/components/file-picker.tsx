@@ -1,9 +1,9 @@
+import { FileUp, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
-import { FaFile } from 'react-icons/fa';
-import { MdDelete } from 'react-icons/md';
 
 import { useAdminDashboardContext } from '../bloc/useAdminContext';
 
+/** Dépôt de document : cadre pointillé neutre, aucune icône colorée. */
 const FilePicker: React.FC = () => {
     const {
         handleCancel,
@@ -26,22 +26,26 @@ const FilePicker: React.FC = () => {
     });
 
     return (
-        <div className="flex w-full flex-col items-center">
-            <div {...getRootProps()} className="flex w-full flex-col">
-                <div className="flex transform justify-center rounded-2xl border border-dashed border-green-700 bg-gray-100 transition-all duration-300 dark:bg-zinc-800">
-                    <label
-                        htmlFor="file-upload"
-                        className="mx-10 my-5 flex w-full cursor-pointer flex-col items-center justify-center border-0 p-2"
-                    >
-                        <FaFile className="m-10 flex text-7xl text-green-700" />
-                        <p className="py-5 text-center text-lg">
-                            {' '}
-                            {isDragActive
-                                ? 'Deposer votre fichier'
-                                : 'Glisser et deposer votre fichier ou cliquer ici'}{' '}
-                        </p>
-                    </label>
-                </div>
+        <div className="w-full space-y-3">
+            <div {...getRootProps()}>
+                <label
+                    htmlFor="file-upload"
+                    className={`border-input hover:border-muted-foreground flex cursor-pointer flex-col items-center justify-center gap-3 border border-dashed px-6 py-10 text-center ${
+                        isDragActive ? 'border-foreground bg-muted' : ''
+                    }`}
+                >
+                    <FileUp
+                        className="text-muted-foreground size-6"
+                        aria-hidden="true"
+                    />
+                    <p className="text-muted-foreground text-sm">
+                        {isDragActive
+                            ? 'Déposez votre fichier'
+                            : 'Glissez un fichier ici, ou cliquez pour parcourir'}
+                    </p>
+                    <p className="admin-meta">PDF, DOC ou DOCX</p>
+                </label>
+
                 <input
                     {...getInputProps()}
                     className="hidden"
@@ -50,25 +54,28 @@ const FilePicker: React.FC = () => {
                     ref={fileInputRef}
                     onChange={handleFileChange}
                 />
-                {selectedFile && (
-                    <div className="mt-10 flex flex-wrap items-center justify-center gap-5">
-                        Fichier selectionne :{' '}
-                        <p className="font-bold">{selectedFile.name}</p> (
-                        {fileSize} Mo)
-                        {selectedFile && (
-                            <button
-                                className="cursor-pointer rounded-sm border-0 bg-red-600 hover:bg-red-900"
-                                onClick={handleCancel}
-                            >
-                                <p className="px-4 py-2 font-bold text-white">
-                                    {' '}
-                                    <MdDelete />
-                                </p>
-                            </button>
-                        )}
-                    </div>
-                )}
             </div>
+
+            {selectedFile && (
+                <div className="border-border flex items-center justify-between gap-3 border px-3 py-2">
+                    <div className="min-w-0">
+                        <p className="text-foreground truncate text-sm font-medium">
+                            {selectedFile.name}
+                        </p>
+                        <p className="admin-mono text-muted-foreground">
+                            {fileSize} Mo
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        aria-label="Retirer le fichier"
+                        className="text-muted-foreground hover:bg-accent hover:text-foreground inline-flex size-8 shrink-0 items-center justify-center"
+                    >
+                        <X className="size-4" aria-hidden="true" />
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

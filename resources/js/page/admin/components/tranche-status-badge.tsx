@@ -1,9 +1,15 @@
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/admin/primitives';
 import { useState } from 'react';
 
 import type { Tranche } from '@/core/types';
 import type { UserDto } from '@/features/mention/user.dto';
 import { useAdminDashboardContext } from '../bloc/useAdminContext';
+
+/**
+ * Statut de paiement d'une tranche. Le badge reste en contour neutre : seule
+ * la pastille de 6px porte la couleur, comme le prévoit la charte pour les
+ * colonnes de statut.
+ */
 export const TrancheBadge = ({
     studentData,
     tranche,
@@ -30,13 +36,14 @@ export const TrancheBadge = ({
     };
 
     return (
-        <Badge
-            className={`${
-                isPaid ? 'bg-green-600' : 'bg-red-600'
-            } cursor-pointer text-white`}
+        <button
+            type="button"
             onClick={toggle}
+            aria-label={`Marquer la tranche comme ${isPaid ? 'non payée' : 'payée'}`}
         >
-            {isPaid ? 'Payé' : 'Non payé'}
-        </Badge>
+            <StatusBadge tone={isPaid ? 'success' : 'danger'}>
+                {isPaid ? 'Payé' : 'Non payé'}
+            </StatusBadge>
+        </button>
     );
 };

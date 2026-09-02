@@ -1,17 +1,22 @@
-import Modal from '@/Components/Modal';
+import { FieldError } from '@/components/admin/primitives';
+import {
+    AlertDialog,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
-import { AlertTriangle, Loader2, Trash2, X } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { FormEventHandler, useRef, useState } from 'react';
 
-export default function DeleteUserForm({
-    className = '',
-}: {
-    className?: string;
-}) {
-    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
+export default function DeleteUserForm() {
+    const [confirming, setConfirming] = useState(false);
     const passwordInput = useRef<HTMLInputElement>(null);
 
     const {
@@ -26,95 +31,64 @@ export default function DeleteUserForm({
         password: '',
     });
 
-    const confirmUserDeletion = () => {
-        setConfirmingUserDeletion(true);
-    };
-
     const deleteUser: FormEventHandler = (e) => {
         e.preventDefault();
 
         destroy(route('profile.destroy'), {
             preserveScroll: true,
-            onSuccess: () => closeModal(),
+            onSuccess: () => closeDialog(),
             onError: () => passwordInput.current?.focus(),
             onFinish: () => reset(),
         });
     };
 
-    const closeModal = () => {
-        setConfirmingUserDeletion(false);
+    const closeDialog = () => {
+        setConfirming(false);
         clearErrors();
         reset();
     };
 
     return (
-        <section className={`space-y-6 ${className}`}>
-            <div className="space-y-4">
-                <p className="text-sm leading-relaxed font-medium text-slate-500 dark:text-zinc-400">
-                    Une fois votre compte supprimé, toutes ses ressources et
-                    données seront définitivement effacées. Avant de supprimer
-                    votre compte, veuillez télécharger toutes les données ou
-                    informations que vous souhaitez conserver.
-                </p>
+        <div className="space-y-4">
+            <p className="text-muted-foreground max-w-prose text-sm">
+                Une fois le compte supprimé, toutes ses données sont effacées
+                définitivement. Téléchargez au préalable ce que vous souhaitez
+                conserver.
+            </p>
 
-                <Button
-                    variant="destructive"
-                    onClick={confirmUserDeletion}
-                    className="flex h-12 gap-2 rounded-xl bg-rose-600 px-8 font-black text-white shadow-xl shadow-rose-900/20 transition-all hover:bg-rose-700"
-                >
-                    <Trash2 size={18} />
-                    Supprimer définitivement mon compte
-                </Button>
-            </div>
+            <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => setConfirming(true)}
+            >
+                Supprimer mon compte
+            </Button>
 
-            <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form
-                    onSubmit={deleteUser}
-                    className="relative overflow-hidden bg-white p-8 md:p-12 dark:bg-zinc-950"
-                >
-                    {}
-                    <div className="absolute top-0 right-0 -mt-16 -mr-16 h-32 w-32 rounded-full bg-rose-500/10 blur-3xl" />
+            <AlertDialog
+                open={confirming}
+                onOpenChange={(open) => !open && closeDialog()}
+            >
+                <AlertDialogContent>
+                    {/* Le formulaire vit dans la boîte de dialogue : la touche
+                        Entrée depuis le champ vaut confirmation. */}
+                    <form onSubmit={deleteUser} className="space-y-4">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>
+                                Supprimer définitivement ce compte ?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Cette action est irréversible. Saisissez votre
+                                mot de passe pour confirmer.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
 
-                    <div className="relative space-y-8">
-                        <div className="flex items-start justify-between">
-                            <div className="flex items-center gap-4">
-                                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-950/30">
-                                    <AlertTriangle size={24} />
-                                </div>
-                                <div>
-                                    <h2 className="text-xl font-black tracking-tight text-slate-900 uppercase dark:text-white">
-                                        Confirmation critique
-                                    </h2>
-                                    <p className="text-sm font-medium text-slate-500">
-                                        Action irréversible
-                                    </p>
-                                </div>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={closeModal}
-                                className="rounded-xl hover:bg-slate-100 dark:hover:bg-white/5"
-                            >
-                                <X size={20} />
-                            </Button>
-                        </div>
-
-                        <p className="text-sm leading-relaxed font-medium text-slate-600 dark:text-zinc-400">
-                            Êtes-vous sûr de vouloir supprimer votre compte ?
-                            Toutes les données seront perdues. Veuillez saisir
-                            votre mot de passe pour confirmer cette action.
-                        </p>
-
-                        <div className="space-y-3">
-                            <Label
-                                htmlFor="password"
-                                className="ml-1 text-[10px] font-black tracking-widest text-slate-400 uppercase"
-                            >
-                                Mot de passe de confirmation
+                        <div className="space-y-2">
+                            <Label htmlFor="delete_password">
+                                Mot de passe
                             </Label>
                             <Input
-                                id="password"
+                                id="delete_password"
                                 type="password"
                                 name="password"
                                 ref={passwordInput}
@@ -122,42 +96,34 @@ export default function DeleteUserForm({
                                 onChange={(e) =>
                                     setData('password', e.target.value)
                                 }
-                                className="h-12 rounded-xl border-none bg-slate-50 px-4 font-bold focus:ring-2 focus:ring-rose-500/20 dark:bg-white/5"
-                                placeholder="Saisissez votre mot de passe..."
+                                autoComplete="current-password"
+                                aria-invalid={Boolean(errors.password)}
                                 autoFocus
                             />
-                            {errors.password && (
-                                <p className="flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                    <AlertTriangle size={10} />{' '}
-                                    {errors.password}
-                                </p>
-                            )}
+                            <FieldError>{errors.password}</FieldError>
                         </div>
 
-                        <div className="flex flex-col gap-3 pt-4 sm:flex-row">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={closeModal}
-                                className="h-12 flex-1 rounded-xl font-black text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5"
-                            >
+                        <AlertDialogFooter>
+                            <AlertDialogCancel type="button">
                                 Annuler
-                            </Button>
+                            </AlertDialogCancel>
+                            {/* Bouton natif plutôt que `AlertDialogAction` : la
+                                boîte ne doit se fermer que si le serveur
+                                accepte le mot de passe. */}
                             <Button
                                 type="submit"
                                 variant="destructive"
                                 disabled={processing}
-                                className="flex h-12 flex-1 gap-2 rounded-xl bg-rose-600 font-black text-white shadow-xl shadow-rose-900/20 transition-all hover:scale-[1.02] hover:bg-rose-700"
                             >
                                 {processing && (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="size-4 animate-spin" />
                                 )}
-                                Confirmer la suppression
+                                Supprimer le compte
                             </Button>
-                        </div>
-                    </div>
-                </form>
-            </Modal>
-        </section>
+                        </AlertDialogFooter>
+                    </form>
+                </AlertDialogContent>
+            </AlertDialog>
+        </div>
     );
 }
