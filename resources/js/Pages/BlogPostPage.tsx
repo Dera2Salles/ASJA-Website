@@ -103,7 +103,7 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
     const period = isEvent ? formatEventPeriod(post) : '';
 
     return (
-        <div className="flex min-h-screen flex-col overflow-x-hidden">
+        <div className="flex min-h-screen flex-col overflow-x-clip">
             <Navbar />
 
             <main className="flex-1">

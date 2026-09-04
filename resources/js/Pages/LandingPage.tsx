@@ -40,7 +40,12 @@ export default function LandingPage({ cms, posts }: LandingPageProps) {
             <Head title="Accueil" />
             <ThemeProvider>
                 <LandingProvider>
-                    <div className="flex min-h-screen flex-col overflow-x-hidden">
+                    {/* `clip` et non `hidden` : `overflow-x: hidden` fait de
+                        cette enveloppe un conteneur de défilement, ce qui
+                        décrochait la navbar `sticky` dès le premier scroll.
+                        `clip` rogne le débordement horizontal sans créer de
+                        scrollport, la barre reste donc épinglée. */}
+                    <div className="flex min-h-screen flex-col overflow-x-clip">
                         <Navbar />
                         <main className="flex-1">
                             {/* 1. Hero (sombre — photo pleine page) */}

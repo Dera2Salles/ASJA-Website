@@ -163,7 +163,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
     const showFeatured = posts.current_page === 1 && !activeType;
 
     return (
-        <div className="flex min-h-screen flex-col overflow-x-hidden">
+        <div className="flex min-h-screen flex-col overflow-x-clip">
             <Navbar />
 
             <main className="flex-1">

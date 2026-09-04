@@ -10,25 +10,39 @@ import { useRef } from 'react';
 const DARK = '14, 20, 17'; // #0e1411
 const LIGHT = '#f2f5f3';
 
+/* La couche peinte déborde de 30 % en haut et en bas : elle mesure donc 160 %
+   de la bande, et la fenêtre réellement visible court de 18,75 % à 81,25 % de
+   sa hauteur. Tout le reste est de la marge de manœuvre pour la parallaxe. */
+const OVERSCAN = 0.3;
+
+/* Bornes du fondu, exprimées sur la couche. Ramenées à la bande, elles laissent
+   ~15 % d'aplat plein en haut et ~12 % en bas — davantage que la course de la
+   parallaxe, donc le bord de la rampe ne se découvre jamais. */
+const FADE_START = 28;
+const FADE_END = 74;
+
+/** Course de la parallaxe, en pourcentage de la couche. */
+const PARALLAX = 6;
+
 /**
- * Rampe d'opacité calquée sur une courbe en S plutôt que sur les deux arrêts
- * d'un dégradé simple : sans elle, l'œil accroche toujours une arête au milieu
- * du fondu. Les paliers pleins en tête (0 → 35 %) et transparents en queue
- * (65 → 100 %) laissent la place à la parallaxe sans jamais découvrir le bord.
+ * Rampe en S plutôt que les deux arrêts d'un dégradé linéaire : sur un fondu
+ * aussi long, l'œil accroche immanquablement les deux arêtes d'une rampe
+ * droite. La dérivée nulle aux extrémités les efface.
  */
+const smootherstep = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+
+const STEPS = 14;
+
 const RAMP: Array<[number, number]> = [
     [0, 1],
-    [35, 1],
-    [39, 0.975],
-    [43, 0.925],
-    [47, 0.845],
-    [50, 0.755],
-    [53, 0.645],
-    [56, 0.52],
-    [59, 0.385],
-    [62, 0.24],
-    [64, 0.13],
-    [65, 0],
+    ...Array.from({ length: STEPS + 1 }, (_, i): [number, number] => {
+        const t = i / STEPS;
+
+        return [
+            FADE_START + (FADE_END - FADE_START) * t,
+            Number((1 - smootherstep(t)).toFixed(4)),
+        ];
+    }),
     [100, 0],
 ];
 
@@ -53,11 +67,15 @@ export interface BandTransitionProps {
 /**
  * Passage progressif entre l'aplat sombre et l'aplat clair du site.
  *
- * Le fondu est un simple dégradé peint sur une couche plus haute que la bande,
+ * Le fondu est un dégradé peint sur une couche plus haute que la bande et
  * translatée par le scroll : la couleur avance donc au rythme de la page, sans
  * jamais casser net comme le faisait la bordure entre deux sections. Le seul
  * effet animé est un `transform`, composité par le navigateur — aucune peinture
- * n'est refaite pendant le défilement.
+ * n'est refaite pendant le défilement, et `prefers-reduced-motion` fige la
+ * couche sans rien retirer du dégradé.
+ *
+ * La bande ne contient jamais de texte : chaque titre reste posé sur un aplat
+ * plein, jamais sur le dégradé, ce qui rend impossible le blanc sur blanc.
  *
  * À poser entre deux sections dont les fonds s'opposent ; la section suivante
  * porte ensuite `band-light` (ou `band-dark`) comme d'habitude.
@@ -74,9 +92,11 @@ export const BandTransition = ({
         offset: ['start end', 'end start'],
     });
 
-    // ±6 % de la hauteur de la couche : assez pour que le fondu « respire »
-    // pendant le scroll, trop peu pour découvrir la fin de la rampe.
-    const y = useTransform(scrollYProgress, [0, 1], ['-6%', '6%']);
+    const y = useTransform(
+        scrollYProgress,
+        [0, 1],
+        [`${-PARALLAX}%`, `${PARALLAX}%`],
+    );
 
     const toLight = direction === 'dark-to-light';
 
@@ -87,7 +107,10 @@ export const BandTransition = ({
             role="presentation"
             className={`relative w-full overflow-hidden ${className}`}
             style={{
-                height: 'clamp(120px, 20vh, 260px)',
+                // Assez haut pour que le fondu occupe une vraie course de
+                // scroll : en deçà, il se lit comme une tache, pas comme une
+                // transition.
+                height: 'clamp(180px, 30vh, 340px)',
                 // L'aplat clair sert de fond ; la rampe sombre se pose dessus.
                 background: LIGHT,
             }}
@@ -95,8 +118,8 @@ export const BandTransition = ({
             <motion.div
                 className="absolute inset-x-0"
                 style={{
-                    top: '-30%',
-                    bottom: '-30%',
+                    top: `${-OVERSCAN * 100}%`,
+                    bottom: `${-OVERSCAN * 100}%`,
                     background: toLight ? DARK_TO_LIGHT : LIGHT_TO_DARK,
                     y: reduceMotion ? 0 : y,
                     willChange: 'transform',

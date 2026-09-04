@@ -165,7 +165,9 @@ export function SectionCarousel<T>({
                 aria-label={label}
                 tabIndex={0}
                 onKeyDown={handleKeyDown}
-                className="overflow-hidden focus:outline-none"
+                // Pas de `focus:outline-none` ici : la piste est focusable au
+                // clavier, elle doit garder l'anneau de focus vert du site.
+                className="overflow-hidden"
             >
                 <div className="-ml-4 flex touch-pan-y">
                     {items.map((item, index) => (
