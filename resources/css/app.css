@@ -407,11 +407,23 @@
         color: var(--foreground);
     }
 
-    /* Animation de la bande défilante (marquee). */
+    /* Animation de la bande défilante (marquee).
+
+       `width: max-content` et non `200%`. Avec 200 %, chaque moitié de la
+       piste valait exactement une largeur d'écran : sur téléphone, le texte y
+       était bien plus large que la place disponible, l'espace libre du
+       `justify-around` passait en négatif et les mentions se chevauchaient.
+       En largeur de contenu, chaque moitié fait la taille de son texte, les
+       écarts restent ceux du `gap`, et la translation de -50 % tombe toujours
+       pile sur le début du doublon.
+
+       Effet de bord bienvenu : la course ne dépend plus de la largeur de la
+       fenêtre, la vitesse perçue est donc la même partout — elle allait du
+       simple au quadruple entre un téléphone et un écran large. */
     .marquee-track {
         display: flex;
-        width: 200%;
-        animation: asja-marquee 26s linear infinite;
+        width: max-content;
+        animation: asja-marquee 34s linear infinite;
     }
 
     @keyframes asja-marquee {
@@ -421,6 +433,43 @@
         to {
             transform: translateX(-50%);
         }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .marquee-track {
+            animation: none;
+        }
+    }
+
+    /* Barre de défilement du tiroir de navigation mobile : un filet de 3 px
+       qui n'apparaît qu'au survol du pouce. La barre native, elle, occupait
+       une bande claire de 15 px le long du panneau. */
+    .scrollbar-thin-dark {
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+        /* Le doigt garde son inertie et son rebond dans le panneau. */
+        -webkit-overflow-scrolling: touch;
+        /* Le défilement ne se propage pas à la page dès qu'on atteint une
+           extrémité de la liste. */
+        overscroll-behavior: contain;
+    }
+
+    .scrollbar-thin-dark::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+    }
+
+    .scrollbar-thin-dark::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .scrollbar-thin-dark::-webkit-scrollbar-thumb {
+        background: color-mix(in srgb, var(--foreground) 22%, transparent);
+        border-radius: 999px;
+    }
+
+    .scrollbar-thin-dark::-webkit-scrollbar-thumb:hover {
+        background: color-mix(in srgb, var(--foreground) 38%, transparent);
     }
 
     .scrollbar-premium::-webkit-scrollbar {
