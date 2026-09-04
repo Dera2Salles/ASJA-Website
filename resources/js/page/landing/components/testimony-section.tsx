@@ -10,7 +10,7 @@ import safidyImage from '@/assets/Safidy-pic.jpg';
 import sitrakaImage from '@/assets/Sitraka.jpg';
 import { cmsImage, useSection } from '@/lib/cms';
 import { usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { SectionCarousel } from './section-carousel';
 
 interface Testimony {
     id: number;
@@ -34,23 +34,11 @@ const fallbackAvatars: Record<string, string> = {
     'RAJEMISON Suziah Jaida': suziahImage,
 };
 
-const TestimonyCard = ({
-    testimony,
-    index,
-}: {
-    testimony: Testimony;
-    index: number;
-}) => {
+const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
     const avatar = cmsImage(testimony.avatar, fallbackAvatars[testimony.name]);
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.55, delay: index * 0.1, ease: 'easeOut' }}
-            className="relative flex min-h-[420px] items-end overflow-hidden rounded-[22px] p-[30px]"
-        >
+        <div className="relative flex h-full min-h-[420px] items-end overflow-hidden rounded-[22px] p-[30px]">
             {/* Photo de fond */}
             {avatar ? (
                 <img
@@ -82,7 +70,7 @@ const TestimonyCard = ({
                     {testimony.role ? ` · ${testimony.role}` : ''}
                 </p>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
@@ -96,34 +84,32 @@ export const TestimonySection = () => {
 
     if (list.length === 0) return null;
 
-    // On affiche jusqu'à 3 témoignages (grille 3 colonnes du design)
-    const displayed = list.slice(0, 3);
-
     return (
         <section id="voix" className="py-[104px]">
             <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
-                {/* Titre en noir (couleur text-foreground car le fond de cette section est blanc) */}
-                <h2
-                    className="font-display text-foreground m-0 mb-10 font-black text-black uppercase"
-                    style={{
-                        fontSize: '56px',
-                        lineHeight: 1,
-                        letterSpacing: '-0.04em',
-                    }}
-                >
-                    {String(content.title || 'Les voix du campus')}ssd
-                </h2>
-
-                {/* Grille 3 colonnes */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {displayed.map((testimony, index) => (
-                        <TestimonyCard
-                            key={testimony.id}
-                            testimony={testimony}
-                            index={index}
-                        />
-                    ))}
-                </div>
+                {/* Carrousel : la grille ne montrait que les trois premiers
+                    témoignages, tous sont désormais atteignables. */}
+                <SectionCarousel
+                    items={list}
+                    getKey={(testimony) => testimony.id}
+                    label="Témoignages"
+                    itemLabel="témoignage"
+                    heading={
+                        <h2
+                            className="font-display text-foreground m-0 font-black uppercase"
+                            style={{
+                                fontSize: 'clamp(38px, 5vw, 56px)',
+                                lineHeight: 1,
+                                letterSpacing: '-0.04em',
+                            }}
+                        >
+                            {String(content.title || 'Les voix du campus')}
+                        </h2>
+                    }
+                    renderItem={(testimony) => (
+                        <TestimonyCard testimony={testimony} />
+                    )}
+                />
             </div>
         </section>
     );

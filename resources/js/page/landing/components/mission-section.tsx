@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 
 export const MissionSection = () => {
     return (
-        <section id="campus" className="bg-[#f2f5f3] text-[#0e1411] py-[104px]">
+        <section id="campus" className="band-light py-[104px]">
             <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
                 
                 {/* Stats grid */}

@@ -288,8 +288,19 @@
 
     /* Bandes noir/blanc fixes pour l'alternance des sections : indépendantes
        du bascule clair/sombre, elles portent leur propre jeu de rôles
-       sémantiques pour que bg-card, text-muted-foreground, border-foreground
-       etc. restent corrects à l'intérieur. */
+       sémantiques pour que bg-card, text-muted-foreground, border-border
+       etc. restent corrects à l'intérieur.
+
+       Les deux jeux de variables sont indispensables. Tailwind v4 déclare
+       `--color-foreground: var(--foreground)` sur `:root`, et la classe
+       `.dark` vit sur ce même `<html>` : `--color-foreground` y est donc
+       *calculée* une fois pour toutes sur la valeur sombre, puis héritée
+       telle quelle. Redéfinir `--foreground` plus bas dans l'arbre n'y
+       change alors plus rien — c'est ce qui laissait les titres blancs des
+       sections claires sur un aplat blanc. Chaque bande réaffirme donc les
+       alias `--color-*` en plus des rôles, ce qui force `text-foreground`,
+       `bg-card`, `border-border`, `text-primary`... à se recalculer dans le
+       contexte de la bande. */
     .band-dark {
         --background: #0e1411;
         --foreground: #f2f5f3;
@@ -304,6 +315,30 @@
         --primary: var(--color-asja-bright);
         --primary-foreground: #0e1411;
         --border: #23302a;
+        --secondary: #1f2b24;
+        --secondary-foreground: #f2f5f3;
+        --input: #2b3a33;
+        --ring: var(--color-asja-bright);
+
+        /* Réaffirmation des alias Tailwind : voir la note ci-dessus. */
+        --color-background: var(--background);
+        --color-foreground: var(--foreground);
+        --color-card: var(--card);
+        --color-card-foreground: var(--card-foreground);
+        --color-popover: var(--popover);
+        --color-popover-foreground: var(--popover-foreground);
+        --color-primary: var(--primary);
+        --color-primary-foreground: var(--primary-foreground);
+        --color-secondary: var(--secondary);
+        --color-secondary-foreground: var(--secondary-foreground);
+        --color-muted: var(--muted);
+        --color-muted-foreground: var(--muted-foreground);
+        --color-accent: var(--accent);
+        --color-accent-foreground: var(--accent-foreground);
+        --color-border: var(--border);
+        --color-input: var(--input);
+        --color-ring: var(--ring);
+
         background: var(--background);
         color: var(--foreground);
     }
@@ -322,6 +357,30 @@
         --primary: var(--color-asja);
         --primary-foreground: #ffffff;
         --border: #c8d0cc;
+        --secondary: #e6ece9;
+        --secondary-foreground: #0e1411;
+        --input: #9aa09c;
+        --ring: var(--color-asja);
+
+        /* Réaffirmation des alias Tailwind : voir la note ci-dessus. */
+        --color-background: var(--background);
+        --color-foreground: var(--foreground);
+        --color-card: var(--card);
+        --color-card-foreground: var(--card-foreground);
+        --color-popover: var(--popover);
+        --color-popover-foreground: var(--popover-foreground);
+        --color-primary: var(--primary);
+        --color-primary-foreground: var(--primary-foreground);
+        --color-secondary: var(--secondary);
+        --color-secondary-foreground: var(--secondary-foreground);
+        --color-muted: var(--muted);
+        --color-muted-foreground: var(--muted-foreground);
+        --color-accent: var(--accent);
+        --color-accent-foreground: var(--accent-foreground);
+        --color-border: var(--border);
+        --color-input: var(--input);
+        --color-ring: var(--ring);
+
         background: var(--background);
         color: var(--foreground);
     }

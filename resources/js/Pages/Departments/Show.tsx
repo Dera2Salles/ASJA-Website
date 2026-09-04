@@ -4,6 +4,7 @@ import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Briefcase, GraduationCap } from 'lucide-react';
 import { useState } from 'react';
+import { BandTransition } from '../../page/landing/components/band-transition';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
 import { useThemeContext } from '../../page/theme/useThemeContext';
@@ -76,7 +77,7 @@ const Hero = ({ department }: { department: Department }) => {
                             transition={{ duration: 0.6 }}
                             src={logo}
                             alt=""
-                            className="h-16 w-16 object-contain rounded-xl"
+                            className="h-16 w-16 rounded-xl object-contain"
                         />
                     ) : null}
 
@@ -93,7 +94,7 @@ const Hero = ({ department }: { department: Department }) => {
                         initial={{ opacity: 0, y: 24 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.1 }}
-                        className="font-display max-w-4xl font-black text-white uppercase leading-[0.95] tracking-[-0.04em]"
+                        className="font-display max-w-4xl leading-[0.95] font-black tracking-[-0.04em] text-white uppercase"
                         style={{ fontSize: 'clamp(42px, 6vw, 72px)' }}
                     >
                         {department.name}
@@ -104,7 +105,7 @@ const Hero = ({ department }: { department: Department }) => {
                             initial={{ opacity: 0, y: 24 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.2 }}
-                            className="max-w-2xl text-lg leading-relaxed mt-4"
+                            className="mt-4 max-w-2xl text-lg leading-relaxed"
                             style={{ color: '#c3cec8' }}
                         >
                             {department.description}
@@ -125,14 +126,14 @@ const DetailBlock = ({
     title: string;
     body: string;
 }) => (
-    <div className="bg-card rounded-[22px] p-8 border border-border">
+    <div className="bg-card border-border rounded-[22px] border p-8">
         <div className="mb-4 flex items-center gap-2.5">
             <span className="text-primary">{icon}</span>
-            <h4 className="font-sans text-xs font-bold tracking-[0.16em] uppercase text-muted-foreground">
+            <h4 className="text-muted-foreground font-sans text-xs font-bold tracking-[0.16em] uppercase">
                 {title}
             </h4>
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+        <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line">
             {body}
         </p>
     </div>
@@ -144,13 +145,12 @@ const Programs = ({ programs }: { programs: Program[] }) => {
     const active = programs.find((p) => p.id === activeId) ?? programs[0];
 
     return (
-        <section id="parcours" className="band-dark py-[104px]">
+        <section id="parcours" className="band-light py-[104px]">
             <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
-                
                 {/* En-tête de section */}
                 <div className="mb-12">
                     <h2
-                        className="font-display font-black uppercase text-foreground"
+                        className="font-display text-foreground font-black uppercase"
                         style={{
                             fontSize: 'clamp(40px, 4vw, 56px)',
                             lineHeight: 1,
@@ -159,8 +159,9 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                     >
                         Nos parcours
                     </h2>
-                    <p className="mt-4 text-base leading-relaxed text-muted-foreground max-w-2xl">
-                        Chaque parcours mène à des compétences et des débouchés qui lui sont propres.
+                    <p className="text-muted-foreground mt-4 max-w-2xl text-base leading-relaxed">
+                        Chaque parcours mène à des compétences et des débouchés
+                        qui lui sont propres.
                     </p>
                 </div>
 
@@ -177,7 +178,7 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                                         className={`shrink-0 rounded-full px-6 py-3.5 text-left text-sm font-bold transition-all lg:w-full lg:rounded-xl lg:px-5 lg:py-4 ${
                                             isActive
                                                 ? 'bg-primary text-primary-foreground'
-                                                : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border'
+                                                : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border-border border'
                                         }`}
                                     >
                                         {program.title}
@@ -194,7 +195,7 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                         transition={{ duration: 0.3 }}
                         className="lg:col-span-8"
                     >
-                        <h3 className="font-display font-bold text-3xl mb-4 text-foreground">
+                        <h3 className="font-display text-foreground mb-4 text-3xl font-bold">
                             {active.title}
                         </h3>
 
@@ -239,25 +240,38 @@ export default function DepartmentShow({ department, cms }: Props) {
                     <main className="flex-1">
                         <Hero department={department} />
 
+                        {/* Le bandeau d'ouverture reste noir ; la page se
+                            découvre en blanc au fil du scroll, comme la
+                            landing passe de son hero sombre au campus clair. */}
+                        <BandTransition direction="dark-to-light" />
+
                         {department.programs.length > 0 ? (
                             <Programs programs={department.programs} />
                         ) : null}
 
                         {/* CTA final */}
-                        <section className="band-dark pb-[104px]" style={{ borderTop: '1px solid var(--border)' }}>
-                            <div className="mx-auto w-full px-9 pt-[80px]" style={{ maxWidth: '1320px' }}>
-                                <div className="bg-[#35cf7f] text-[#0e1411] rounded-[28px] py-[72px] px-[56px] text-center">
-                                    <h2 className="font-display font-black uppercase text-[clamp(36px,5vw,56px)] leading-[0.98] tracking-[-0.04em] m-0">
+                        <section
+                            className="band-light pb-[104px]"
+                            style={{ borderTop: '1px solid var(--border)' }}
+                        >
+                            <div
+                                className="mx-auto w-full px-9 pt-[80px]"
+                                style={{ maxWidth: '1320px' }}
+                            >
+                                <div className="rounded-[28px] bg-[#35cf7f] px-[56px] py-[72px] text-center text-[#0e1411]">
+                                    <h2 className="font-display m-0 text-[clamp(36px,5vw,56px)] leading-[0.98] font-black tracking-[-0.04em] uppercase">
                                         Intéressé par cette mention ?
                                     </h2>
-                                    <p className="mt-5 mx-auto max-w-[620px] text-lg leading-[1.58] font-medium text-[#0e1411]/90">
-                                        Contactez-nous pour tout savoir sur les modalités d'inscription et de candidature.
+                                    <p className="mx-auto mt-5 max-w-[620px] text-lg leading-[1.58] font-medium text-[#0e1411]/90">
+                                        Contactez-nous pour tout savoir sur les
+                                        modalités d'inscription et de
+                                        candidature.
                                     </p>
 
-                                    <div className="mt-9 flex justify-center gap-3.5 flex-wrap">
+                                    <div className="mt-9 flex flex-wrap justify-center gap-3.5">
                                         <Link
                                             href="/#contact"
-                                            className="px-[34px] py-[17px] rounded-full bg-[#0e1411] text-white text-[15px] font-bold transition-colors hover:bg-white hover:text-[#0e1411] inline-flex items-center gap-2"
+                                            className="inline-flex items-center gap-2 rounded-full bg-[#0e1411] px-[34px] py-[17px] text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#0e1411]"
                                         >
                                             Nous contacter
                                             <ArrowRight className="h-4 w-4" />
@@ -265,7 +279,7 @@ export default function DepartmentShow({ department, cms }: Props) {
 
                                         <Link
                                             href="/#filiere"
-                                            className="px-[32px] py-[17px] rounded-full border border-[#0e1411]/35 text-[#0e1411] text-[15px] font-semibold hover:bg-[#0e1411]/10"
+                                            className="rounded-full border border-[#0e1411]/35 px-[32px] py-[17px] text-[15px] font-semibold text-[#0e1411] hover:bg-[#0e1411]/10"
                                         >
                                             Voir les autres mentions
                                         </Link>
@@ -274,6 +288,9 @@ export default function DepartmentShow({ department, cms }: Props) {
                             </div>
                         </section>
                     </main>
+
+                    {/* Retour au noir pour rejoindre le pied de page. */}
+                    <BandTransition direction="light-to-dark" />
 
                     <Footer />
                 </div>
