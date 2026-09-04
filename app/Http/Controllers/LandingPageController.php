@@ -26,7 +26,9 @@ class LandingPageController extends Controller
                 ->get(['id', 'slug', 'name', 'logo']),
 
             'posts' => Post::published()->ofType(Post::TYPE_ARTICLE)->take(6)->get($postColumns),
-            'events' => Post::published()->ofType(Post::TYPE_EVENEMENT)->take(4)->get($postColumns),
+            // Le carrousel « Ça bouge » parcourt la totalité de la liste : le
+            // plafond n'existe plus que pour borner le poids de la réponse.
+            'events' => Post::published()->ofType(Post::TYPE_EVENEMENT)->take(24)->get($postColumns),
             'announcements' => Post::published()->ofType(Post::TYPE_ANNONCE)->take(3)->get($postColumns),
         ]);
     }

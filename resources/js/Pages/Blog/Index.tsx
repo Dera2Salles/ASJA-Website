@@ -10,6 +10,7 @@ import {
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { ArrowRight, CalendarDays, MapPin, Pin } from 'lucide-react';
+import { BandTransition } from '../../page/landing/components/band-transition';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
@@ -69,14 +70,14 @@ const PostCard = ({
         >
             <Link
                 href={`/actualites/${post.slug}`}
-                className={`group flex h-full overflow-hidden rounded-[22px] border border-border bg-card transition-colors hover:bg-accent ${
+                className={`group border-border bg-card hover:bg-accent flex h-full overflow-hidden rounded-[22px] border transition-colors ${
                     featured ? 'flex-col md:flex-row' : 'flex-col'
                 }`}
             >
                 <div
-                    className={`relative overflow-hidden bg-muted ${
+                    className={`bg-muted relative overflow-hidden ${
                         featured
-                            ? 'md:w-1/2 md:shrink-0 aspect-[16/10] md:aspect-auto'
+                            ? 'aspect-[16/10] md:aspect-auto md:w-1/2 md:shrink-0'
                             : 'aspect-[16/10]'
                     }`}
                 >
@@ -88,7 +89,7 @@ const PostCard = ({
                         />
                     ) : null}
 
-                    <span className="absolute top-4 left-4 rounded-full bg-primary px-3 py-1 text-[10px] font-bold uppercase text-primary-foreground tracking-wider">
+                    <span className="bg-primary text-primary-foreground absolute top-4 left-4 rounded-full px-3 py-1 text-[10px] font-bold tracking-wider uppercase">
                         {POST_TYPE_LABELS[post.type] ?? 'Publication'}
                     </span>
                 </div>
@@ -96,9 +97,9 @@ const PostCard = ({
                 <div
                     className={`flex flex-1 flex-col p-7 ${featured ? 'md:p-9' : ''}`}
                 >
-                    <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold text-muted-foreground">
+                    <div className="text-muted-foreground mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold">
                         {post.is_pinned ? (
-                            <span className="inline-flex items-center gap-1 text-primary">
+                            <span className="text-primary inline-flex items-center gap-1">
                                 <Pin className="h-3 w-3" />
                                 Épinglé
                             </span>
@@ -112,12 +113,14 @@ const PostCard = ({
                         ) : null}
 
                         {post.category ? (
-                            <span className="text-primary">{post.category}</span>
+                            <span className="text-primary">
+                                {post.category}
+                            </span>
                         ) : null}
                     </div>
 
                     <h2
-                        className={`font-display font-bold text-foreground transition-colors group-hover:text-primary ${
+                        className={`font-display text-foreground group-hover:text-primary font-bold transition-colors ${
                             featured ? 'text-2xl md:text-3xl' : 'text-xl'
                         }`}
                     >
@@ -126,8 +129,10 @@ const PostCard = ({
 
                     {post.excerpt ? (
                         <p
-                            className={`mt-3 leading-relaxed text-muted-foreground ${
-                                featured ? 'line-clamp-4' : 'line-clamp-3 text-sm'
+                            className={`text-muted-foreground mt-3 leading-relaxed ${
+                                featured
+                                    ? 'line-clamp-4'
+                                    : 'line-clamp-3 text-sm'
                             }`}
                         >
                             {post.excerpt}
@@ -135,13 +140,13 @@ const PostCard = ({
                     ) : null}
 
                     {post.location ? (
-                        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <p className="text-muted-foreground mt-3 inline-flex items-center gap-1.5 text-xs">
                             <MapPin className="h-3.5 w-3.5" />
                             {post.location}
                         </p>
                     ) : null}
 
-                    <span className="mt-auto inline-flex items-center gap-1.5 pt-6 text-xs font-bold uppercase text-primary">
+                    <span className="text-primary mt-auto inline-flex items-center gap-1.5 pt-6 text-xs font-bold uppercase">
                         Lire
                         <ArrowRight className="h-3.5 w-3.5" />
                     </span>
@@ -162,13 +167,15 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
             <Navbar />
 
             <main className="flex-1">
-                <section className="band-dark py-[104px]">
-                    <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
-                        
+                <section className="band-dark pt-[104px] pb-[72px]">
+                    <div
+                        className="mx-auto w-full px-9"
+                        style={{ maxWidth: '1320px' }}
+                    >
                         {/* Header */}
                         <div className="mb-12 text-center">
                             <h1
-                                className="font-display font-black uppercase text-foreground"
+                                className="font-display text-foreground font-black uppercase"
                                 style={{
                                     fontSize: 'clamp(40px, 5vw, 64px)',
                                     lineHeight: 1,
@@ -178,7 +185,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                 {String(blog.title ?? 'Actualités & Annonces')}
                             </h1>
                             {blog.subtitle ? (
-                                <p className="mt-4 text-base leading-relaxed text-muted-foreground mx-auto max-w-2xl">
+                                <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-base leading-relaxed">
                                     {String(blog.subtitle)}
                                 </p>
                             ) : null}
@@ -190,7 +197,8 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                 const isActive = activeType === filter.key;
                                 const count = counts[filter.countKey] ?? 0;
 
-                                if (count === 0 && filter.key !== null) return null;
+                                if (count === 0 && filter.key !== null)
+                                    return null;
 
                                 return (
                                     <Link
@@ -203,7 +211,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                         className={`rounded-full px-5 py-2.5 text-xs font-bold tracking-wide uppercase transition-colors ${
                                             isActive
                                                 ? 'bg-primary text-primary-foreground'
-                                                : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border'
+                                                : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border-border border'
                                         }`}
                                     >
                                         {filter.label}
@@ -214,14 +222,26 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                 );
                             })}
                         </div>
+                    </div>
+                </section>
 
+                {/* Le titre et les filtres tiennent l'aplat noir ; la liste se
+                    lit ensuite en blanc, le passage se faisant au scroll. */}
+                <BandTransition direction="dark-to-light" />
+
+                <section className="band-light pb-[104px]">
+                    <div
+                        className="mx-auto w-full px-9"
+                        style={{ maxWidth: '1320px' }}
+                    >
                         {posts.data.length === 0 ? (
-                            <div className="rounded-[22px] border border-border border-dashed py-24 text-center">
+                            <div className="border-border rounded-[22px] border border-dashed py-24 text-center">
                                 <h3 className="text-foreground text-lg font-bold">
                                     Aucune publication
                                 </h3>
                                 <p className="text-muted-foreground mt-2 text-sm">
-                                    Revenez bientôt pour suivre l'actualité de l'ASJA.
+                                    Revenez bientôt pour suivre l'actualité de
+                                    l'ASJA.
                                 </p>
                             </div>
                         ) : (
@@ -247,8 +267,10 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                     (_, i) => i + 1,
                                 ).map((page) => {
                                     const params = new URLSearchParams();
-                                    if (activeType) params.set('type', activeType);
-                                    if (page > 1) params.set('page', String(page));
+                                    if (activeType)
+                                        params.set('type', activeType);
+                                    if (page > 1)
+                                        params.set('page', String(page));
                                     const query = params.toString();
 
                                     return (
@@ -275,6 +297,9 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                     </div>
                 </section>
             </main>
+
+            {/* Retour au noir pour rejoindre le pied de page. */}
+            <BandTransition direction="light-to-dark" />
 
             <Footer />
         </div>

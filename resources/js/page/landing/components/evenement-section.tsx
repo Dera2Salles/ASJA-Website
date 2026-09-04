@@ -1,26 +1,23 @@
 import { useSection } from '@/lib/cms';
 import { formatDate, postImage, type Post } from '@/lib/posts';
 import { Link, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { SectionCarousel } from './section-carousel';
 
-const EventCard = ({ event, index }: { event: Post; index: number }) => {
+const EventCard = ({ event }: { event: Post }) => {
     const image = postImage(event);
     const dateText = formatDate(event.published_at);
 
     return (
-        <motion.article
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.55, delay: index * 0.1, ease: 'easeOut' }}
-            className="flex"
-        >
+        <article className="flex h-full">
             <Link
                 href={`/actualites/${event.slug}`}
-                className="group flex flex-col overflow-hidden rounded-[22px] bg-card hover:bg-accent transition-colors duration-200 w-full"
+                className="group bg-card hover:bg-accent flex w-full flex-col overflow-hidden rounded-[22px] transition-colors duration-200"
             >
                 {image ? (
-                    <div className="relative overflow-hidden" style={{ aspectRatio: '16/10' }}>
+                    <div
+                        className="relative overflow-hidden"
+                        style={{ aspectRatio: '16/10' }}
+                    >
                         <img
                             src={image}
                             alt=""
@@ -31,26 +28,30 @@ const EventCard = ({ event, index }: { event: Post; index: number }) => {
 
                 <div className="flex flex-1 flex-col p-[26px]">
                     {dateText ? (
-                        <p className="m-0 text-[12.5px] font-bold text-primary uppercase tracking-wider">
+                        <p className="text-primary m-0 text-[12.5px] font-bold tracking-wider uppercase">
                             {dateText}
                         </p>
                     ) : null}
 
                     <h3
-                        className="font-display font-bold text-foreground mt-2.5 transition-colors group-hover:text-primary"
-                        style={{ fontSize: '21px', letterSpacing: '-0.015em', lineHeight: '1.2' }}
+                        className="font-display text-foreground group-hover:text-primary mt-2.5 font-bold transition-colors"
+                        style={{
+                            fontSize: '21px',
+                            letterSpacing: '-0.015em',
+                            lineHeight: '1.2',
+                        }}
                     >
                         {event.title}
                     </h3>
 
                     {event.excerpt ? (
-                        <p className="mt-2.5 line-clamp-2 text-[14.5px] leading-[1.6] text-muted-foreground">
+                        <p className="text-muted-foreground mt-2.5 line-clamp-2 text-[14.5px] leading-[1.6]">
                             {event.excerpt}
                         </p>
                     ) : null}
                 </div>
             </Link>
-        </motion.article>
+        </article>
     );
 };
 
@@ -63,38 +64,37 @@ export const EvenementSection = () => {
     if (list.length === 0) return null;
 
     return (
-        <section
-            id="events"
-            className="py-[104px]"
-            style={{ borderTop: '1px solid var(--border)' }}
-        >
+        <section id="events" className="py-[104px]">
             <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
-                {/* En-tête */}
-                <div className="mb-10 flex items-end justify-between gap-10">
-                    <h2
-                        className="font-display font-black uppercase text-foreground m-0"
-                        style={{
-                            fontSize: '48px',
-                            lineHeight: 1,
-                            letterSpacing: '-0.035em',
-                        }}
-                    >
-                        {String(content.title ?? 'Ça bouge')}
-                    </h2>
-                    <Link
-                        href="/actualites"
-                        className="shrink-0 text-sm font-bold text-primary hover:underline"
-                    >
-                        Toutes les actus →
-                    </Link>
-                </div>
-
-                {/* Grille 3 colonnes comme le design */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {list.slice(0, 3).map((event, index) => (
-                        <EventCard key={event.id} event={event} index={index} />
-                    ))}
-                </div>
+                {/* Carrousel : la grille s'arrêtait aux trois premiers
+                    événements, tous sont désormais atteignables. */}
+                <SectionCarousel
+                    items={list}
+                    getKey={(event) => event.id}
+                    label="Événements"
+                    itemLabel="événement"
+                    heading={
+                        <h2
+                            className="font-display text-foreground m-0 font-black uppercase"
+                            style={{
+                                fontSize: 'clamp(34px, 4.2vw, 48px)',
+                                lineHeight: 1,
+                                letterSpacing: '-0.035em',
+                            }}
+                        >
+                            {String(content.title ?? 'Ça bouge')}
+                        </h2>
+                    }
+                    action={
+                        <Link
+                            href="/actualites"
+                            className="text-primary shrink-0 text-sm font-bold hover:underline"
+                        >
+                            Toutes les actus →
+                        </Link>
+                    }
+                    renderItem={(event) => <EventCard event={event} />}
+                />
             </div>
         </section>
     );
