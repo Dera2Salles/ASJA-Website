@@ -274,6 +274,28 @@
         @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
     }
 
+    /* Gouttière et largeur communes à toutes les sections de la landing.
+       Elles étaient recopiées à la main (`px-9` + `maxWidth: 1320px` en style
+       inline) dans une douzaine de fichiers : la gouttière de 36 px ne bougeait
+       donc pas sur téléphone, où elle mangeait un cinquième de l'écran et
+       écrasait titres et cartes. Ici, elle s'ouvre par palier. */
+    .section-shell {
+        @apply mx-auto w-full max-w-[1320px] px-6 sm:px-8 lg:px-9;
+    }
+
+    /* Rythme vertical correspondant. Les 104 px du dessin d'origine sont
+       conservés à partir de `lg` ; en dessous, ils laissaient trop peu de
+       contenu à l'écran d'un téléphone entre deux respirations. */
+    .section-rhythm {
+        @apply py-16 sm:py-20 lg:py-[104px];
+    }
+
+    /* Cible tactile minimale (44 px, seuil WCAG 2.5.8 / iOS) pour les boutons
+       qui, au repos, seraient plus bas que ça. */
+    .tap-target {
+        @apply min-h-[46px] sm:min-h-0;
+    }
+
     /* Sur-titre en capitales qui coiffe les titres de section. */
     .eyebrow {
         @apply text-primary font-sans text-xs font-bold tracking-[0.18em] uppercase;

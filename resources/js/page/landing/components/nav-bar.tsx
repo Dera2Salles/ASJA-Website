@@ -77,10 +77,7 @@ export const Navbar = () => {
                     WebkitBackdropFilter: 'blur(14px)',
                 }}
             >
-                <div
-                    className="mx-auto flex items-center justify-between gap-9 py-4"
-                    style={{ maxWidth: '1320px', padding: '16px 36px' }}
-                >
+                <div className="section-shell flex items-center justify-between gap-4 py-3 sm:gap-9 sm:py-4">
                     {/* Logo */}
                     <InertiaLink
                         href="/"
@@ -90,7 +87,7 @@ export const Navbar = () => {
                         <img
                             src={Logo}
                             alt=""
-                            className="h-[42px] w-[42px] rounded-[10px] object-contain"
+                            className="h-10 w-10 rounded-[10px] object-contain sm:h-[42px] sm:w-[42px]"
                         />
                         <span className="font-display text-foreground hidden text-[19px] font-black tracking-[-0.02em] uppercase sm:block">
                             Université ASJA
@@ -121,7 +118,7 @@ export const Navbar = () => {
 
                         <button
                             onClick={() => setOpen(true)}
-                            className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-full border p-2.5 lg:hidden"
+                            className="border-border text-foreground hover:border-primary hover:text-primary flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border lg:hidden"
                             aria-label="Ouvrir le menu"
                         >
                             <MenuIcon size={20} />
@@ -257,13 +254,13 @@ const MobileNav = ({
                     <button
                         onClick={close}
                         aria-label="Fermer le menu"
-                        className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-full border p-2"
+                        className="border-border text-foreground hover:border-primary hover:text-primary flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
-                <div className="flex-1 space-y-6 overflow-y-auto p-4">
+                <div className="flex-1 space-y-7 overflow-y-auto p-5">
                     <NavSection title={translate('navBar.accueil')}>
                         {homeSections.map((item) =>
                             isHomePage ? (
@@ -276,7 +273,7 @@ const MobileNav = ({
                                     duration={500}
                                     onClick={close}
                                     activeClass="text-primary font-bold"
-                                    className="text-muted-foreground hover:text-foreground block cursor-pointer py-2 text-sm"
+                                    className="text-muted-foreground hover:text-foreground flex min-h-[44px] cursor-pointer items-center text-sm"
                                 >
                                     {translate(item.key)}
                                 </ScrollTo>
@@ -285,7 +282,7 @@ const MobileNav = ({
                                     key={item.to}
                                     href={`/#${item.to}`}
                                     onClick={close}
-                                    className="text-muted-foreground hover:text-foreground block py-2 text-sm"
+                                    className="text-muted-foreground hover:text-foreground flex min-h-[44px] items-center text-sm"
                                 >
                                     {translate(item.key)}
                                 </InertiaLink>
@@ -299,7 +296,7 @@ const MobileNav = ({
                                 key={dept.id}
                                 href={`/mention/${dept.slug}`}
                                 onClick={close}
-                                className="text-muted-foreground hover:text-foreground block py-2 text-sm"
+                                className="text-muted-foreground hover:text-foreground flex min-h-[44px] items-center text-sm"
                             >
                                 {dept.name}
                             </InertiaLink>
@@ -310,7 +307,7 @@ const MobileNav = ({
                         <InertiaLink
                             href="/actualites"
                             onClick={close}
-                            className="text-foreground block py-2 text-sm font-bold uppercase"
+                            className="text-foreground flex min-h-[44px] items-center text-sm font-bold uppercase"
                         >
                             {translate('navBar.blog')}
                         </InertiaLink>
@@ -318,18 +315,18 @@ const MobileNav = ({
                         <InertiaLink
                             href={isHomePage ? '#contact' : '/#contact'}
                             onClick={close}
-                            className="text-foreground block py-2 text-sm font-bold uppercase"
+                            className="text-foreground flex min-h-[44px] items-center text-sm font-bold uppercase"
                         >
                             {translate('navBar.contact')}
                         </InertiaLink>
                     </div>
                 </div>
 
-                <div className="border-border space-y-3 border-t p-4">
+                <div className="border-border space-y-3 border-t p-5">
                     <InertiaLink
                         href="/login"
                         onClick={close}
-                        className="border-border text-foreground flex w-full items-center justify-center gap-2 rounded-full border px-4 py-3 text-xs font-semibold uppercase"
+                        className="border-border text-foreground flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase"
                     >
                         <LogIn size={14} />
                         Espace étudiant
@@ -337,7 +334,7 @@ const MobileNav = ({
                     <InertiaLink
                         href="/login"
                         onClick={close}
-                        className="bg-primary text-primary-foreground flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-xs font-bold uppercase hover:bg-white hover:text-black"
+                        className="bg-primary text-primary-foreground flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-4 text-xs font-bold uppercase hover:bg-white hover:text-black"
                     >
                         Je candidate
                     </InertiaLink>

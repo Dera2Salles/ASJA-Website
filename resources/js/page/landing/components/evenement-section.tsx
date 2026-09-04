@@ -26,7 +26,7 @@ const EventCard = ({ event }: { event: Post }) => {
                     </div>
                 ) : null}
 
-                <div className="flex flex-1 flex-col p-[26px]">
+                <div className="flex flex-1 flex-col p-5 sm:p-[26px]">
                     {dateText ? (
                         <p className="text-primary m-0 text-[12.5px] font-bold tracking-wider uppercase">
                             {dateText}
@@ -36,7 +36,7 @@ const EventCard = ({ event }: { event: Post }) => {
                     <h3
                         className="font-display text-foreground group-hover:text-primary mt-2.5 font-bold transition-colors"
                         style={{
-                            fontSize: '21px',
+                            fontSize: 'clamp(19px, 5vw, 21px)',
                             letterSpacing: '-0.015em',
                             lineHeight: '1.2',
                         }}
@@ -64,8 +64,8 @@ export const EvenementSection = () => {
     if (list.length === 0) return null;
 
     return (
-        <section id="events" className="py-[104px]">
-            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+        <section id="events" className="section-rhythm">
+            <div className="section-shell">
                 {/* Carrousel : la grille s'arrêtait aux trois premiers
                     événements, tous sont désormais atteignables. */}
                 <SectionCarousel
@@ -77,7 +77,7 @@ export const EvenementSection = () => {
                         <h2
                             className="font-display text-foreground m-0 font-black uppercase"
                             style={{
-                                fontSize: 'clamp(34px, 4.2vw, 48px)',
+                                fontSize: 'clamp(30px, 7vw, 48px)',
                                 lineHeight: 1,
                                 letterSpacing: '-0.035em',
                             }}
@@ -88,7 +88,7 @@ export const EvenementSection = () => {
                     action={
                         <Link
                             href="/actualites"
-                            className="text-primary shrink-0 text-sm font-bold hover:underline"
+                            className="text-primary tap-target inline-flex shrink-0 items-center text-sm font-bold hover:underline"
                         >
                             Toutes les actus →
                         </Link>
