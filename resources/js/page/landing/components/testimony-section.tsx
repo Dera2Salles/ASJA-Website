@@ -38,7 +38,7 @@ const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
     const avatar = cmsImage(testimony.avatar, fallbackAvatars[testimony.name]);
 
     return (
-        <div className="relative flex h-full min-h-[420px] items-end overflow-hidden rounded-[22px] p-[30px]">
+        <div className="relative flex h-full min-h-[360px] items-end overflow-hidden rounded-[22px] p-6 sm:min-h-[420px] sm:p-[30px]">
             {/* Photo de fond */}
             {avatar ? (
                 <img
@@ -62,7 +62,7 @@ const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
 
             {/* Contenu */}
             <div className="relative z-10">
-                <p className="m-0 text-[16.5px] leading-[1.56] font-medium text-white">
+                <p className="m-0 text-[15.5px] leading-[1.55] font-medium text-white sm:text-[16.5px]">
                     «&nbsp;{testimony.content}&nbsp;»
                 </p>
                 <p className="m-0 mt-4 text-sm font-bold text-[#35cf7f]">
@@ -85,8 +85,8 @@ export const TestimonySection = () => {
     if (list.length === 0) return null;
 
     return (
-        <section id="voix" className="py-[104px]">
-            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+        <section id="voix" className="section-rhythm">
+            <div className="section-shell">
                 {/* Carrousel : la grille ne montrait que les trois premiers
                     témoignages, tous sont désormais atteignables. */}
                 <SectionCarousel
@@ -98,7 +98,7 @@ export const TestimonySection = () => {
                         <h2
                             className="font-display text-foreground m-0 font-black uppercase"
                             style={{
-                                fontSize: 'clamp(38px, 5vw, 56px)',
+                                fontSize: 'clamp(32px, 7.6vw, 56px)',
                                 lineHeight: 1,
                                 letterSpacing: '-0.04em',
                             }}

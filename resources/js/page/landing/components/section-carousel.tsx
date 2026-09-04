@@ -27,7 +27,13 @@ export interface SectionCarouselProps<T> {
     label: string;
     /** Terme employé dans les libellés de diapositive (« témoignage », « événement »). */
     itemLabel: string;
-    /** Largeur des diapositives : 1 / 2 / 3 colonnes par défaut, comme les grilles. */
+    /**
+     * Largeur des diapositives. Par défaut 2 colonnes en tablette et 3 en
+     * bureau, comme les grilles d'origine — mais 82 % sur téléphone, et non
+     * 100 % : la carte suivante dépasse alors d'une quinzaine de pour cent au
+     * bord droit, seul indice fiable qu'il reste quelque chose à faire défiler.
+     * Une carte pleine largeur, elle, se lit comme une image isolée.
+     */
     slideClassName?: string;
 }
 
@@ -51,7 +57,7 @@ export function SectionCarousel<T>({
     action,
     label,
     itemLabel,
-    slideClassName = 'basis-full sm:basis-1/2 lg:basis-1/3',
+    slideClassName = 'basis-[82%] sm:basis-1/2 lg:basis-1/3',
 }: SectionCarouselProps<T>) {
     const reduceMotion = useReducedMotion();
     const trackId = useId();
@@ -116,20 +122,25 @@ export function SectionCarousel<T>({
         [scrollPrev, scrollNext],
     );
 
+    // 48 px au doigt, 44 px à la souris : au-dessous, la flèche devient
+    // difficile à viser au pouce.
     const arrowClass =
-        'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-transparent text-foreground disabled:pointer-events-none disabled:opacity-30 hover:bg-primary hover:border-primary hover:text-primary-foreground';
+        'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-transparent text-foreground sm:h-11 sm:w-11 disabled:pointer-events-none disabled:opacity-30 hover:bg-primary hover:border-primary hover:text-primary-foreground';
 
     return (
         <div ref={sectionRef}>
             {/* En-tête : titre à gauche, lien puis flèches à droite — la même
-                répartition que les en-têtes de section existants. */}
-            <div className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
+                répartition que les en-têtes de section existants. Sur
+                téléphone, le titre prend sa ligne et la barre de commandes
+                s'étale en dessous, lien à gauche et flèches à droite, plutôt
+                que de tasser les trois éléments dans un coin. */}
+            <div className="mb-8 flex flex-col gap-5 sm:mb-10 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
                 {heading}
 
-                <div className="flex shrink-0 items-center gap-5">
+                <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-start">
                     {action}
 
-                    <div className="flex items-center gap-2.5">
+                    <div className="ml-auto flex items-center gap-3 sm:ml-0 sm:gap-2.5">
                         <button
                             type="button"
                             onClick={scrollPrev}
@@ -169,14 +180,17 @@ export function SectionCarousel<T>({
                 // clavier, elle doit garder l'anneau de focus vert du site.
                 className="overflow-hidden"
             >
-                <div className="-ml-4 flex touch-pan-y">
+                {/* `touch-pan-y` laisse le doigt faire défiler la page
+                    verticalement : seul le geste horizontal revient au
+                    carrousel. */}
+                <div className="-ml-3 flex touch-pan-y sm:-ml-4">
                     {items.map((item, index) => (
                         <div
                             key={getKey(item, index)}
                             role="group"
                             aria-roledescription="diapositive"
                             aria-label={`${itemLabel} ${index + 1} sur ${items.length}`}
-                            className={`min-w-0 shrink-0 grow-0 pl-4 ${slideClassName}`}
+                            className={`min-w-0 shrink-0 grow-0 pl-3 sm:pl-4 ${slideClassName}`}
                         >
                             <motion.div
                                 initial={
@@ -205,33 +219,41 @@ export function SectionCarousel<T>({
             {/* Pastilles de position — une par point d'arrêt, donc masquées
                 quand tout tient déjà dans le cadre. */}
             {snaps.length > 1 ? (
-                <div className="mt-9 flex flex-wrap items-center justify-center gap-2">
+                <div className="mt-8 flex flex-wrap items-center justify-center gap-0.5 sm:mt-9">
                     {snaps.map((_, index) => {
                         const isActive = index === selected;
 
                         return (
+                            // La pastille visible ne fait que 8 px de haut ; le
+                            // bouton qui la porte en fait 36, sans quoi elle
+                            // serait invisée au pouce.
                             <button
                                 key={index}
                                 type="button"
                                 onClick={() => embla?.scrollTo(index)}
                                 aria-label={`Aller à la position ${index + 1}`}
                                 aria-current={isActive ? 'true' : undefined}
-                                className={`h-2 rounded-full ${
-                                    isActive
-                                        ? 'bg-primary'
-                                        : 'bg-foreground/20 hover:bg-foreground/45'
-                                }`}
-                                // La feuille de base coupe les transitions sur
-                                // les boutons ; on la rétablit ici seulement,
-                                // pour que la pastille active s'étire au lieu
-                                // de sauter d'une largeur à l'autre.
-                                style={{
-                                    width: isActive ? 30 : 8,
-                                    transition: reduceMotion
-                                        ? 'none'
-                                        : 'width 340ms cubic-bezier(0.22, 1, 0.36, 1), background-color 240ms ease-out',
-                                }}
-                            />
+                                className="flex h-9 min-w-[26px] items-center justify-center px-1"
+                            >
+                                <span
+                                    className={`block h-2 rounded-full ${
+                                        isActive
+                                            ? 'bg-primary'
+                                            : 'bg-foreground/20'
+                                    }`}
+                                    // La feuille de base coupe les transitions
+                                    // sur les boutons ; on la rétablit ici
+                                    // seulement, pour que la pastille active
+                                    // s'étire au lieu de sauter d'une largeur
+                                    // à l'autre.
+                                    style={{
+                                        width: isActive ? 30 : 8,
+                                        transition: reduceMotion
+                                            ? 'none'
+                                            : 'width 340ms cubic-bezier(0.22, 1, 0.36, 1), background-color 240ms ease-out',
+                                    }}
+                                />
+                            </button>
                         );
                     })}
                 </div>

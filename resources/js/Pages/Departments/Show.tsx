@@ -65,10 +65,7 @@ const Hero = ({ department }: { department: Department }) => {
                 }}
             />
 
-            <div
-                className="relative mx-auto w-full"
-                style={{ maxWidth: '1320px', padding: '0 36px 56px' }}
-            >
+            <div className="section-shell relative pb-12 sm:pb-14 lg:pb-[56px]">
                 <div className="flex flex-col items-start gap-4">
                     {logo ? (
                         <motion.img
@@ -77,7 +74,7 @@ const Hero = ({ department }: { department: Department }) => {
                             transition={{ duration: 0.6 }}
                             src={logo}
                             alt=""
-                            className="h-16 w-16 rounded-xl object-contain"
+                            className="h-14 w-14 rounded-xl object-contain sm:h-16 sm:w-16"
                         />
                     ) : null}
 
@@ -95,7 +92,7 @@ const Hero = ({ department }: { department: Department }) => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7, delay: 0.1 }}
                         className="font-display max-w-4xl leading-[0.95] font-black tracking-[-0.04em] text-white uppercase"
-                        style={{ fontSize: 'clamp(42px, 6vw, 72px)' }}
+                        style={{ fontSize: 'clamp(32px, 8.4vw, 72px)' }}
                     >
                         {department.name}
                     </motion.h1>
@@ -105,7 +102,7 @@ const Hero = ({ department }: { department: Department }) => {
                             initial={{ opacity: 0, y: 24 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.7, delay: 0.2 }}
-                            className="mt-4 max-w-2xl text-lg leading-relaxed"
+                            className="mt-4 max-w-2xl text-base leading-relaxed sm:text-lg"
                             style={{ color: '#c3cec8' }}
                         >
                             {department.description}
@@ -126,7 +123,7 @@ const DetailBlock = ({
     title: string;
     body: string;
 }) => (
-    <div className="bg-card border-border rounded-[22px] border p-8">
+    <div className="bg-card border-border rounded-[22px] border p-6 sm:p-8">
         <div className="mb-4 flex items-center gap-2.5">
             <span className="text-primary">{icon}</span>
             <h4 className="text-muted-foreground font-sans text-xs font-bold tracking-[0.16em] uppercase">
@@ -145,29 +142,32 @@ const Programs = ({ programs }: { programs: Program[] }) => {
     const active = programs.find((p) => p.id === activeId) ?? programs[0];
 
     return (
-        <section id="parcours" className="band-light py-[104px]">
-            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
+        <section id="parcours" className="band-light section-rhythm">
+            <div className="section-shell">
                 {/* En-tête de section */}
-                <div className="mb-12">
+                <div className="mb-10 sm:mb-12">
                     <h2
                         className="font-display text-foreground font-black uppercase"
                         style={{
-                            fontSize: 'clamp(40px, 4vw, 56px)',
-                            lineHeight: 1,
+                            fontSize: 'clamp(30px, 7.4vw, 56px)',
+                            lineHeight: 1.02,
                             letterSpacing: '-0.04em',
                         }}
                     >
                         Nos parcours
                     </h2>
-                    <p className="text-muted-foreground mt-4 max-w-2xl text-base leading-relaxed">
+                    <p className="text-muted-foreground mt-4 max-w-2xl text-[15px] leading-relaxed sm:text-base">
                         Chaque parcours mène à des compétences et des débouchés
                         qui lui sont propres.
                     </p>
                 </div>
 
-                <div className="grid gap-8 lg:grid-cols-12">
+                <div className="grid gap-7 sm:gap-8 lg:grid-cols-12">
                     <nav className="lg:col-span-4">
-                        <div className="flex gap-2 overflow-x-auto pb-2 lg:flex-col lg:gap-2 lg:overflow-visible lg:pb-0">
+                        {/* La rangée de parcours déborde jusqu'aux bords de
+                            l'écran : un onglet coupé au bord signale qu'il y
+                            en a d'autres à faire défiler. */}
+                        <div className="-mx-6 flex snap-x gap-2 overflow-x-auto px-6 pb-2 sm:-mx-8 sm:px-8 lg:mx-0 lg:flex-col lg:gap-2 lg:overflow-visible lg:px-0 lg:pb-0">
                             {programs.map((program) => {
                                 const isActive = program.id === active.id;
                                 return (
@@ -175,7 +175,7 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                                         key={program.id}
                                         onClick={() => setActiveId(program.id)}
                                         aria-current={isActive}
-                                        className={`shrink-0 rounded-full px-6 py-3.5 text-left text-sm font-bold transition-all lg:w-full lg:rounded-xl lg:px-5 lg:py-4 ${
+                                        className={`inline-flex min-h-[48px] shrink-0 snap-start items-center rounded-full px-6 text-left text-sm font-bold whitespace-nowrap transition-all lg:w-full lg:rounded-xl lg:px-5 lg:py-4 lg:whitespace-normal ${
                                             isActive
                                                 ? 'bg-primary text-primary-foreground'
                                                 : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border-border border'
@@ -195,7 +195,7 @@ const Programs = ({ programs }: { programs: Program[] }) => {
                         transition={{ duration: 0.3 }}
                         className="lg:col-span-8"
                     >
-                        <h3 className="font-display text-foreground mb-4 text-3xl font-bold">
+                        <h3 className="font-display text-foreground mb-4 text-2xl font-bold sm:text-3xl">
                             {active.title}
                         </h3>
 
@@ -251,27 +251,24 @@ export default function DepartmentShow({ department, cms }: Props) {
 
                         {/* CTA final */}
                         <section
-                            className="band-light pb-[104px]"
+                            className="band-light pb-16 sm:pb-20 lg:pb-[104px]"
                             style={{ borderTop: '1px solid var(--border)' }}
                         >
-                            <div
-                                className="mx-auto w-full px-9 pt-[80px]"
-                                style={{ maxWidth: '1320px' }}
-                            >
-                                <div className="rounded-[28px] bg-[#35cf7f] px-[56px] py-[72px] text-center text-[#0e1411]">
-                                    <h2 className="font-display m-0 text-[clamp(36px,5vw,56px)] leading-[0.98] font-black tracking-[-0.04em] uppercase">
+                            <div className="section-shell pt-14 sm:pt-16 lg:pt-[80px]">
+                                <div className="rounded-[28px] bg-[#35cf7f] px-6 py-12 text-center text-[#0e1411] sm:px-10 sm:py-16 lg:px-[56px] lg:py-[72px]">
+                                    <h2 className="font-display m-0 text-[clamp(28px,7.4vw,56px)] leading-[0.98] font-black tracking-[-0.04em] uppercase">
                                         Intéressé par cette mention ?
                                     </h2>
-                                    <p className="mx-auto mt-5 max-w-[620px] text-lg leading-[1.58] font-medium text-[#0e1411]/90">
+                                    <p className="mx-auto mt-4 max-w-[620px] text-base leading-[1.58] font-medium text-[#0e1411]/90 sm:mt-5 sm:text-lg">
                                         Contactez-nous pour tout savoir sur les
                                         modalités d'inscription et de
                                         candidature.
                                     </p>
 
-                                    <div className="mt-9 flex flex-wrap justify-center gap-3.5">
+                                    <div className="mx-auto mt-8 flex w-full max-w-[420px] flex-col gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3.5">
                                         <Link
                                             href="/#contact"
-                                            className="inline-flex items-center gap-2 rounded-full bg-[#0e1411] px-[34px] py-[17px] text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#0e1411]"
+                                            className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#0e1411] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#0e1411] sm:w-auto sm:px-[34px]"
                                         >
                                             Nous contacter
                                             <ArrowRight className="h-4 w-4" />
@@ -279,7 +276,7 @@ export default function DepartmentShow({ department, cms }: Props) {
 
                                         <Link
                                             href="/#filiere"
-                                            className="rounded-full border border-[#0e1411]/35 px-[32px] py-[17px] text-[15px] font-semibold text-[#0e1411] hover:bg-[#0e1411]/10"
+                                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#0e1411]/35 px-8 text-[15px] font-semibold text-[#0e1411] hover:bg-[#0e1411]/10 sm:w-auto sm:px-[32px]"
                                         >
                                             Voir les autres mentions
                                         </Link>

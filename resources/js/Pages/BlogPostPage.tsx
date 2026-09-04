@@ -134,7 +134,7 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
                                 <h1
                                     className="font-display text-foreground leading-[1.05] font-black tracking-tight uppercase"
                                     style={{
-                                        fontSize: 'clamp(32px, 5vw, 56px)',
+                                        fontSize: 'clamp(27px, 7vw, 56px)',
                                     }}
                                 >
                                     {post.title}
@@ -249,11 +249,8 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
                         </div>
 
                         {related.length > 0 ? (
-                            <section className="border-border border-t py-[80px]">
-                                <div
-                                    className="mx-auto w-full px-9"
-                                    style={{ maxWidth: '1320px' }}
-                                >
+                            <section className="border-border border-t py-14 sm:py-16 lg:py-[80px]">
+                                <div className="section-shell">
                                     <h2 className="font-display text-foreground mb-9 text-2xl font-bold md:text-3xl">
                                         À lire également
                                     </h2>

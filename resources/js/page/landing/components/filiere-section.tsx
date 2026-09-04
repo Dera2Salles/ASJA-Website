@@ -5,12 +5,12 @@ import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 
 // Imports des images réelles pour les fonds de chaque filière
-import infoImg from '@/assets/Mentions/InformatiqueImage/Victoir_Hackathon2025-quality.jpg';
-import ecoImg from '@/assets/Mentions/Economie/Eco-event-quality-5.jpg';
-import droitImg from '@/assets/Mentions/Droit/student-droit-1.jpg';
 import agroImg from '@/assets/Mentions/AgronomieImage/Agro.jpg';
-import stImg from '@/assets/Mentions/SienceDeLaTerre/ST-VisiteSurTerain-quality.jpg';
+import droitImg from '@/assets/Mentions/Droit/student-droit-1.jpg';
+import ecoImg from '@/assets/Mentions/Economie/Eco-event-quality-5.jpg';
+import infoImg from '@/assets/Mentions/InformatiqueImage/Victoir_Hackathon2025-quality.jpg';
 import leaImg from '@/assets/Mentions/LEA/Visite_Culinaire_française-quality.jpg';
+import stImg from '@/assets/Mentions/SienceDeLaTerre/ST-VisiteSurTerain-quality.jpg';
 
 type Department = {
     id: number;
@@ -40,7 +40,9 @@ const departmentSubtitles: Record<string, string> = {
 };
 
 /** Returns the card "variant" for a given index, cycling if more than 6 cards. */
-function cardVariant(index: number): 'photo-first' | 'dark' | 'green' | 'photo-last' {
+function cardVariant(
+    index: number,
+): 'photo-first' | 'dark' | 'green' | 'photo-last' {
     // Pattern: photo(col-2), dark, green, dark, dark, photo(col-2)
     const patterns = [
         'photo-first',
@@ -63,13 +65,16 @@ const PhotoCard = ({
     index: number;
     isDark: boolean;
 }) => {
-    const logo = cmsImage(department.logo, departmentLogo(department.slug, isDark));
+    const logo = cmsImage(
+        department.logo,
+        departmentLogo(department.slug, isDark),
+    );
     const bgImage = departmentImages[department.slug] || logo;
     const sub = departmentSubtitles[department.slug] || '';
 
     return (
         <motion.div
-            className="col-span-2"
+            className="sm:col-span-2"
             initial={{ opacity: 0, y: 28 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
@@ -77,7 +82,7 @@ const PhotoCard = ({
         >
             <Link
                 href={`/mention/${department.slug}`}
-                className="relative flex min-h-[300px] overflow-hidden rounded-[22px] flex-col justify-end"
+                className="relative flex min-h-[240px] flex-col justify-end overflow-hidden rounded-[22px] sm:min-h-[280px] lg:min-h-[300px]"
             >
                 {/* Background image */}
                 {bgImage && (
@@ -98,18 +103,22 @@ const PhotoCard = ({
                 />
 
                 {/* Content */}
-                <div className="relative z-10 p-8">
+                <div className="relative z-10 p-6 sm:p-7 lg:p-8">
                     {logo && (
                         <img
                             src={logo}
                             alt=""
-                            className="mb-3.5 h-[52px] w-auto object-contain"
+                            className="mb-3 h-11 w-auto object-contain sm:mb-3.5 sm:h-[52px]"
                         />
                     )}
-                    <h3 className="font-display text-3xl font-extrabold uppercase text-white">
+                    <h3 className="font-display text-2xl leading-tight font-extrabold text-white uppercase sm:text-3xl">
                         {department.name}
                     </h3>
-                    {sub && <p className="mt-2 text-[14.5px] text-[#c3cec8] font-medium">{sub}</p>}
+                    {sub && (
+                        <p className="mt-2 text-[13.5px] leading-snug font-medium text-[#c3cec8] sm:text-[14.5px]">
+                            {sub}
+                        </p>
+                    )}
                 </div>
             </Link>
         </motion.div>
@@ -126,7 +135,10 @@ const DarkCard = ({
     index: number;
     isDark: boolean;
 }) => {
-    const logo = cmsImage(department.logo, departmentLogo(department.slug, isDark));
+    const logo = cmsImage(
+        department.logo,
+        departmentLogo(department.slug, isDark),
+    );
     const bgImage = departmentImages[department.slug] || logo;
     const sub = departmentSubtitles[department.slug] || '';
 
@@ -139,7 +151,7 @@ const DarkCard = ({
         >
             <Link
                 href={`/mention/${department.slug}`}
-                className="relative bg-card flex min-h-[300px] flex-col justify-between rounded-[22px] p-8 overflow-hidden"
+                className="bg-card relative flex min-h-[240px] flex-col justify-between overflow-hidden rounded-[22px] p-6 sm:min-h-[280px] sm:p-7 lg:min-h-[300px] lg:p-8"
             >
                 {/* Background image */}
                 {bgImage && (
@@ -160,20 +172,24 @@ const DarkCard = ({
                 />
 
                 {/* Content */}
-                <div className="relative z-10 flex h-full flex-col justify-between min-h-[236px]">
+                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-between sm:min-h-[210px] lg:min-h-[236px]">
                     {logo && (
                         <img
                             src={logo}
                             alt=""
-                            className="h-[52px] w-auto object-contain self-start"
+                            className="h-11 w-auto self-start object-contain sm:h-[52px]"
                         />
                     )}
 
                     <div className="mt-auto">
-                        <h3 className="font-display text-[26px] font-extrabold uppercase text-white leading-tight">
+                        <h3 className="font-display text-[22px] leading-tight font-extrabold text-white uppercase sm:text-[26px]">
                             {department.name}
                         </h3>
-                        {sub && <p className="mt-2 text-sm text-[#9aa8a1] font-medium">{sub}</p>}
+                        {sub && (
+                            <p className="mt-2 text-[13.5px] leading-snug font-medium text-[#9aa8a1] sm:text-sm">
+                                {sub}
+                            </p>
+                        )}
                     </div>
                 </div>
             </Link>
@@ -191,7 +207,10 @@ const GreenCard = ({
     index: number;
     isDark: boolean;
 }) => {
-    const logo = cmsImage(department.logo, departmentLogo(department.slug, isDark));
+    const logo = cmsImage(
+        department.logo,
+        departmentLogo(department.slug, isDark),
+    );
     const bgImage = departmentImages[department.slug] || logo;
     const sub = departmentSubtitles[department.slug] || '';
 
@@ -204,32 +223,36 @@ const GreenCard = ({
         >
             <Link
                 href={`/mention/${department.slug}`}
-                className="relative bg-primary text-primary-foreground flex min-h-[300px] flex-col justify-between rounded-[22px] p-8 overflow-hidden"
+                className="bg-primary text-primary-foreground relative flex min-h-[240px] flex-col justify-between overflow-hidden rounded-[22px] p-6 sm:min-h-[280px] sm:p-7 lg:min-h-[300px] lg:p-8"
             >
                 {/* Background image */}
                 {bgImage && (
                     <img
                         src={bgImage}
                         alt=""
-                        className="absolute inset-0 h-full w-full object-cover grayscale opacity-25 mix-blend-multiply"
+                        className="absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-multiply grayscale"
                     />
                 )}
 
                 {/* Content */}
-                <div className="relative z-10 flex h-full flex-col justify-between min-h-[236px]">
+                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-between sm:min-h-[210px] lg:min-h-[236px]">
                     {logo && (
                         <img
                             src={logo}
                             alt=""
-                            className="h-[52px] w-auto object-contain self-start"
+                            className="h-11 w-auto self-start object-contain sm:h-[52px]"
                         />
                     )}
 
                     <div className="mt-auto">
-                        <h3 className="font-display text-[26px] font-extrabold uppercase leading-tight">
+                        <h3 className="font-display text-[22px] leading-tight font-extrabold uppercase sm:text-[26px]">
                             {department.name}
                         </h3>
-                        {sub && <p className="mt-2 text-sm opacity-75 font-medium">{sub}</p>}
+                        {sub && (
+                            <p className="mt-2 text-[13.5px] leading-snug font-medium opacity-75 sm:text-sm">
+                                {sub}
+                            </p>
+                        )}
                     </div>
                 </div>
             </Link>
@@ -253,28 +276,40 @@ export const FiliereSection = () => {
     if (list.length === 0) return null;
 
     return (
-        <section id="filiere" className="band-dark py-[104px]">
-            <div className="mx-auto max-w-[1320px] px-9">
-
-                {/* ── Header ── */}
-                <div className="mb-11 flex items-end justify-between gap-12">
-                    <h2 className="font-display max-w-[640px] text-[clamp(42px,5vw,64px)] font-black uppercase leading-[0.98] tracking-tight text-foreground">
-                        {String(programs.title ?? 'Six mentions. Un seul niveau\u00a0: haut.')}
+        <section id="filiere" className="band-dark section-rhythm">
+            <div className="section-shell">
+                {/* ── Header ──
+                    Le titre et le chapô partageaient une rangée sans point de
+                    rupture : sous 700 px, le chapô se retrouvait comprimé sur
+                    une colonne de quelques caractères, à cheval sur le titre. */}
+                <div className="mb-9 flex flex-col gap-4 sm:mb-11 sm:flex-row sm:items-end sm:justify-between sm:gap-12">
+                    <h2 className="font-display text-foreground max-w-[640px] text-[clamp(30px,7.4vw,64px)] leading-[0.98] font-black tracking-tight uppercase">
+                        {String(
+                            programs.title ??
+                                'Six mentions. Un seul niveau\u00a0: haut.',
+                        )}
                     </h2>
 
                     {programs.subtitle ? (
-                        <p className="max-w-sm text-base leading-relaxed text-muted-foreground">
+                        <p className="text-muted-foreground max-w-sm text-[15px] leading-relaxed sm:text-base">
                             {String(programs.subtitle)}
                         </p>
                     ) : null}
                 </div>
 
-                {/* ── Grid ── */}
-                <div className="grid grid-cols-4 gap-4">
+                {/* ── Grid ──
+                    `grid-cols-4` était figé : sur téléphone, chaque mention
+                    tombait à ~70 px de large et son nom débordait par-dessus
+                    la carte voisine. La mosaïque du bureau est intacte à
+                    partir de `lg`. */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                     {list.map((department, index) => {
                         const variant = cardVariant(index);
 
-                        if (variant === 'photo-first' || variant === 'photo-last') {
+                        if (
+                            variant === 'photo-first' ||
+                            variant === 'photo-last'
+                        ) {
                             return (
                                 <PhotoCard
                                     key={department.id}

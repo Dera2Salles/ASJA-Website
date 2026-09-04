@@ -167,32 +167,29 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
             <Navbar />
 
             <main className="flex-1">
-                <section className="band-dark pt-[104px] pb-[72px]">
-                    <div
-                        className="mx-auto w-full px-9"
-                        style={{ maxWidth: '1320px' }}
-                    >
+                <section className="band-dark pt-16 pb-14 sm:pt-20 sm:pb-16 lg:pt-[104px] lg:pb-[72px]">
+                    <div className="section-shell">
                         {/* Header */}
-                        <div className="mb-12 text-center">
+                        <div className="mb-10 text-center sm:mb-12">
                             <h1
                                 className="font-display text-foreground font-black uppercase"
                                 style={{
-                                    fontSize: 'clamp(40px, 5vw, 64px)',
-                                    lineHeight: 1,
+                                    fontSize: 'clamp(31px, 7.6vw, 64px)',
+                                    lineHeight: 1.02,
                                     letterSpacing: '-0.04em',
                                 }}
                             >
                                 {String(blog.title ?? 'Actualités & Annonces')}
                             </h1>
                             {blog.subtitle ? (
-                                <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-base leading-relaxed">
+                                <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed sm:text-base">
                                     {String(blog.subtitle)}
                                 </p>
                             ) : null}
                         </div>
 
                         {/* Filtres style pilules */}
-                        <div className="mb-12 flex flex-wrap justify-center gap-2">
+                        <div className="-mx-6 mb-10 flex snap-x gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:mb-12 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0">
                             {FILTERS.map((filter) => {
                                 const isActive = activeType === filter.key;
                                 const count = counts[filter.countKey] ?? 0;
@@ -208,7 +205,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                                 ? `/actualites?type=${filter.key}`
                                                 : '/actualites'
                                         }
-                                        className={`rounded-full px-5 py-2.5 text-xs font-bold tracking-wide uppercase transition-colors ${
+                                        className={`inline-flex min-h-[42px] shrink-0 snap-start items-center rounded-full px-5 text-xs font-bold tracking-wide whitespace-nowrap uppercase transition-colors ${
                                             isActive
                                                 ? 'bg-primary text-primary-foreground'
                                                 : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border-border border'
@@ -229,11 +226,8 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                     lit ensuite en blanc, le passage se faisant au scroll. */}
                 <BandTransition direction="dark-to-light" />
 
-                <section className="band-light pb-[104px]">
-                    <div
-                        className="mx-auto w-full px-9"
-                        style={{ maxWidth: '1320px' }}
-                    >
+                <section className="band-light pb-16 sm:pb-20 lg:pb-[104px]">
+                    <div className="section-shell">
                         {posts.data.length === 0 ? (
                             <div className="border-border rounded-[22px] border border-dashed py-24 text-center">
                                 <h3 className="text-foreground text-lg font-bold">
@@ -245,7 +239,7 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
                                 </p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
                                 {posts.data.map((post, index) => (
                                     <PostCard
                                         key={post.id}

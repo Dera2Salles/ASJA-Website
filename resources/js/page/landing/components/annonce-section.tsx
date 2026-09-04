@@ -23,12 +23,12 @@ export const AnnonceSection = () => {
 
     return (
         <div className="bg-primary text-primary-foreground">
-            <div className="section-container flex items-center gap-3 py-2.5">
+            <div className="section-shell flex items-center gap-3 py-2.5">
                 <BellRing className="h-4 w-4 shrink-0" aria-hidden="true" />
 
                 <Link
                     href={`/actualites/${annonce.slug}`}
-                    className="flex-1 truncate text-sm font-medium hover:underline"
+                    className="-my-2.5 flex flex-1 items-center truncate py-2.5 text-sm font-medium hover:underline"
                 >
                     {annonce.title}
                 </Link>
@@ -36,7 +36,7 @@ export const AnnonceSection = () => {
                 <button
                     onClick={() => setDismissed(true)}
                     aria-label="Masquer l'annonce"
-                    className="shrink-0 cursor-pointer rounded-full p-1 transition-colors hover:bg-black/15"
+                    className="-my-1 -mr-2 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-black/15"
                 >
                     <X className="h-4 w-4" />
                 </button>

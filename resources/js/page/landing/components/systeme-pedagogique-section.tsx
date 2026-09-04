@@ -23,26 +23,28 @@ const PedagCard = ({
         whileInView={{ y: 0, opacity: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-        className="rounded-[22px] bg-card p-8 transition-colors hover:bg-accent"
+        className="bg-card hover:bg-accent rounded-[22px] p-6 transition-colors sm:p-8"
     >
         {/* Pourcentage : grand, vert, Archivo */}
-        <span className="font-display text-[58px] font-black leading-none text-primary">
+        <span className="font-display text-primary text-[46px] leading-none font-black sm:text-[58px]">
             {displayed}%
         </span>
 
         {/* Barre de proportion */}
         <div
-            className="mb-6 mt-5 h-1.5 overflow-hidden rounded-full bg-muted"
+            className="bg-muted mt-5 mb-5 h-1.5 overflow-hidden rounded-full sm:mb-6"
             aria-hidden="true"
         >
             <div
-                className="h-full rounded-full bg-primary transition-all duration-100"
+                className="bg-primary h-full rounded-full transition-all duration-100"
                 style={{ width: `${displayed}%` }}
             />
         </div>
 
-        <h3 className="mb-2 text-xl font-bold text-foreground">{item.title}</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <h3 className="text-foreground mb-2 text-lg font-bold sm:text-xl">
+            {item.title}
+        </h3>
+        <p className="text-muted-foreground text-sm leading-relaxed">
             {item.description}
         </p>
     </motion.div>
@@ -81,26 +83,33 @@ export const SystemePedagogiqueSection = () => {
     });
 
     return (
-        <section id="systeme" ref={observerRef} className="band-dark py-[104px]">
-            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
-                {/* En-tête split */}
-                <div className="mb-12 flex items-end justify-between gap-12">
+        <section
+            id="systeme"
+            ref={observerRef}
+            className="band-dark section-rhythm"
+        >
+            <div className="section-shell">
+                {/* En-tête split — le chapô descend sous le titre tant que la
+                    rangée ne peut pas accueillir les deux sans les écraser. */}
+                <div className="mb-10 flex flex-col gap-4 sm:mb-12 sm:flex-row sm:items-end sm:justify-between sm:gap-12">
                     <h2
-                        className="max-w-[560px] font-display font-black uppercase tracking-tight text-foreground"
+                        className="font-display text-foreground max-w-[560px] font-black tracking-tight uppercase"
+                        // Le plancher de 40 px faisait sortir « PÉDAGOGIQUE »
+                        // du cadre sous 400 px.
                         style={{
-                            fontSize: 'clamp(40px, 4vw, 56px)',
-                            lineHeight: 1,
+                            fontSize: 'clamp(30px, 7.4vw, 56px)',
+                            lineHeight: 1.02,
                         }}
                     >
                         {String(pedagogy.title ?? '')}
                     </h2>
-                    <p className="max-w-sm text-base leading-relaxed text-muted-foreground">
+                    <p className="text-muted-foreground max-w-sm text-[15px] leading-relaxed sm:text-base">
                         {String(pedagogy.subtitle ?? '')}
                     </p>
                 </div>
 
                 {/* Grille de cartes */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
                     {items.map((item, index) => (
                         <PedagCard
                             key={`${item.title}-${index}`}

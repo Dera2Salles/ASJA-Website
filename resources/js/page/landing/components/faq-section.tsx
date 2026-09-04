@@ -47,7 +47,7 @@ const FaqRow = ({
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                     className="overflow-hidden"
                 >
-                    <p className="text-muted-foreground pr-8 pb-5 leading-relaxed text-sm">
+                    <p className="text-muted-foreground pr-8 pb-5 text-sm leading-relaxed">
                         {item.answer}
                     </p>
                 </motion.div>
@@ -81,23 +81,22 @@ export const FaqSection = () => {
     const openKey = openQuestion ?? filtered[0]?.question ?? null;
 
     return (
-        <section id="FAQ" className="band-dark py-[104px]">
-            <div className="mx-auto w-full px-9" style={{ maxWidth: '1320px' }}>
-                
+        <section id="FAQ" className="band-dark section-rhythm">
+            <div className="section-shell">
                 {/* Header */}
-                <div className="mb-12 text-center">
+                <div className="mb-10 text-center sm:mb-12">
                     <h2
-                        className="font-display font-black uppercase text-foreground"
+                        className="font-display text-foreground font-black uppercase"
                         style={{
-                            fontSize: 'clamp(40px, 4vw, 56px)',
-                            lineHeight: 1,
+                            fontSize: 'clamp(30px, 7.4vw, 56px)',
+                            lineHeight: 1.02,
                             letterSpacing: '-0.04em',
                         }}
                     >
                         {String(faq.title ?? 'Des questions ?')}
                     </h2>
                     {faq.subtitle ? (
-                        <p className="mt-4 text-base leading-relaxed text-muted-foreground mx-auto max-w-2xl">
+                        <p className="text-muted-foreground mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed sm:text-base">
                             {String(faq.subtitle)}
                         </p>
                     ) : null}
@@ -105,7 +104,7 @@ export const FaqSection = () => {
 
                 <div className="mx-auto max-w-3xl">
                     {/* Filtres en pastilles de style pilule arrondi */}
-                    <div className="mb-8 flex flex-wrap justify-center gap-2">
+                    <div className="mb-7 flex flex-wrap justify-center gap-2 sm:mb-8">
                         {usableCategories.map((name) => (
                             <button
                                 key={name}
@@ -113,10 +112,10 @@ export const FaqSection = () => {
                                     setActiveCategory(name);
                                     setOpenQuestion(null);
                                 }}
-                                className={`cursor-pointer rounded-full px-5 py-2 text-xs font-bold uppercase transition-colors ${
+                                className={`inline-flex min-h-[40px] cursor-pointer items-center rounded-full px-5 text-xs font-bold uppercase transition-colors ${
                                     name === current
                                         ? 'bg-primary text-primary-foreground'
-                                        : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border border-border'
+                                        : 'bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground border-border border'
                                 }`}
                             >
                                 {name}
@@ -125,7 +124,7 @@ export const FaqSection = () => {
                     </div>
 
                     {/* Conteneur FAQ arrondi */}
-                    <div className="bg-card rounded-[22px] px-6 md:px-8 border border-border">
+                    <div className="bg-card border-border rounded-[22px] border px-5 sm:px-6 md:px-8">
                         {filtered.map((item) => (
                             <FaqRow
                                 key={item.question}
