@@ -10,7 +10,7 @@ import { useLangue } from '@/page/lang/useLang';
 import { useThemeContext } from '@/page/theme/useThemeContext';
 import { Link as InertiaLink, usePage } from '@inertiajs/react';
 import { LogIn, MenuIcon, Moon, Sun, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link as ScrollTo } from 'react-scroll';
 import { useScrollLock } from '../hooks/useScrollLock';
 import { AnnonceSection } from './annonce-section';
@@ -57,7 +57,10 @@ export const Navbar = () => {
 
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth >= 768) setOpen(false);
+            // 1024 px : le point exact où le tiroir cède la place à la
+            // navigation bureau (`lg:hidden`). À 768, il se refermait alors
+            // que le hamburger était encore le seul accès au menu.
+            if (window.innerWidth >= 1024) setOpen(false);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -223,6 +226,31 @@ const DesktopNav = () => {
     );
 };
 
+/**
+ * Une entrée de navigation du tiroir.
+ *
+ * L'arborescence (`├`, `└`) est dessinée par deux pseudo-éléments portés par
+ * l'entrée elle-même, et non par une bordure posée sur le conteneur : le rail
+ * vertical fait toute la hauteur de l'entrée — la moitié seulement sur la
+ * dernière, ce qui ferme la branche — et la petite barre horizontale se cale
+ * sur son axe. Le trait suit donc les entrées qui passent sur deux lignes,
+ * ce qu'une bordure de conteneur à hauteur fixe ne saurait pas faire.
+ */
+const drawerLinkClass =
+    'text-muted-foreground hover:text-foreground relative flex min-h-[40px] cursor-pointer items-center pl-4 text-sm transition-colors' +
+    // Le rail et les fourches sont tirés de `--foreground` et non de
+    // `--border` : sur l'aplat sombre du tiroir, #23302a plafonne à 1,3:1 de
+    // contraste, l'arborescence y était invisible. Les fourches sont un cran
+    // plus claires que le rail pour qu'on lise la branche, pas une grille.
+    ' before:absolute before:top-0 before:left-0 before:h-full before:w-px before:bg-[color-mix(in_srgb,var(--foreground)_15%,transparent)] before:content-[""]' +
+    ' last:before:h-1/2' +
+    ' after:absolute after:top-1/2 after:left-0 after:h-px after:w-2.5 after:bg-[color-mix(in_srgb,var(--foreground)_26%,transparent)] after:transition-colors after:content-[""] hover:after:bg-[var(--primary)]';
+
+/** Lien de pied de tiroir : compact, mais 46 px de haut sous le pouce. */
+/** Base des deux actions du pied : compactes, mais 44 px sous le pouce. */
+const drawerCtaClass =
+    'flex min-h-[44px] items-center justify-center gap-2 rounded-full text-[11px] font-bold tracking-[0.06em] whitespace-nowrap uppercase transition-colors';
+
 const MobileNav = ({
     open,
     setOpen,
@@ -235,32 +263,79 @@ const MobileNav = ({
     const isHomePage = usePage().url.split('?')[0] === '/';
     const close = () => setOpen(false);
 
+    const panelRef = useRef<HTMLDivElement>(null);
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+    // Échap ferme le panneau, et le focus part sur la croix à l'ouverture :
+    // sans ça, la tabulation continuait dans la page restée derrière.
+    useEffect(() => {
+        if (!open) return;
+
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') setOpen(false);
+        };
+
+        window.addEventListener('keydown', onKeyDown);
+        const id = window.setTimeout(() => closeButtonRef.current?.focus(), 60);
+
+        return () => {
+            window.removeEventListener('keydown', onKeyDown);
+            window.clearTimeout(id);
+        };
+    }, [open, setOpen]);
+
     return (
+        // Le panneau reste monté : c'est ce qui permet au `translate` de
+        // s'animer. Auparavant, `hidden`/`block` basculait en même temps que
+        // la transformation — l'ouverture était donc instantanée, sans
+        // aucune animation visible.
         <div
-            className={`fixed inset-0 z-[60] lg:hidden ${open ? 'block' : 'hidden'}`}
+            className={`fixed inset-0 z-[60] lg:hidden ${
+                open ? 'visible' : 'invisible delay-300'
+            }`}
+            aria-hidden={!open}
         >
-            <div className="fixed inset-0 bg-black/60" onClick={close} />
+            {/* Voile : assez dense pour que la page ne concurrence plus le
+                panneau, avec un flou léger qui garde le contexte lisible. */}
+            <div
+                onClick={close}
+                className={`absolute inset-0 bg-black/70 backdrop-blur-[3px] transition-opacity duration-300 ease-out ${
+                    open ? 'opacity-100' : 'pointer-events-none opacity-0'
+                }`}
+            />
 
             <div
-                className="border-border bg-background fixed top-0 left-0 flex h-full w-80 max-w-[85vw] flex-col border-r"
-                style={{
-                    transform: open ? 'translateX(0)' : 'translateX(-100%)',
-                }}
+                ref={panelRef}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Menu de navigation"
+                className={`border-border bg-background absolute top-0 right-0 flex h-full flex-col border-l transition-transform duration-300 ease-out ${
+                    open ? 'translate-x-0' : 'translate-x-full'
+                }`}
+                // Le panneau s'ouvre par la droite, du côté du hamburger et du
+                // pouce. Sa largeur suit l'écran mais s'arrête à 340 px : au
+                // delà, un tiroir de navigation devient une colonne vide.
+                style={{ width: 'clamp(260px, 80vw, 340px)' }}
             >
-                <div className="border-border flex items-center justify-between border-b p-4">
-                    <span className="font-display text-foreground text-base font-bold">
+                {/* ── En-tête ── */}
+                <div className="border-border flex shrink-0 items-center justify-between border-b py-3.5 pr-3 pl-5">
+                    <span className="font-display text-foreground text-[13px] font-bold tracking-[0.14em] uppercase">
                         Menu
                     </span>
                     <button
+                        ref={closeButtonRef}
                         onClick={close}
                         aria-label="Fermer le menu"
-                        className="border-border text-foreground hover:border-primary hover:text-primary flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border"
+                        // L'icône reste à 18 px ; c'est le bouton qui offre
+                        // les 44 px de cible tactile.
+                        className="text-muted-foreground hover:text-primary flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
-                <div className="flex-1 space-y-7 overflow-y-auto p-5">
+                {/* ── Navigation ── */}
+                <nav className="scrollbar-thin-dark min-h-0 flex-1 overflow-y-auto px-5 py-5">
                     <NavSection title={translate('navBar.accueil')}>
                         {homeSections.map((item) =>
                             isHomePage ? (
@@ -272,8 +347,8 @@ const MobileNav = ({
                                     offset={-70}
                                     duration={500}
                                     onClick={close}
-                                    activeClass="text-primary font-bold"
-                                    className="text-muted-foreground hover:text-foreground flex min-h-[44px] cursor-pointer items-center text-sm"
+                                    activeClass="text-primary font-semibold"
+                                    className={drawerLinkClass}
                                 >
                                     {translate(item.key)}
                                 </ScrollTo>
@@ -282,7 +357,7 @@ const MobileNav = ({
                                     key={item.to}
                                     href={`/#${item.to}`}
                                     onClick={close}
-                                    className="text-muted-foreground hover:text-foreground flex min-h-[44px] items-center text-sm"
+                                    className={drawerLinkClass}
                                 >
                                     {translate(item.key)}
                                 </InertiaLink>
@@ -290,24 +365,26 @@ const MobileNav = ({
                         )}
                     </NavSection>
 
-                    <NavSection title={translate('navBar.filieres')}>
+                    <NavSection title={translate('navBar.filieres')} divided>
                         {departments.map((dept) => (
                             <InertiaLink
                                 key={dept.id}
                                 href={`/mention/${dept.slug}`}
                                 onClick={close}
-                                className="text-muted-foreground hover:text-foreground flex min-h-[44px] items-center text-sm"
+                                className={drawerLinkClass}
                             >
                                 {dept.name}
                             </InertiaLink>
                         ))}
                     </NavSection>
 
-                    <div className="space-y-1">
+                    {/* Blog et Contact ne sont pas des sous-rubriques : pas de
+                        rail, et le poids typographique d'une tête de section. */}
+                    <div className="border-border mt-5 border-t pt-4">
                         <InertiaLink
                             href="/actualites"
                             onClick={close}
-                            className="text-foreground flex min-h-[44px] items-center text-sm font-bold uppercase"
+                            className="text-foreground hover:text-primary flex min-h-[42px] items-center text-[13px] font-bold tracking-[0.08em] uppercase transition-colors"
                         >
                             {translate('navBar.blog')}
                         </InertiaLink>
@@ -315,26 +392,38 @@ const MobileNav = ({
                         <InertiaLink
                             href={isHomePage ? '#contact' : '/#contact'}
                             onClick={close}
-                            className="text-foreground flex min-h-[44px] items-center text-sm font-bold uppercase"
+                            className="text-foreground hover:text-primary flex min-h-[42px] items-center text-[13px] font-bold tracking-[0.08em] uppercase transition-colors"
                         >
                             {translate('navBar.contact')}
                         </InertiaLink>
                     </div>
-                </div>
+                </nav>
 
-                <div className="border-border space-y-3 border-t p-5">
+                {/* ── Pied fixe ──
+                    Le pied reste hors du défilement : les deux actions sont
+                    toujours atteignables, où qu'en soit la liste. Elles
+                    passaient chacune sur une ligne de 50 px dans 40 px de
+                    marge, soit 152 px ; resserrées à 44 px dans 28 px de
+                    marge, elles en occupent 124, et se rangent côte à côte
+                    dès 480 px — en dessous, « Espace étudiant » se briserait
+                    sur deux lignes. */}
+                <div className="border-border flex shrink-0 flex-col gap-2 border-t p-3.5 min-[480px]:flex-row">
                     <InertiaLink
                         href="/login"
                         onClick={close}
-                        className="border-border text-foreground flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full border px-4 text-xs font-semibold uppercase"
+                        // `flex-1` contre le `flex-none` de « Je candidate » :
+                        // à parts égales, le libellé le plus long des deux se
+                        // brisait sur deux lignes dans les 152 px qu'il
+                        // recevait. Il prend maintenant ce que l'autre laisse.
+                        className={`border-border text-foreground hover:border-primary hover:text-primary min-w-0 flex-1 border px-3 ${drawerCtaClass}`}
                     >
-                        <LogIn size={14} />
+                        <LogIn size={14} className="shrink-0" />
                         Espace étudiant
                     </InertiaLink>
                     <InertiaLink
                         href="/login"
                         onClick={close}
-                        className="bg-primary text-primary-foreground flex min-h-[50px] w-full items-center justify-center gap-2 rounded-full px-4 text-xs font-bold uppercase hover:bg-white hover:text-black"
+                        className={`bg-primary text-primary-foreground shrink-0 px-5 hover:bg-white hover:text-black min-[480px]:flex-none ${drawerCtaClass}`}
                     >
                         Je candidate
                     </InertiaLink>
@@ -390,16 +479,19 @@ const ScrollLink = ({
 const NavSection = ({
     title,
     children,
+    divided = false,
 }: {
     title: string;
     children: React.ReactNode;
+    /** Filet et respiration au-dessus, pour détacher la rubrique de la
+     *  précédente sans creuser le vide de 28 px d'origine. */
+    divided?: boolean;
 }) => (
-    <div>
-        <h3 className="text-foreground mb-1 text-xs font-bold tracking-wider uppercase">
+    <div className={divided ? 'border-border mt-5 border-t pt-4' : undefined}>
+        <h3 className="text-foreground mb-1.5 text-[11px] font-bold tracking-[0.16em] uppercase">
             {title}
         </h3>
-        <div className="border-border ml-1 space-y-0.5 border-l pl-3">
-            {children}
-        </div>
+        {/* Décalage d'un cran : le rail des entrées se pose sous le titre. */}
+        <div className="ml-1">{children}</div>
     </div>
 );
