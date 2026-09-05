@@ -1,1 +1,0 @@
-import{j as s,r as n}from"./app-Dux0Ici7.js";import{u as e}from"./uploads-2mjetnCk.js";const o=n.createContext({});function u({content:t,children:r}){return s.jsx(o.Provider,{value:t??{},children:r})}function i(t){return n.useContext(o)[t]??{}}function m(t,r=void 0){return e(t,r)}function x(t){return Array.isArray(t)?t:[]}export{u as C,x as a,m as c,i as u};
