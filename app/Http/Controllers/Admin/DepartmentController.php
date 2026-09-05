@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\DepartmentProgram;
+use App\Support\Uploads;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -37,10 +38,10 @@ class DepartmentController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('departments/logos', 'public');
+            $validated['logo'] = Uploads::store($request->file('logo'), 'departments/logos');
         }
         if ($request->hasFile('hero_image')) {
-            $validated['hero_image'] = $request->file('hero_image')->store('departments/heroes', 'public');
+            $validated['hero_image'] = Uploads::store($request->file('hero_image'), 'departments/heroes');
         }
 
         Department::create($validated);
@@ -67,10 +68,12 @@ class DepartmentController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $validated['logo'] = $request->file('logo')->store('departments/logos', 'public');
+            Uploads::delete($department->logo);
+            $validated['logo'] = Uploads::store($request->file('logo'), 'departments/logos');
         }
         if ($request->hasFile('hero_image')) {
-            $validated['hero_image'] = $request->file('hero_image')->store('departments/heroes', 'public');
+            Uploads::delete($department->hero_image);
+            $validated['hero_image'] = Uploads::store($request->file('hero_image'), 'departments/heroes');
         }
 
         $department->update($validated);
@@ -80,6 +83,9 @@ class DepartmentController extends Controller
 
     public function destroy(Department $department): RedirectResponse
     {
+        Uploads::delete($department->logo);
+        Uploads::delete($department->hero_image);
+
         $department->delete();
         return redirect()->route('admin.departments.index')->with('success', 'Department deleted.');
     }

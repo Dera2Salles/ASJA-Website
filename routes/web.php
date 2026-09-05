@@ -10,6 +10,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
+use App\Support\Uploads;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,22 @@ Route::redirect('/blog', '/actualites');
 Route::get('/blog/{slug}', fn (string $slug) => redirect()->route('blog.show', $slug));
 
 Route::get('/mention/{slug}', [DepartmentController::class, 'show'])->name('department.show');
+
+/*
+ * Fichiers téléversés.
+ *
+ * En production la racine web est la racine du dépôt : Apache trouve le fichier
+ * et n'atteint jamais cette route (`RewriteCond %{REQUEST_FILENAME} !-f`). En
+ * développement la racine web est `public/`, où `uploads/` n'existe pas : la
+ * route prend le relais pour que `/uploads/...` désigne le même fichier des
+ * deux côtés. Elle sert aussi de filet si le `.htaccess` de production venait
+ * à manquer.
+ */
+Route::get('/uploads/{path}', function (string $path) {
+    abort_if(($file = Uploads::file('/uploads/' . $path)) === null, 404);
+
+    return response()->file($file);
+})->where('path', '.+')->name('uploads.show');
 
 /*
 |--------------------------------------------------------------------------

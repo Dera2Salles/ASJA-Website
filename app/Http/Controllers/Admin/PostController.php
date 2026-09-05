@@ -4,10 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Support\Uploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -84,9 +83,7 @@ class PostController extends Controller
 
     public function destroy(Post $post): RedirectResponse
     {
-        if ($post->cover_image) {
-            Storage::disk('public')->delete($post->cover_image);
-        }
+        Uploads::delete($post->cover_image);
 
         $post->delete();
 
@@ -115,8 +112,9 @@ class PostController extends Controller
     }
 
     /**
-     * Stocke l'image via le disque `public` sous un nom généré : le nom de
-     * fichier fourni par le client n'est jamais réutilisé tel quel.
+     * Stocke l'image dans `public/uploads/posts` sous un nom généré : le nom de
+     * fichier fourni par le client n'est jamais réutilisé tel quel. L'ancienne
+     * image est supprimée, elle n'est plus référencée nulle part.
      */
     private function withCoverImage(Request $request, array $validated, ?Post $post = null): array
     {
@@ -126,16 +124,9 @@ class PostController extends Controller
             return $validated;
         }
 
-        if ($post?->cover_image) {
-            Storage::disk('public')->delete($post->cover_image);
-        }
+        Uploads::delete($post?->cover_image);
 
-        $file = $request->file('cover_image');
-        $validated['cover_image'] = $file->storeAs(
-            'posts',
-            Str::uuid() . '.' . $file->extension(),
-            'public'
-        );
+        $validated['cover_image'] = Uploads::store($request->file('cover_image'), 'posts');
 
         return $validated;
     }

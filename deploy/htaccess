@@ -1,0 +1,58 @@
+# .htaccess de production — installé à la racine du site par deploy.sh.
+#
+# La racine web est ici la racine du dépôt : `.env`, `storage/`, `database/`,
+# `vendor/` et tout le code source se trouvent SOUS la racine web. Le .htaccess
+# livré par Laravel dans `public/` ne les protège pas — il suppose une racine
+# web ne contenant que des fichiers publics. D'où les règles de blocage
+# ci-dessous, qui doivent précéder le renvoi vers le contrôleur frontal.
+
+<IfModule mod_negotiation.c>
+    Options -MultiViews
+</IfModule>
+
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Validation des certificats (AutoSSL, Let's Encrypt) : doit passer avant
+    # le blocage des fichiers cachés, sinon le renouvellement HTTPS échoue.
+    RewriteRule ^\.well-known/ - [L]
+
+    # Fichiers et dossiers cachés : .env, .git, .github, .htaccess...
+    RewriteRule (^|/)\. - [F,L]
+
+    # Dossiers applicatifs : code, dépendances, données, journaux. `public` en
+    # fait partie : son contenu a été recopié à la racine, l'y atteindre en
+    # double n'aurait pour effet que d'exposer un second point d'entrée.
+    RewriteRule ^(app|bootstrap|config|database|deploy|node_modules|public|resources|routes|storage|tests|vendor)(/|$) - [F,L]
+
+    # Fichiers de projet laissés à la racine par la copie du dépôt.
+    RewriteRule ^(artisan|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml|eslint[^/]*|postcss\.config\.js|vite\.config[^/]*|tsconfig[^/]*|yarn\.lock|[^/]*\.sh|[^/]*\.md)$ - [F,L]
+
+    # En-tête Authorization
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # En-tête X-XSRF-Token
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Suppression du slash final quand ce n'est pas un dossier
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Contrôleur frontal. Les fichiers réels — `build/assets/...`,
+    # `uploads/...`, `asja-logo.png` — sont servis avant d'arriver ici.
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Seconde barrière, active même si mod_rewrite venait à manquer.
+<IfModule mod_authz_core.c>
+    <FilesMatch "^\.|\.(env|sqlite|sqlite3|log|sh|md|lock|ya?ml|ts|tsx)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>

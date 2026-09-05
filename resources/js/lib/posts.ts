@@ -1,5 +1,6 @@
 import { format, isSameDay, parseISO } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { uploadUrl } from './uploads';
 
 export type PostType = 'article' | 'annonce' | 'evenement';
 
@@ -27,12 +28,9 @@ export const POST_TYPE_LABELS: Record<PostType, string> = {
     evenement: 'Événement',
 };
 
-/** Chemin public d'une image de publication, stockée sur le disque `public`. */
+/** Chemin public d'une image de publication, servie depuis `public/uploads`. */
 export function postImage(post: Pick<Post, 'cover_image'>): string | null {
-    const value = post.cover_image;
-    if (!value) return null;
-    if (/^(https?:)?\/\//.test(value) || value.startsWith('/')) return value;
-    return `/storage/${value}`;
+    return uploadUrl(post.cover_image) ?? null;
 }
 
 function safeParse(value: string | null): Date | null {

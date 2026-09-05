@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { uploadUrl } from '@/lib/uploads';
 import { router, useForm } from '@inertiajs/react';
 import {
     Camera,
@@ -317,7 +318,7 @@ export default function TestimoniesIndex({
                                         <Avatar className="h-12 w-12 border border-white shadow-sm">
                                             {t.avatar && (
                                                 <AvatarImage
-                                                    src={`/storage/${t.avatar}`}
+                                                    src={uploadUrl(t.avatar)}
                                                 />
                                             )}
                                             <AvatarFallback className="bg-accent text-primary font-bold">
