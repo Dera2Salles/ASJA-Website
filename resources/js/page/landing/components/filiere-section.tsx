@@ -98,7 +98,7 @@ const PhotoCard = ({
                     className="absolute inset-0"
                     style={{
                         background:
-                            'linear-gradient(to bottom, rgba(14,20,17,0.1), rgba(14,20,17,0.88))',
+                            'linear-gradient(to bottom, rgba(20,27,23,0.1), rgba(20,27,23,0.88))',
                     }}
                 />
 
@@ -167,7 +167,7 @@ const DarkCard = ({
                     className="absolute inset-0"
                     style={{
                         background:
-                            'linear-gradient(to bottom, rgba(14,20,17,0.15), rgba(14,20,17,0.85))',
+                            'linear-gradient(to bottom, rgba(20,27,23,0.15), rgba(20,27,23,0.85))',
                     }}
                 />
 

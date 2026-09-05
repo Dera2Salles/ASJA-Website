@@ -52,7 +52,7 @@ const Hero = ({ department }: { department: Department }) => {
                     className="absolute inset-0 h-full w-full object-cover"
                 />
             ) : (
-                <div className="absolute inset-0 bg-[#0e1411]" />
+                <div className="absolute inset-0 bg-[#141b17]" />
             )}
 
             {/* Gradient overlay */}
@@ -61,7 +61,7 @@ const Hero = ({ department }: { department: Department }) => {
                 aria-hidden="true"
                 style={{
                     background:
-                        'linear-gradient(180deg, rgba(14,20,17,0.35) 0%, rgba(14,20,17,0.5) 45%, rgba(14,20,17,0.96) 100%)',
+                        'linear-gradient(180deg, rgba(20,27,23,0.35) 0%, rgba(20,27,23,0.5) 45%, rgba(20,27,23,0.96) 100%)',
                 }}
             />
 
@@ -402,11 +402,11 @@ export default function DepartmentShow({ department, cms }: Props) {
                             style={{ borderTop: '1px solid var(--border)' }}
                         >
                             <div className="section-shell pt-14 sm:pt-16 lg:pt-[80px]">
-                                <div className="rounded-[28px] bg-[#35cf7f] px-6 py-12 text-center text-[#0e1411] sm:px-10 sm:py-16 lg:px-[56px] lg:py-[72px]">
+                                <div className="rounded-[28px] bg-[#35cf7f] px-6 py-12 text-center text-[#141b17] sm:px-10 sm:py-16 lg:px-[56px] lg:py-[72px]">
                                     <h2 className="font-display m-0 text-[clamp(28px,7.4vw,56px)] leading-[0.98] font-black tracking-[-0.04em] uppercase">
                                         Intéressé par cette mention ?
                                     </h2>
-                                    <p className="mx-auto mt-4 max-w-[620px] text-base leading-[1.58] font-medium text-[#0e1411]/90 sm:mt-5 sm:text-lg">
+                                    <p className="mx-auto mt-4 max-w-[620px] text-base leading-[1.58] font-medium text-[#141b17]/90 sm:mt-5 sm:text-lg">
                                         Contactez-nous pour tout savoir sur les
                                         modalités d'inscription et de
                                         candidature.
@@ -415,7 +415,7 @@ export default function DepartmentShow({ department, cms }: Props) {
                                     <div className="mx-auto mt-8 flex w-full max-w-[420px] flex-col gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3.5">
                                         <Link
                                             href="/#contact"
-                                            className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#0e1411] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#0e1411] sm:w-auto sm:px-[34px]"
+                                            className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#141b17] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#141b17] sm:w-auto sm:px-[34px]"
                                         >
                                             Nous contacter
                                             <ArrowRight className="h-4 w-4" />
@@ -423,7 +423,7 @@ export default function DepartmentShow({ department, cms }: Props) {
 
                                         <Link
                                             href="/#filiere"
-                                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#0e1411]/35 px-8 text-[15px] font-semibold text-[#0e1411] hover:bg-[#0e1411]/10 sm:w-auto sm:px-[32px]"
+                                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#141b17]/35 px-8 text-[15px] font-semibold text-[#141b17] hover:bg-[#141b17]/10 sm:w-auto sm:px-[32px]"
                                         >
                                             Voir les autres mentions
                                         </Link>

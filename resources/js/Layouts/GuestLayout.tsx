@@ -26,7 +26,7 @@ export default function Guest({ children }: PropsWithChildren) {
                     aria-hidden="true"
                     style={{
                         background:
-                            'linear-gradient(180deg, rgba(14,20,17,0.55) 0%, rgba(14,20,17,0.72) 45%, rgba(14,20,17,0.96) 100%)',
+                            'linear-gradient(180deg, rgba(20,27,23,0.55) 0%, rgba(20,27,23,0.72) 45%, rgba(20,27,23,0.96) 100%)',
                     }}
                 />
 

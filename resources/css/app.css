@@ -146,7 +146,7 @@
 
 /* --- Mode sombre : vert profond forêt, texte blanc cassé, accent vert vif ---- */
 .dark {
-    --background: #0e1411;
+    --background: #141b17;
     --foreground: #f2f5f3;
     --card: #1a241f;
     --card-foreground: #f2f5f3;
@@ -154,7 +154,7 @@
     --popover-foreground: #f2f5f3;
 
     --primary: var(--color-asja-bright);
-    --primary-foreground: #0e1411;
+    --primary-foreground: #141b17;
     --secondary: #1f2b24;
     --secondary-foreground: #f2f5f3;
     --muted: #1a241f;
@@ -163,7 +163,7 @@
     --accent-foreground: #7fdaa6;
 
     --destructive: #e0605a;
-    --destructive-foreground: #0e1411;
+    --destructive-foreground: #141b17;
     --destructive-surface: #2a1614;
     --success: var(--color-asja-bright);
     --success-surface: #12251b;
@@ -177,7 +177,7 @@
     --sidebar: #12180f;
     --sidebar-foreground: #f2f5f3;
     --sidebar-primary: var(--color-asja-bright);
-    --sidebar-primary-foreground: #0e1411;
+    --sidebar-primary-foreground: #141b17;
     --sidebar-accent: #1a241f;
     --sidebar-accent-foreground: #7fdaa6;
     --sidebar-border: #23302a;
@@ -324,7 +324,7 @@
        `bg-card`, `border-border`, `text-primary`... à se recalculer dans le
        contexte de la bande. */
     .band-dark {
-        --background: #0e1411;
+        --background: #141b17;
         --foreground: #f2f5f3;
         --card: #1a241f;
         --card-foreground: #f2f5f3;
@@ -335,7 +335,7 @@
         --accent: #22302a;
         --accent-foreground: #7fdaa6;
         --primary: var(--color-asja-bright);
-        --primary-foreground: #0e1411;
+        --primary-foreground: #141b17;
         --border: #23302a;
         --secondary: #1f2b24;
         --secondary-foreground: #f2f5f3;
@@ -367,11 +367,11 @@
 
     .band-light {
         --background: #f2f5f3;
-        --foreground: #0e1411;
+        --foreground: #141b17;
         --card: #ffffff;
-        --card-foreground: #0e1411;
+        --card-foreground: #141b17;
         --popover: #ffffff;
-        --popover-foreground: #0e1411;
+        --popover-foreground: #141b17;
         --muted: #e6ece9;
         --muted-foreground: #5b665f;
         --accent: var(--color-asja-soft);
@@ -380,7 +380,7 @@
         --primary-foreground: #ffffff;
         --border: #c8d0cc;
         --secondary: #e6ece9;
-        --secondary-foreground: #0e1411;
+        --secondary-foreground: #141b17;
         --input: #9aa09c;
         --ring: var(--color-asja);
 

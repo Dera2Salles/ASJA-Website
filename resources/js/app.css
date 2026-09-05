@@ -136,7 +136,7 @@
 
 /* --- Mode sombre : vert profond forêt, texte blanc cassé, accent vert vif ---- */
 .dark {
-    --background: #0e1411;
+    --background: #141b17;
     --foreground: #f2f5f3;
     --card: #1a241f;
     --card-foreground: #f2f5f3;
@@ -144,7 +144,7 @@
     --popover-foreground: #f2f5f3;
 
     --primary: var(--color-asja-bright);
-    --primary-foreground: #0e1411;
+    --primary-foreground: #141b17;
     --secondary: #1f2b24;
     --secondary-foreground: #f2f5f3;
     --muted: #1a241f;
@@ -153,7 +153,7 @@
     --accent-foreground: #7fdaa6;
 
     --destructive: #e0605a;
-    --destructive-foreground: #0e1411;
+    --destructive-foreground: #141b17;
 
     --border: #23302a;
     --input: #2b3a33;
@@ -162,7 +162,7 @@
     --sidebar: #12180f;
     --sidebar-foreground: #f2f5f3;
     --sidebar-primary: var(--color-asja-bright);
-    --sidebar-primary-foreground: #0e1411;
+    --sidebar-primary-foreground: #141b17;
     --sidebar-accent: #1a241f;
     --sidebar-accent-foreground: #7fdaa6;
     --sidebar-border: #23302a;
@@ -276,7 +276,7 @@
        sémantiques pour que bg-card, text-muted-foreground, border-foreground
        etc. restent corrects à l'intérieur. */
     .band-dark {
-        --background: #0e1411;
+        --background: #141b17;
         --foreground: #f2f5f3;
         --card: #1a241f;
         --card-foreground: #f2f5f3;
@@ -287,7 +287,7 @@
         --accent: #22302a;
         --accent-foreground: #7fdaa6;
         --primary: var(--color-asja-bright);
-        --primary-foreground: #0e1411;
+        --primary-foreground: #141b17;
         --border: #23302a;
         background: var(--background);
         color: var(--foreground);
@@ -295,11 +295,11 @@
 
     .band-light {
         --background: #f2f5f3;
-        --foreground: #0e1411;
+        --foreground: #141b17;
         --card: #ffffff;
-        --card-foreground: #0e1411;
+        --card-foreground: #141b17;
         --popover: #ffffff;
-        --popover-foreground: #0e1411;
+        --popover-foreground: #141b17;
         --muted: #e6ece9;
         --muted-foreground: #5b665f;
         --accent: var(--color-asja-soft);
@@ -359,16 +359,16 @@
     /* L'application est toujours claire : le thème sombre du site public ne
        la traverse pas, seule la barre latérale porte le sombre. */
     --background: #f2f5f3;
-    --foreground: #0e1411;
+    --foreground: #141b17;
     --card: #ffffff;
-    --card-foreground: #0e1411;
+    --card-foreground: #141b17;
     --popover: #ffffff;
-    --popover-foreground: #0e1411;
+    --popover-foreground: #141b17;
 
     --primary: var(--color-asja);
     --primary-foreground: #ffffff;
     --secondary: #e6ece9;
-    --secondary-foreground: #0e1411;
+    --secondary-foreground: #141b17;
     --muted: #eef2f0;
     --muted-foreground: #5b665f;
     --accent: var(--color-asja-soft);
@@ -382,10 +382,10 @@
     --ring: var(--color-asja);
 
     /* Barre latérale : aplat forêt, accent vert vif — le seul bloc sombre. */
-    --sidebar: #0e1411;
+    --sidebar: #141b17;
     --sidebar-foreground: #c3cec8;
     --sidebar-primary: var(--color-asja-bright);
-    --sidebar-primary-foreground: #0e1411;
+    --sidebar-primary-foreground: #141b17;
     --sidebar-accent: #1a241f;
     --sidebar-accent-foreground: #ffffff;
     --sidebar-border: #23302a;
@@ -507,7 +507,7 @@
 
     .app-shell [data-sidebar='menu-button'][data-active='true']:hover {
         background: var(--color-asja-bright);
-        color: #0e1411;
+        color: #141b17;
     }
 
     /* --- Mouvement ---------------------------------------------------- */

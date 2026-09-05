@@ -75,7 +75,7 @@ export const Navbar = () => {
             <nav
                 className="border-border sticky top-0 z-50 border-b"
                 style={{
-                    background: 'rgba(14, 20, 17, 0.86)',
+                    background: 'rgba(20, 27, 23, 0.86)',
                     backdropFilter: 'blur(14px)',
                     WebkitBackdropFilter: 'blur(14px)',
                 }}

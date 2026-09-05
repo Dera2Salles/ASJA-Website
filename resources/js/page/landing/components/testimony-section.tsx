@@ -56,7 +56,7 @@ const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
                 className="absolute inset-0"
                 style={{
                     background:
-                        'linear-gradient(180deg, rgba(14,20,17,0) 0%, rgba(14,20,17,0.4) 40%, rgba(14,20,17,0.96) 100%)',
+                        'linear-gradient(180deg, rgba(20,27,23,0) 0%, rgba(20,27,23,0.4) 40%, rgba(20,27,23,0.96) 100%)',
                 }}
             />
 

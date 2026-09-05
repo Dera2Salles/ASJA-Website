@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/react';
 import { LandingProvider } from '../page/landing/bloc/useLandingProvider';
 import { AppelCandidaterSection } from '../page/landing/components/appel-candidater-section';
 import { BandTransition } from '../page/landing/components/band-transition';
+import { CampusSection } from '../page/landing/components/campus-section';
 import { Description } from '../page/landing/components/description';
 import { EvenementSection } from '../page/landing/components/evenement-section';
 import { FaqSection } from '../page/landing/components/faq-section';
@@ -54,43 +55,49 @@ export default function LandingPage({ cms, posts }: LandingPageProps) {
                             {/* Bandeau de transition Marquee Vert */}
                             <MarqueeBand />
 
-                            {/* 2. Campus (clair) — le marquee vert fait déjà
-                                rupture, le fondu commence après. */}
+                            {/* 2. Mission & objectifs (sombre) — le marquee
+                                vert fait déjà rupture avec le hero, le fondu
+                                ne commence qu'après. */}
                             <MissionSection />
+
+                            <BandTransition direction="dark-to-light" />
+
+                            {/* 3. Campus (clair) */}
+                            <CampusSection />
 
                             <BandTransition direction="light-to-dark" />
 
-                            {/* 3. Mentions / Filières (sombre) */}
+                            {/* 4. Mentions / Filières (sombre) */}
                             <FiliereSection />
 
                             <BandTransition direction="dark-to-light" />
 
-                            {/* 4. Événements (clair) */}
+                            {/* 5. Événements (clair) */}
                             <div className="band-light">
                                 <EvenementSection />
                             </div>
 
                             <BandTransition direction="light-to-dark" />
 
-                            {/* 5. Méthode / Système pédagogique (sombre) */}
+                            {/* 6. Méthode / Système pédagogique (sombre) */}
                             <SystemePedagogiqueSection />
 
                             <BandTransition direction="dark-to-light" />
 
-                            {/* 6. Témoignages (clair) */}
+                            {/* 7. Témoignages (clair) */}
                             <div className="band-light">
                                 <TestimonySection />
                             </div>
 
                             <BandTransition direction="light-to-dark" />
 
-                            {/* 7. Actualités / Blog (sombre) */}
+                            {/* 8. Actualités / Blog (sombre) */}
                             <BlogSection posts={posts} />
 
-                            {/* 8. FAQ (sombre) */}
+                            {/* 9. FAQ (sombre) */}
                             <FaqSection />
 
-                            {/* 9. Appel à candidature (sombre — boîte verte) */}
+                            {/* 10. Appel à candidature (sombre — boîte verte) */}
                             <AppelCandidaterSection />
                         </main>
                         <Footer />

@@ -4,7 +4,7 @@ export const AppelCandidaterSection = () => {
     return (
         <section className="band-dark pb-16 sm:pb-20 lg:pb-[104px]">
             <div className="section-shell">
-                <div className="rounded-[28px] bg-[#35cf7f] px-6 py-12 text-center text-[#0e1411] sm:px-10 sm:py-16 lg:px-[56px] lg:py-[72px]">
+                <div className="rounded-[28px] bg-[#35cf7f] px-6 py-12 text-center text-[#141b17] sm:px-10 sm:py-16 lg:px-[56px] lg:py-[72px]">
                     <motion.h2
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
@@ -19,7 +19,7 @@ export const AppelCandidaterSection = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.1 }}
-                        className="mx-auto mt-4 max-w-[620px] text-base leading-[1.58] font-medium text-[#0e1411]/90 sm:mt-5 sm:text-lg"
+                        className="mx-auto mt-4 max-w-[620px] text-base leading-[1.58] font-medium text-[#141b17]/90 sm:mt-5 sm:text-lg"
                     >
                         Service de scolarité ouvert de 8h à 12h et de 13h30 à
                         15h, à Antsaha. Apporte ton dossier — on s'occupe du
@@ -38,13 +38,13 @@ export const AppelCandidaterSection = () => {
                     >
                         <a
                             href="#"
-                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#0e1411] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#0e1411] sm:w-auto sm:px-[34px]"
+                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#141b17] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#141b17] sm:w-auto sm:px-[34px]"
                         >
                             Voir les pièces à fournir
                         </a>
                         <a
                             href="#"
-                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#0e1411]/35 px-8 text-[15px] font-semibold text-[#0e1411] hover:bg-[#0e1411]/10 sm:w-auto sm:px-[32px]"
+                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#141b17]/35 px-8 text-[15px] font-semibold text-[#141b17] hover:bg-[#141b17]/10 sm:w-auto sm:px-[32px]"
                         >
                             Poser une question
                         </a>

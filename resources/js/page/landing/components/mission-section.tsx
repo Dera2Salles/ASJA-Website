@@ -1,96 +1,116 @@
-import amphiteatre from '@/assets/Lieu_espace/amphitheatre.jpg';
-import bibliotheque from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
-import terrainBasket from '@/assets/Lieu_espace/terrain-basket.jpg';
+import missionImage from '@/assets/Image-evenement/event-diplome_master-quality.jpg';
+import objectifImage from '@/assets/Labo.jpg';
+import { cmsImage, cmsList, useSection } from '@/lib/cms';
+import { motion } from 'framer-motion';
 
+type MissionItem = {
+    title: string;
+    description: string;
+    image?: string;
+};
+
+/** Visuels livrés avec le site, utilisés tant que le CMS n'en fournit pas. */
+const fallbackImages = [missionImage, objectifImage];
+
+/* Repli affiché si `config/cms.php` ne renvoie rien pour la section : la
+   section reste visible avec le texte de référence plutôt que de se réduire
+   à un en-tête suivi du vide. Ce sont les mêmes valeurs que les `default`
+   du champ « Piliers », que l'admin peut réécrire. */
+const fallbackItems: MissionItem[] = [
+    {
+        title: 'Notre Mission',
+        description:
+            "L'Athénée Saint Joseph Antsirabe (ASJA) fonde son projet éducatif sur l'excellence académique, la discipline, la foi et l'engagement social. Sa mission est d'offrir une formation complète (savoir, savoir-faire, savoir-être) en alliant rigueur, solidarité et créativité.",
+    },
+    {
+        title: 'Notre Objectif',
+        description:
+            "Notre vision pour une université moderne et ancrée nationalement repose sur six piliers : assurer une formation de haut niveau adaptée au marché du travail et à la mondialisation ; encourager la recherche scientifique et l'innovation au service du développement ; développer les compétences des étudiants via des stages et des projets concrets.",
+    },
+];
+
+/* Les cartes alternent le côté de la photo. L'inversion n'existe qu'à partir
+   de `md` : empilées sur téléphone, image puis texte, l'ordre reste le même
+   d'une carte à l'autre — l'alternance y produirait un rythme illisible. */
+const MissionCard = ({ item, index }: { item: MissionItem; index: number }) => (
+    <motion.article
+        initial={{ y: 32, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
+        className={`bg-card flex flex-col overflow-hidden rounded-[22px] md:flex-row ${
+            index % 2 === 0 ? '' : 'md:flex-row-reverse'
+        }`}
+    >
+        <div className="aspect-[16/10] w-full shrink-0 overflow-hidden md:aspect-auto md:min-h-[300px] md:w-2/5">
+            <img
+                src={cmsImage(
+                    item.image,
+                    fallbackImages[index % fallbackImages.length],
+                )}
+                alt=""
+                aria-hidden="true"
+                className="h-full w-full object-cover"
+            />
+        </div>
+
+        <div className="flex flex-1 flex-col justify-center p-6 sm:p-8 lg:p-10">
+            <h3 className="font-display text-foreground mb-3 text-xl leading-tight font-extrabold tracking-[-0.02em] uppercase sm:text-2xl">
+                {item.title}
+            </h3>
+            <p className="text-muted-foreground text-[15px] leading-relaxed sm:text-base">
+                {item.description}
+            </p>
+        </div>
+    </motion.article>
+);
+
+/**
+ * Mission & objectifs — l'engagement éducatif de l'université.
+ *
+ * Le contenu vient de la section `mission` de `config/cms.php` (sur-titre,
+ * titre, introduction et liste « Piliers »), éditable depuis l'admin.
+ */
 export const MissionSection = () => {
+    const mission = useSection('mission');
+    const cmsItems = cmsList<MissionItem>(mission.items);
+    const items = cmsItems.length > 0 ? cmsItems : fallbackItems;
+
     return (
-        <section id="campus" className="band-light section-rhythm">
+        <section id="mission" className="band-dark section-rhythm">
             <div className="section-shell">
-                {/* Stats grid */}
-                <div className="mb-12 grid grid-cols-2 gap-x-5 gap-y-9 sm:gap-8 md:mb-16 md:grid-cols-4">
-                    <div>
-                        <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
-                            2000<span className="text-[#0c8042]">+</span>
-                        </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
-                            étudiants sur deux campus
-                        </p>
+                {/* En-tête split, identique à celui des autres bandes sombres :
+                    titre à gauche, chapô à droite, et empilés tant que la
+                    rangée ne peut pas accueillir les deux sans les écraser. */}
+                <div className="mb-9 flex flex-col gap-4 sm:mb-11 sm:flex-row sm:items-end sm:justify-between sm:gap-12">
+                    <div className="max-w-[640px]">
+                        {mission.eyebrow ? (
+                            <p className="eyebrow mb-3">
+                                {String(mission.eyebrow)}
+                            </p>
+                        ) : null}
+                        <h2 className="font-display text-foreground text-[clamp(30px,7.4vw,64px)] leading-[0.98] font-black tracking-tight uppercase">
+                            {String(
+                                mission.title ?? 'Notre Engagement Éducatif',
+                            )}
+                        </h2>
                     </div>
-                    <div>
-                        <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
-                            20<span className="text-[#0c8042]">+</span>
+
+                    {mission.subtitle ? (
+                        <p className="text-muted-foreground max-w-sm text-[15px] leading-relaxed sm:text-base">
+                            {String(mission.subtitle)}
                         </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
-                            années d'expérience
-                        </p>
-                    </div>
-                    <div>
-                        <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
-                            3
-                        </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
-                            clubs de sport, un tournoi par an
-                        </p>
-                    </div>
-                    <div>
-                        <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
-                            2
-                        </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
-                            cafétérias, du lundi au samedi
-                        </p>
-                    </div>
+                    ) : null}
                 </div>
 
-                {/* Section title */}
-                <h2 className="font-display mb-7 text-[clamp(34px,9vw,48px)] leading-none font-black tracking-[-0.04em] uppercase sm:mb-8">
-                    La vie ici
-                </h2>
-
-                {/* Photo grid layout matching reference */}
-                <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
-                    {/* Left: Amphitheater large card */}
-                    <div className="aspect-[4/3] overflow-hidden rounded-[22px]">
-                        <img
-                            src={amphiteatre}
-                            alt="Amphithéâtre"
-                            className="h-full w-full object-cover"
+                <div className="flex flex-col gap-3 sm:gap-4">
+                    {items.map((item, index) => (
+                        <MissionCard
+                            key={`${item.title}-${index}`}
+                            item={item}
+                            index={index}
                         />
-                    </div>
-
-                    {/* Milieu : empilées en bureau, mais côte à côte sur
-                        téléphone — la colonne y donnait deux bandeaux étirés
-                        et rallongeait le défilement pour rien. */}
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:flex md:flex-col">
-                        <div className="min-h-[130px] flex-1 overflow-hidden rounded-[22px] sm:min-h-[160px]">
-                            <img
-                                src={terrainBasket}
-                                alt="Terrain de Basket"
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
-                        <div className="min-h-[130px] flex-1 overflow-hidden rounded-[22px] sm:min-h-[160px]">
-                            <img
-                                src={bibliotheque}
-                                alt="Bibliothèque"
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Right: Info green box */}
-                    <div className="flex min-h-[240px] flex-col justify-between gap-8 rounded-[22px] bg-[#0c8042] p-6 text-white sm:min-h-[300px] sm:p-8">
-                        <p className="font-display text-xl leading-[1.14] font-extrabold tracking-[-0.02em] sm:text-2xl">
-                            Logement, cafétérias, clubs : le campus ne s'arrête
-                            pas aux salles de cours.
-                        </p>
-                        <a
-                            href="#campus"
-                            className="tap-target inline-flex items-center text-[14.5px] font-bold text-white underline underline-offset-4 hover:opacity-90"
-                        >
-                            Visiter le campus →
-                        </a>
-                    </div>
+                    ))}
                 </div>
             </div>
         </section>
