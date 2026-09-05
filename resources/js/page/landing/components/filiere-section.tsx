@@ -93,12 +93,11 @@ const PhotoCard = ({
                     />
                 )}
 
-                {/* Gradient overlay */}
+                {/* Voile sombre uni, sans dégradé */}
                 <div
                     className="absolute inset-0"
                     style={{
-                        background:
-                            'linear-gradient(to bottom, rgba(14,20,17,0.1), rgba(14,20,17,0.88))',
+                        background: 'rgba(22, 29, 26, 0.64)',
                     }}
                 />
 
@@ -162,12 +161,11 @@ const DarkCard = ({
                     />
                 )}
 
-                {/* Gradient overlay */}
+                {/* Voile sombre uni, sans dégradé */}
                 <div
                     className="absolute inset-0"
                     style={{
-                        background:
-                            'linear-gradient(to bottom, rgba(14,20,17,0.15), rgba(14,20,17,0.85))',
+                        background: 'rgba(22, 29, 26, 0.64)',
                     }}
                 />
 

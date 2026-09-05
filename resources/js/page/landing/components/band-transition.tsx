@@ -7,7 +7,7 @@ import {
 import { useRef } from 'react';
 
 /** Les deux aplats du site, repris tels quels de `.band-dark` / `.band-light`. */
-const DARK = '14, 20, 17'; // #0e1411
+const DARK = '22, 29, 26'; // #161d1a
 const LIGHT = '#f2f5f3';
 
 /* La couche peinte déborde de 30 % en haut et en bas : elle mesure donc 160 %

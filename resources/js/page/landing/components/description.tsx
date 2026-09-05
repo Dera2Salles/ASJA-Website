@@ -38,13 +38,12 @@ export const Description = () => {
                 className="absolute inset-0 h-full w-full object-cover"
             />
 
-            {/* Gradient overlay */}
+            {/* Voile sombre uni, sans dégradé */}
             <div
                 className="absolute inset-0"
                 aria-hidden="true"
                 style={{
-                    background:
-                        'linear-gradient(180deg, rgba(14,20,17,0.35) 0%, rgba(14,20,17,0.5) 45%, rgba(14,20,17,0.96) 100%)',
+                    background: 'rgba(22, 29, 26, 0.64)',
                 }}
             />
 

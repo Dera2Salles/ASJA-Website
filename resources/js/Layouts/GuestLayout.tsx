@@ -25,8 +25,7 @@ export default function Guest({ children }: PropsWithChildren) {
                     className="absolute inset-0"
                     aria-hidden="true"
                     style={{
-                        background:
-                            'linear-gradient(180deg, rgba(14,20,17,0.55) 0%, rgba(14,20,17,0.72) 45%, rgba(14,20,17,0.96) 100%)',
+                        background: 'rgba(22, 29, 26, 0.64)',
                     }}
                 />
 
