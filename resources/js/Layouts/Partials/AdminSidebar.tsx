@@ -133,6 +133,13 @@ export function isRouteActive(name: string, url: string): boolean {
     }
 }
 
+/* ── Vocabulaire visuel de la barre latérale ──────────────────────────────────
+   `admin-nav-item`, `admin-nav-sub` et `admin-nav-group-label` sont définies
+   dans `app.css`. Elles ne peuvent pas être écrites en utilitaires ici :
+   `SidebarMenuButton` fait passer sa `className` par `twMerge`, qui n'apparie
+   pas les variantes `data-[active=true]:` et supprimait donc les surcharges
+   d'état avant le rendu. Voir la note qui accompagne les règles. */
+
 export function AdminSidebar({
     isDark,
     onToggleTheme,
@@ -187,27 +194,30 @@ export function AdminSidebar({
 
     return (
         <Sidebar collapsible="icon">
-            <SidebarHeader className="p-3">
+            {/* Le filet sous l'en-tête détache l'identité de la navigation :
+                les trois zones (identité, navigation, compte) se lisent alors
+                comme trois blocs et non comme une seule colonne continue. */}
+            <SidebarHeader className="border-sidebar-border border-b p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             size="lg"
                             asChild
-                            className="hover:bg-sidebar-accent h-14"
+                            className="hover:bg-sidebar-accent/50 h-13 gap-3"
                         >
                             <Link href={route('admin.dashboard')}>
-                                <div className="border-border bg-card flex aspect-square size-8 items-center justify-center border">
+                                <div className="border-sidebar-border bg-card flex aspect-square size-9 shrink-0 items-center justify-center border">
                                     <img
                                         src={Logo}
                                         alt=""
-                                        className="size-5 object-contain"
+                                        className="size-6 object-contain"
                                     />
                                 </div>
-                                <div className="grid flex-1 text-left leading-tight">
-                                    <span className="text-sidebar-foreground truncate text-sm font-semibold">
+                                <div className="grid flex-1 gap-0.5 text-left">
+                                    <span className="font-display text-sidebar-foreground truncate text-[15px] leading-none font-bold tracking-tight">
                                         ASJA
                                     </span>
-                                    <span className="text-muted-foreground truncate text-xs">
+                                    <span className="text-sidebar-foreground/45 truncate text-[10px] leading-none font-semibold tracking-[0.14em] uppercase">
                                         Administration
                                     </span>
                                 </div>
@@ -217,20 +227,25 @@ export function AdminSidebar({
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            {/* `scrollbar-hairline` : la navigation défile indépendamment de
+                l'en-tête et du pied, sans la large barre native. */}
+            <SidebarContent className="scrollbar-hairline gap-0 py-2">
                 {MENU_GROUPS.map((group) => (
-                    <SidebarGroup key={group.label} className="px-3">
-                        <SidebarGroupLabel className="px-3">
+                    <SidebarGroup
+                        key={group.label}
+                        className="px-3 py-0 first:mt-0 [&+&]:mt-4"
+                    >
+                        <SidebarGroupLabel className="admin-nav-group-label px-3">
                             {group.label}
                         </SidebarGroupLabel>
                         <SidebarGroupContent>
-                            <SidebarMenu>
+                            <SidebarMenu className="gap-0.5">
                                 {group.items.map((item) => {
                                     const button = (
                                         <SidebarMenuButton
                                             asChild
                                             tooltip={item.title}
-                                            className="h-9 text-sm"
+                                            className="admin-nav-item"
                                             isActive={isRouteActive(
                                                 item.route,
                                                 url,
@@ -276,14 +291,18 @@ export function AdminSidebar({
                                                                 ? 'Replier les sections'
                                                                 : 'Déplier les sections'
                                                         }
-                                                        className="top-2 data-[state=open]:rotate-90"
+                                                        className="text-sidebar-foreground/45 hover:text-sidebar-foreground top-2 transition-transform duration-200 data-[state=open]:rotate-90"
                                                     >
                                                         <ChevronRight />
                                                     </SidebarMenuAction>
                                                 </CollapsibleTrigger>
 
                                                 <CollapsibleContent>
-                                                    <SidebarMenuSub>
+                                                    {/* Rail aligné sur l'axe
+                                                        des icônes parentes,
+                                                        pour que la filiation
+                                                        se lise sans ambiguïté. */}
+                                                    <SidebarMenuSub className="admin-nav-rail mx-0 mt-1 ml-[1.4rem] gap-0.5 py-0 pr-0 pl-3">
                                                         {cmsSections.map(
                                                             ([key, label]) => (
                                                                 <SidebarMenuSubItem
@@ -291,6 +310,7 @@ export function AdminSidebar({
                                                                 >
                                                                     <SidebarMenuSubButton
                                                                         asChild
+                                                                        className="admin-nav-sub"
                                                                         isActive={
                                                                             onCmsPage &&
                                                                             key ===
@@ -306,6 +326,14 @@ export function AdminSidebar({
                                                                                 },
                                                                             )}
                                                                             preserveScroll
+                                                                            /* Filet de sécurité : si un
+                                                                               libellé venait malgré tout
+                                                                               à dépasser, son intitulé
+                                                                               complet reste lisible au
+                                                                               survol. */
+                                                                            title={String(
+                                                                                label,
+                                                                            )}
                                                                         >
                                                                             <span>
                                                                                 {
@@ -329,29 +357,31 @@ export function AdminSidebar({
                 ))}
             </SidebarContent>
 
-            <SidebarFooter className="p-3">
+            {/* Le pied ne défile pas avec la navigation : le compte reste
+                atteignable quelle que soit la position dans la liste. */}
+            <SidebarFooter className="border-sidebar-border border-t p-3">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton
                                     size="lg"
-                                    className="hover:bg-sidebar-accent data-[state=open]:bg-sidebar-accent h-12"
+                                    className="hover:bg-sidebar-accent/50 data-[state=open]:bg-sidebar-accent/60 h-13 gap-3"
                                 >
-                                    <Avatar className="size-8">
-                                        <AvatarFallback className="bg-muted text-muted-foreground text-xs font-medium">
+                                    <Avatar className="size-9">
+                                        <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground text-xs font-bold">
                                             {initials}
                                         </AvatarFallback>
                                     </Avatar>
-                                    <div className="grid flex-1 text-left leading-tight">
-                                        <span className="text-sidebar-foreground truncate text-sm font-medium">
+                                    <div className="grid flex-1 gap-0.5 text-left">
+                                        <span className="text-sidebar-foreground truncate text-[13.5px] leading-none font-semibold">
                                             {user?.name}
                                         </span>
-                                        <span className="text-muted-foreground truncate text-xs">
+                                        <span className="text-sidebar-foreground/50 truncate text-[11.5px] leading-none">
                                             {user?.email}
                                         </span>
                                     </div>
-                                    <ChevronsUpDown className="ml-auto size-4" />
+                                    <ChevronsUpDown className="text-sidebar-foreground/40 ml-auto size-4 shrink-0" />
                                 </SidebarMenuButton>
                             </DropdownMenuTrigger>
 

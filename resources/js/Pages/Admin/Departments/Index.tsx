@@ -78,14 +78,18 @@ const DepartmentCard = ({
                         )}
                     </span>
 
-                    <div className="min-w-0">
-                        <p className="text-foreground truncate text-sm font-medium">
-                            {department.name}
-                        </p>
-                        <p className="admin-mono text-muted-foreground truncate">
-                            /{department.slug}
-                        </p>
-                    </div>
+                    {/* Le slug ne s'affiche plus : c'est une donnée technique
+                        qui n'apprend rien à un gestionnaire et qui volait la
+                        vedette au nom. Il reste porté par les données, sert
+                        toujours aux routes, à l'aperçu public et à la
+                        recherche, et s'édite dans le formulaire.
+
+                        `line-clamp-2` plutôt que `truncate` : « Langues
+                        étrangères appliquées » se coupait au milieu d'un mot
+                        alors qu'il tient sur deux lignes. */}
+                    <p className="text-foreground line-clamp-2 min-w-0 text-[15px] leading-snug font-semibold">
+                        {department.name}
+                    </p>
                 </div>
 
                 <RowActions

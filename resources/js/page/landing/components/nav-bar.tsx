@@ -335,7 +335,7 @@ const MobileNav = ({
                 </div>
 
                 {/* ── Navigation ── */}
-                <nav className="scrollbar-thin-dark min-h-0 flex-1 overflow-y-auto px-5 py-5">
+                <nav className="scrollbar-hairline min-h-0 flex-1 overflow-y-auto px-5 py-5">
                     <NavSection title={translate('navBar.accueil')}>
                         {homeSections.map((item) =>
                             isHomePage ? (
