@@ -1,4 +1,5 @@
 import { createContext, useContext, type ReactNode } from 'react';
+import { uploadUrl } from './uploads';
 
 /**
  * Accès au contenu éditable côté React.
@@ -45,9 +46,7 @@ export function cmsImage(
     value: unknown,
     fallback: string | undefined = undefined,
 ): string | undefined {
-    if (typeof value !== 'string' || value.trim() === '') return fallback;
-    if (/^(https?:)?\/\//.test(value) || value.startsWith('/')) return value;
-    return `/storage/${value}`;
+    return uploadUrl(value, fallback);
 }
 
 /** Liste répétable typée, avec repli sur un tableau vide. */

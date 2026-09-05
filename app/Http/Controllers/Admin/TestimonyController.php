@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Testimony;
+use App\Support\Uploads;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,7 +30,7 @@ class TestimonyController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            $validated['avatar'] = $request->file('avatar')->store('testimonies', 'public');
+            $validated['avatar'] = Uploads::store($request->file('avatar'), 'testimonies');
         }
 
         Testimony::create($validated);
@@ -48,7 +49,8 @@ class TestimonyController extends Controller
         ]);
 
         if ($request->hasFile('avatar')) {
-            $validated['avatar'] = $request->file('avatar')->store('testimonies', 'public');
+            Uploads::delete($testimony->avatar);
+            $validated['avatar'] = Uploads::store($request->file('avatar'), 'testimonies');
         }
 
         $testimony->update($validated);
@@ -58,6 +60,8 @@ class TestimonyController extends Controller
 
     public function destroy(Testimony $testimony): RedirectResponse
     {
+        Uploads::delete($testimony->avatar);
+
         $testimony->delete();
         return redirect()->route('admin.testimonies.index')->with('success', 'Testimony deleted.');
     }

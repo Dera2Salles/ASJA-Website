@@ -21,6 +21,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { uploadUrl } from '@/lib/uploads';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     ExternalLink,
@@ -66,7 +67,7 @@ const DepartmentCard = ({
                     <span className="border-border bg-muted flex size-10 shrink-0 items-center justify-center overflow-hidden border">
                         {department.logo ? (
                             <img
-                                src={`/storage/${department.logo}`}
+                                src={uploadUrl(department.logo)}
                                 alt=""
                                 className="size-full object-contain p-1"
                             />

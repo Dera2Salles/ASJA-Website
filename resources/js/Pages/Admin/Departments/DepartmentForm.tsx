@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import AdminLayout from '@/Layouts/AdminLayout';
+import { uploadUrl } from '@/lib/uploads';
 import { cn } from '@/lib/utils';
 import { Link, router, useForm } from '@inertiajs/react';
 import {
@@ -339,7 +340,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     {department?.logo && !data.logo ? (
                                         <div className="group/logo relative mb-6 h-24 w-24">
                                             <img
-                                                src={`/storage/${department.logo}`}
+                                                src={uploadUrl(department.logo)}
                                                 alt=""
                                                 className="bg-card/50 relative h-20 w-full overflow-hidden object-contain p-2"
                                             />
@@ -385,7 +386,9 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     !data.hero_image ? (
                                         <div className="relative mb-6 h-24 w-full">
                                             <img
-                                                src={`/storage/${department.hero_image}`}
+                                                src={uploadUrl(
+                                                    department.hero_image,
+                                                )}
                                                 alt=""
                                                 className="border-border h-full w-full border object-cover"
                                             />

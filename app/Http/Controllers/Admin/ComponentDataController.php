@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\Cms;
+use App\Support\Uploads;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -57,9 +56,10 @@ class ComponentDataController extends Controller
     }
 
     /**
-     * Upload d'une image de contenu. Passe par le disque `public` de Laravel
-     * avec un nom généré, pour ne jamais réutiliser le nom de fichier fourni
-     * par le client.
+     * Upload d'une image de contenu, dans `public/uploads/cms` sous un nom
+     * généré pour ne jamais réutiliser le nom de fichier fourni par le client.
+     * Le chemin renvoyé est déjà celui servi par le serveur web : c'est lui qui
+     * est enregistré tel quel dans la section.
      */
     public function uploadImage(Request $request): JsonResponse
     {
@@ -67,12 +67,8 @@ class ComponentDataController extends Controller
             'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
         ]);
 
-        $file = $request->file('image');
-        $name = Str::uuid() . '.' . $file->extension();
-        $path = $file->storeAs('cms', $name, 'public');
-
         return response()->json([
-            'path' => Storage::url($path),
+            'path' => Uploads::store($request->file('image'), 'cms'),
         ]);
     }
 }
