@@ -115,14 +115,19 @@ export default function DashboardPage({
         >
             <Head title="Tableau de bord" />
 
-            <div>
+            {/* Le `space-y-6` de la mise en page vaut 24 px partout. Les deux
+                respirations qui encadrent la bande de chiffres passent à 32 px
+                pour la détacher de l'accueil au-dessus et des graphiques en
+                dessous — la règle d'espacement est enveloppée dans un
+                `:where()`, une marge posée ici l'emporte donc sans `!`. */}
+            <div className="mb-6 sm:mb-8">
                 <h1 className="admin-title">Bonjour, {auth.user.name}</h1>
                 <p className="text-muted-foreground mt-1 text-sm">
                     Voici l'état du site aujourd'hui.
                 </p>
             </div>
 
-            <KpiRow>
+            <KpiRow className="mb-6 sm:mb-8">
                 <Link href={route('admin.posts.index')} className="block">
                     <KpiCard
                         label="Publications"
@@ -157,7 +162,7 @@ export default function DashboardPage({
                 </Link>
             </KpiRow>
 
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
                 <Card className="lg:col-span-2">
                     <CardHeader className="flex flex-row items-start justify-between space-y-0">
                         <div>

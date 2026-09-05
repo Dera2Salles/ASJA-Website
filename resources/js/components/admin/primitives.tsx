@@ -102,49 +102,65 @@ export const KpiCard = ({
     const Arrow = isUp ? ArrowUp : ArrowDown;
 
     return (
-        <Card className={cn('gap-0 py-0', className)}>
-            <CardContent className="flex flex-col gap-2 p-4">
-                <div className="flex items-center justify-between gap-2">
+        <Card className={cn('admin-kpi gap-0 py-0', className)}>
+            {/* `justify-between` sur une hauteur plancher : le libellé tient
+                le haut de la carte, le chiffre le bas, et l'espace entre les
+                deux fait le travail de hiérarchie. Les quatre cartes gardent
+                la même assise même quand l'une porte une variation. */}
+            <CardContent className="flex min-h-[128px] flex-col justify-between gap-6 p-5">
+                <div className="flex items-start justify-between gap-3">
                     <span className="admin-label truncate">{label}</span>
                     {Icon && (
                         <Icon
-                            className="text-muted-foreground size-4 shrink-0"
+                            className="admin-kpi-icon size-4 shrink-0"
                             aria-hidden="true"
                         />
                     )}
                 </div>
 
-                <span className="admin-figure">{value}</span>
+                <div className="flex flex-col gap-1.5">
+                    <span className="admin-kpi-value">{value}</span>
 
-                {delta && (
-                    <p className="flex items-center gap-1 text-xs">
-                        <span
-                            className={cn(
-                                'inline-flex items-center gap-0.5 font-medium',
-                                isUp ? 'admin-delta-up' : 'admin-delta-down',
-                            )}
-                        >
-                            <Arrow className="size-3" aria-hidden="true" />
-                            {isUp ? '+' : ''}
-                            {delta.value}%
-                        </span>
-                        {delta.label && (
-                            <span className="text-muted-foreground">
-                                {delta.label}
+                    {delta && (
+                        <p className="flex items-center gap-1 text-xs">
+                            <span
+                                className={cn(
+                                    'inline-flex items-center gap-0.5 font-medium',
+                                    isUp
+                                        ? 'admin-delta-up'
+                                        : 'admin-delta-down',
+                                )}
+                            >
+                                <Arrow className="size-3" aria-hidden="true" />
+                                {isUp ? '+' : ''}
+                                {delta.value}%
                             </span>
-                        )}
-                    </p>
-                )}
+                            {delta.label && (
+                                <span className="text-muted-foreground">
+                                    {delta.label}
+                                </span>
+                            )}
+                        </p>
+                    )}
+                </div>
             </CardContent>
         </Card>
     );
 };
 
-/** Grille de KPI : 1 colonne en mobile, 2 en tablette, 4 au-delà de 1280px. */
+/**
+ * Grille de KPI.
+ *
+ * Une seule colonne en deçà de 420 px — au-dessous, deux cartes côte à côte
+ * n'ont plus la place d'afficher un chiffre de 36 px sous son libellé. Deux
+ * colonnes ensuite, ce qui couvre les téléphones courants comme la tablette
+ * (2 × 2), et quatre seulement à partir de 1280 px, où la zone de contenu
+ * reste large une fois la barre latérale déduite.
+ */
 export const KpiRow = ({ className, ...props }: ComponentProps<'div'>) => (
     <div
         className={cn(
-            'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4',
+            'grid grid-cols-1 gap-4 min-[420px]:grid-cols-2 sm:gap-5 xl:grid-cols-4',
             className,
         )}
         {...props}
@@ -290,10 +306,9 @@ export const KpiRowSkeleton = () => (
     <KpiRow>
         {Array.from({ length: 4 }).map((_, index) => (
             <Card key={index} className="gap-0 py-0">
-                <CardContent className="flex flex-col gap-2 p-4">
+                <CardContent className="flex min-h-[128px] flex-col justify-between gap-6 p-5">
                     <Skeleton className="h-3 w-24" />
-                    <Skeleton className="h-8 w-20" />
-                    <Skeleton className="h-3 w-28" />
+                    <Skeleton className="h-9 w-20" />
                 </CardContent>
             </Card>
         ))}

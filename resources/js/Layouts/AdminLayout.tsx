@@ -28,7 +28,7 @@ import { cn } from '@/lib/utils';
 import { PageProps } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Bell, ExternalLink, Moon, PanelsTopLeft, Sun } from 'lucide-react';
-import { PropsWithChildren, ReactNode } from 'react';
+import type { CSSProperties, PropsWithChildren, ReactNode } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { AdminSidebar, MENU_GROUPS } from './Partials/AdminSidebar';
 
@@ -111,7 +111,17 @@ function AdminShell({
         <div className={cn('admin-shell app-shell', isDark && 'dark')}>
             <Toaster position="top-right" />
 
-            <SidebarProvider>
+            {/* La largeur réelle est déclarée dans `app.css`, sur
+                `--admin-sidebar-width` : elle peut ainsi varier au point de
+                rupture tablette, ce qu'une valeur inline ne permettrait pas.
+                Voir la note qui accompagne la règle. */}
+            <SidebarProvider
+                style={
+                    {
+                        '--sidebar-width': 'var(--admin-sidebar-width)',
+                    } as CSSProperties
+                }
+            >
                 <AdminSidebar isDark={isDark} onToggleTheme={toggleTheme} />
 
                 <SidebarInset>

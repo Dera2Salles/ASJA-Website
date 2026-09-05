@@ -441,10 +441,11 @@
         }
     }
 
-    /* Barre de défilement du tiroir de navigation mobile : un filet de 3 px
-       qui n'apparaît qu'au survol du pouce. La barre native, elle, occupait
-       une bande claire de 15 px le long du panneau. */
-    .scrollbar-thin-dark {
+    /* Filet de défilement de 3 px, dérivé de `--foreground` : il vaut donc
+       aussi bien sur le tiroir sombre du site public que sur la barre latérale
+       claire de l'administration. La barre native occupait à chaque fois une
+       bande de 15 px le long du panneau. */
+    .scrollbar-hairline {
         scrollbar-width: thin;
         scrollbar-color: var(--border) transparent;
         /* Le doigt garde son inertie et son rebond dans le panneau. */
@@ -454,21 +455,21 @@
         overscroll-behavior: contain;
     }
 
-    .scrollbar-thin-dark::-webkit-scrollbar {
+    .scrollbar-hairline::-webkit-scrollbar {
         width: 3px;
         height: 3px;
     }
 
-    .scrollbar-thin-dark::-webkit-scrollbar-track {
+    .scrollbar-hairline::-webkit-scrollbar-track {
         background: transparent;
     }
 
-    .scrollbar-thin-dark::-webkit-scrollbar-thumb {
+    .scrollbar-hairline::-webkit-scrollbar-thumb {
         background: color-mix(in srgb, var(--foreground) 22%, transparent);
         border-radius: 999px;
     }
 
-    .scrollbar-thin-dark::-webkit-scrollbar-thumb:hover {
+    .scrollbar-hairline::-webkit-scrollbar-thumb:hover {
         background: color-mix(in srgb, var(--foreground) 38%, transparent);
     }
 
@@ -932,6 +933,168 @@ body[data-admin-theme] {
     color: var(--foreground);
 }
 
+/* --- Barre latérale : états de navigation --------------------------------
+   Ces règles sont écrites en CSS plutôt qu'en utilitaires Tailwind posés sur
+   le composant. `SidebarMenuButton` passe ses classes par `twMerge`, et la
+   version de tailwind-merge installée ici ne sait pas apparier les variantes
+   `data-[active=true]:` : elle supprimait purement et simplement les
+   surcharges d'état (fond, graisse, repère) avant qu'elles n'atteignent le
+   DOM — l'entrée active restait le gros aplat gris par défaut de shadcn.
+
+   Non encapsulées dans une `@layer`, elles l'emportent sur les utilitaires
+   de la variante shadcn quelle que soit la spécificité.
+
+   Aucun arrondi : la charte de l'administration met toutes les valeurs de
+   `--radius-*` à zéro. */
+
+/* Largeur de la colonne. `SidebarProvider` pose `--sidebar-width` en style
+   inline sur son propre conteneur : une valeur écrite ici serait écrasée. On
+   lui fait donc pointer cette variable-ci, que les media queries peuvent
+   atteindre. 17,5 rem au lieu des 16 rem par défaut de shadcn — c'est la
+   largeur en dessous de laquelle « Témoignages — en-tête » et « Contact &
+   pied de page » se faisaient couper. */
+.admin-shell {
+    --admin-sidebar-width: 17.5rem;
+}
+
+/* Tablette : la colonne se resserre, les intitulés restant lisibles à cette
+   taille de police. Au-delà de 1024 px, la largeur pleine reprend. */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+    .admin-shell {
+        --admin-sidebar-width: 15.5rem;
+    }
+}
+
+.admin-nav-item {
+    position: relative;
+    height: 2.25rem;
+    gap: 0.625rem;
+    padding-left: 0.75rem;
+    font-size: 13.5px;
+    font-weight: 500;
+}
+
+.admin-nav-item > svg {
+    width: 17px;
+    height: 17px;
+    color: color-mix(in srgb, var(--sidebar-foreground) 55%, transparent);
+    transition: color 150ms ease-out;
+}
+
+.admin-nav-item:hover {
+    background-color: color-mix(
+        in srgb,
+        var(--sidebar-accent) 45%,
+        transparent
+    );
+}
+
+.admin-nav-item:hover > svg {
+    color: color-mix(in srgb, var(--sidebar-foreground) 80%, transparent);
+}
+
+/* Repère vertical de l'entrée courante : il remplace l'aplat plein, qui
+   pesait plus lourd dans la colonne que les entrées elles-mêmes. */
+.admin-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 1rem;
+    width: 3px;
+    transform: translateY(-50%);
+    background: var(--sidebar-primary);
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+}
+
+.admin-nav-item[data-active='true'] {
+    background-color: color-mix(
+        in srgb,
+        var(--sidebar-accent) 55%,
+        transparent
+    );
+    font-weight: 600;
+}
+
+.admin-nav-item[data-active='true']::before {
+    opacity: 1;
+}
+
+.admin-nav-item[data-active='true'] > svg {
+    color: var(--sidebar-primary);
+}
+
+/* Colonne réduite : plus de retrait ni de repère, il n'y a plus de libellé
+   à côté duquel se placer. */
+[data-collapsible='icon'] .admin-nav-item {
+    padding-left: 0.5rem;
+}
+
+[data-collapsible='icon'] .admin-nav-item::before {
+    display: none;
+}
+
+/* Sous-pages du sommaire du contenu : plus légères que les entrées
+   principales, rattachées au rail par une fourche. */
+.admin-nav-sub {
+    position: relative;
+    height: 2rem;
+    padding-left: 0.75rem;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: color-mix(in srgb, var(--sidebar-foreground) 62%, transparent);
+}
+
+.admin-nav-sub:hover {
+    color: var(--sidebar-foreground);
+}
+
+/* Rail et fourches : `--sidebar-border` (#e5e5e5 sur blanc) disparaissait
+   purement et simplement à 1 px d'épaisseur. La teinte est dérivée de
+   `--sidebar-foreground`, elle tient donc aussi bien en clair qu'en sombre. */
+.admin-nav-rail {
+    border-left-color: color-mix(
+        in srgb,
+        var(--sidebar-foreground) 18%,
+        transparent
+    );
+}
+
+.admin-nav-sub::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -0.75rem;
+    height: 1px;
+    width: 0.5rem;
+    background: color-mix(in srgb, var(--sidebar-foreground) 18%, transparent);
+}
+
+.admin-nav-sub[data-active='true'] {
+    background-color: color-mix(
+        in srgb,
+        var(--sidebar-accent) 45%,
+        transparent
+    );
+    color: var(--sidebar-primary);
+    font-weight: 600;
+}
+
+.admin-nav-sub[data-active='true']::before {
+    background: var(--sidebar-primary);
+}
+
+/* Intitulé de rubrique : présent, mais nettement en retrait des entrées. */
+.admin-nav-group-label {
+    height: 1.75rem;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--sidebar-foreground) 45%, transparent);
+}
+
 /* --- Sombre : inversion complète -------------------------------------
    `.admin-shell` redéclare les tokens clairs sur l'élément lui-même ; une
    règle posée seulement sur `<body>` serait donc écrasée pour tous ses
@@ -1082,6 +1245,53 @@ body[data-admin-theme='dark'] {
     body[data-admin-theme] .app-interactive:hover {
         border-color: var(--muted-foreground);
         box-shadow: none;
+    }
+
+    /* --- Cartes KPI ---------------------------------------------------
+       La charte de l'administration reste monochrome : le vert de marque
+       n'apparaît ici que sur l'icône, et seulement au survol d'une carte
+       cliquable. C'est le seul écart consenti — un aplat ou une bordure verte
+       ferait basculer la grille dans le tableau de bord SaaS générique que la
+       charte écarte. */
+
+    /* Le chiffre est l'information dominante : 36 px contre 30 px pour le
+       `.admin-figure` générique, interligne ramené à 1 pour qu'il ne creuse
+       pas la carte. */
+    body[data-admin-theme] .admin-kpi-value {
+        font-family: var(--font-sans);
+        font-size: 2.25rem;
+        line-height: 1;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+        color: var(--foreground);
+    }
+
+    body[data-admin-theme] .admin-kpi-icon {
+        color: var(--muted-foreground);
+        transition: color 0.18s ease;
+    }
+
+    /* Survol nettement plus doux que le `.app-interactive` générique, qui
+       fait bondir la bordure jusqu'à `--muted-foreground` : sur quatre cartes
+       alignées, la carte survolée se détachait comme si elle était
+       sélectionnée. Sélecteur plus spécifique, donc gagnant quel que soit
+       l'ordre des règles. */
+    body[data-admin-theme] .admin-kpi.app-interactive:hover {
+        border-color: color-mix(in srgb, var(--foreground) 26%, transparent);
+        background-color: var(--secondary);
+    }
+
+    body[data-admin-theme] .admin-kpi.app-interactive:hover .admin-kpi-icon {
+        color: var(--color-asja);
+    }
+
+    /* Sur l'aplat sombre, le vert franc tombe à 2,4:1 : c'est la variante
+       claire qui prend le relais. */
+    body[data-admin-theme='dark']
+        .admin-kpi.app-interactive:hover
+        .admin-kpi-icon {
+        color: var(--color-asja-bright);
     }
 
     /* Le bloc vert plein n'a plus lieu d'être : il devient une surface
