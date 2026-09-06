@@ -177,57 +177,6 @@ const DarkCard = ({
         </motion.div>
     );
 };
-
-/* ─── Green card (single col) ────────────────────────────────────────────── */
-const GreenCard = ({
-    department,
-    index,
-}: {
-    department: Department;
-    index: number;
-}) => {
-    const bgImage = cardImage(department);
-    const sub = departmentSubtitles[department.slug] || '';
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.5, delay: index * 0.07, ease: 'easeOut' }}
-        >
-            <Link
-                href={`/mention/${department.slug}`}
-                className="bg-primary text-primary-foreground relative flex min-h-[240px] flex-col justify-between overflow-hidden rounded-[22px] p-6 sm:min-h-[280px] sm:p-7 lg:min-h-[300px] lg:p-8"
-            >
-                {/* Background image */}
-                {bgImage && (
-                    <img
-                        src={bgImage}
-                        alt=""
-                        className="absolute inset-0 h-full w-full object-cover opacity-25 mix-blend-multiply grayscale"
-                    />
-                )}
-
-                {/* Content */}
-                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-end sm:min-h-[210px] lg:min-h-[236px]">
-                    <div className="mt-auto">
-                        <h3 className="font-display text-[22px] leading-tight font-extrabold uppercase sm:text-[26px]">
-                            {department.name}
-                        </h3>
-                        {sub && (
-                            <p className="mt-2 text-[13.5px] leading-snug font-medium opacity-75 sm:text-sm">
-                                {sub}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            </Link>
-        </motion.div>
-    );
-};
-
-/* ─── Section ─────────────────────────────────────────────────────────────── */
 export const FiliereSection = () => {
     const programs = useSection('programs');
 
@@ -278,16 +227,6 @@ export const FiliereSection = () => {
                         ) {
                             return (
                                 <PhotoCard
-                                    key={department.id}
-                                    department={department}
-                                    index={index}
-                                />
-                            );
-                        }
-
-                        if (variant === 'green') {
-                            return (
-                                <GreenCard
                                     key={department.id}
                                     department={department}
                                     index={index}
