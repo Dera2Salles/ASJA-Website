@@ -33,7 +33,10 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard', absolute: false));
+        /* `dashboard` aiguille selon le rôle. Viser `admin.dashboard` ici
+           renvoyait un 403 à tout étudiant : le filtre `admin` referme la
+           porte juste après que la connexion a réussi. */
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**

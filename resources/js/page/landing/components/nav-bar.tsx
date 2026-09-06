@@ -32,6 +32,27 @@ type Department = { id: number; slug: string; name: string };
  * existent réellement. L'ancienne liste écrite en dur pointait vers deux
  * adresses inexistantes (404).
  */
+/**
+ * L'utilisateur connecté, s'il y en a un.
+ *
+ * « Espace étudiant » pointait toujours sur `/login`, y compris une fois
+ * connecté : l'étudiant revenait sur le formulaire de connexion au lieu de sa
+ * fiche.
+ */
+function useAuthUser(): { role?: string } | null {
+    const { auth } = usePage().props as unknown as {
+        auth?: { user?: { role?: string } | null };
+    };
+    return auth?.user ?? null;
+}
+
+/** Où mène « Espace étudiant » : la fiche si connecté, la connexion sinon. */
+function spaceHref(user: { role?: string } | null): string {
+    if (!user) return '/login';
+
+    return user.role === 'Admin' ? '/admin' : '/espace-etudiant';
+}
+
 function useDepartments(): Department[] {
     const { departments } = usePage().props as unknown as {
         departments?: Department[];
@@ -54,6 +75,7 @@ export const Navbar = () => {
     const [open, setOpen] = useState(false);
     const { toggleTheme, isDark } = useThemeContext();
     const { translate } = useLangue();
+    const user = useAuthUser();
 
     useEffect(() => {
         const handleResize = () => {
@@ -105,18 +127,21 @@ export const Navbar = () => {
                     {/* Actions droite */}
                     <div className="flex shrink-0 items-center gap-2.5">
                         <InertiaLink
-                            href="/login"
+                            href={spaceHref(user)}
                             className="border-border text-foreground hover:border-primary hover:text-primary hidden items-center gap-2 rounded-full border px-4 py-2.5 text-[13.5px] font-semibold sm:inline-flex"
                         >
                             <LogIn size={14} />
-                            Espace étudiant
+                            {user ? 'Mon espace' : 'Espace étudiant'}
                         </InertiaLink>
 
+                        {/* « Je candidate » menait au formulaire de connexion,
+                            que le candidat n'a par définition pas encore de
+                            compte pour remplir. */}
                         <InertiaLink
-                            href="/login"
+                            href={user ? spaceHref(user) : '/register'}
                             className="bg-primary text-primary-foreground hidden rounded-full px-5 py-2.5 text-[13.5px] font-bold hover:bg-white hover:text-black sm:inline-flex"
                         >
-                            Je candidate
+                            {user ? 'Ma fiche' : 'Je candidate'}
                         </InertiaLink>
 
                         <button
@@ -197,6 +222,15 @@ const DesktopNav = () => {
 
                 <NavigationMenuItem>
                     <InertiaLink
+                        href="/a-propos"
+                        className={`inline-flex h-10 items-center ${triggerClass}`}
+                    >
+                        À propos
+                    </InertiaLink>
+                </NavigationMenuItem>
+
+                <NavigationMenuItem>
+                    <InertiaLink
                         href="/actualites"
                         className={`inline-flex h-10 items-center ${triggerClass}`}
                     >
@@ -260,6 +294,7 @@ const MobileNav = ({
 }) => {
     const { translate } = useLangue();
     const departments = useDepartments();
+    const user = useAuthUser();
     const isHomePage = usePage().url.split('?')[0] === '/';
     const close = () => setOpen(false);
 
@@ -382,6 +417,14 @@ const MobileNav = ({
                         rail, et le poids typographique d'une tête de section. */}
                     <div className="border-border mt-5 border-t pt-4">
                         <InertiaLink
+                            href="/a-propos"
+                            onClick={close}
+                            className="text-foreground hover:text-primary flex min-h-[42px] items-center text-[13px] font-bold tracking-[0.08em] uppercase transition-colors"
+                        >
+                            À propos
+                        </InertiaLink>
+
+                        <InertiaLink
                             href="/actualites"
                             onClick={close}
                             className="text-foreground hover:text-primary flex min-h-[42px] items-center text-[13px] font-bold tracking-[0.08em] uppercase transition-colors"
@@ -409,7 +452,7 @@ const MobileNav = ({
                     sur deux lignes. */}
                 <div className="border-border flex shrink-0 flex-col gap-2 border-t p-3.5 min-[480px]:flex-row">
                     <InertiaLink
-                        href="/login"
+                        href={spaceHref(user)}
                         onClick={close}
                         // `flex-1` contre le `flex-none` de « Je candidate » :
                         // à parts égales, le libellé le plus long des deux se
@@ -418,14 +461,14 @@ const MobileNav = ({
                         className={`border-border text-foreground hover:border-primary hover:text-primary min-w-0 flex-1 border px-3 ${drawerCtaClass}`}
                     >
                         <LogIn size={14} className="shrink-0" />
-                        Espace étudiant
+                        {user ? 'Mon espace' : 'Espace étudiant'}
                     </InertiaLink>
                     <InertiaLink
-                        href="/login"
+                        href={user ? spaceHref(user) : '/register'}
                         onClick={close}
                         className={`bg-primary text-primary-foreground shrink-0 px-5 hover:bg-white hover:text-black min-[480px]:flex-none ${drawerCtaClass}`}
                     >
-                        Je candidate
+                        {user ? 'Ma fiche' : 'Je candidate'}
                     </InertiaLink>
                 </div>
             </div>

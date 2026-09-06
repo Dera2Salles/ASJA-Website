@@ -8,8 +8,10 @@ use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TestimonyController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StudentSpaceController;
 use App\Support\Uploads;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +31,8 @@ Route::redirect('/blog', '/actualites');
 Route::get('/blog/{slug}', fn (string $slug) => redirect()->route('blog.show', $slug));
 
 Route::get('/mention/{slug}', [DepartmentController::class, 'show'])->name('department.show');
+
+Route::get('/a-propos', [AboutController::class, 'index'])->name('about');
 
 /*
  * Fichiers téléversés.
@@ -53,6 +57,12 @@ Route::get('/uploads/{path}', function (string $path) {
 */
 
 Route::middleware('auth')->group(function () {
+    /* Point d'arrivée après connexion, inscription ou vérification d'adresse.
+       Le contrôleur aiguille : l'administration part vers son tableau de bord,
+       l'étudiant reste sur sa fiche. */
+    Route::get('/espace-etudiant', [StudentSpaceController::class, 'index'])->name('dashboard');
+    Route::patch('/espace-etudiant', [StudentSpaceController::class, 'update'])->name('student.file.update');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

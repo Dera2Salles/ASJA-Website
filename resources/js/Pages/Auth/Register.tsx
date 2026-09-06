@@ -4,16 +4,53 @@ import { Label } from '@/components/ui/label';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import {
-    AlertCircle,
-    ArrowRight,
-    Loader2
-} from 'lucide-react';
+import { AlertCircle, ArrowRight, Loader2 } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
-export default function Register() {
+interface Props {
+    mentions: { slug: string; name: string }[];
+    levels: string[];
+}
+
+const fieldLabel =
+    'text-muted-foreground text-[11px] font-bold uppercase tracking-[0.14em]';
+
+const fieldInput =
+    'border-border bg-card text-foreground placeholder:text-muted-foreground h-12 px-4 text-[15px] font-medium';
+
+/* Le sélecteur natif, plutôt que celui de Radix : sa liste s'ouvre dans un
+   portail, hors de l'enveloppe `square-corners` de l'écran, et y garderait des
+   angles arrondis. Sur téléphone il ouvre en plus la roue du système. */
+const fieldSelect = `${fieldInput} border w-full`;
+
+const FieldError = ({ message }: { message?: string }) =>
+    message ? (
+        <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-destructive flex items-center gap-1.5 text-[12.5px] font-semibold"
+        >
+            <AlertCircle size={13} />
+            {message}
+        </motion.p>
+    ) : null;
+
+/**
+ * Inscription en ligne.
+ *
+ * Le formulaire ne demandait que nom, e-mail et mot de passe : le compte créé
+ * n'était rattaché à aucune mention, donc invisible dans les listes de
+ * l'administration, qui filtrent par mention et par niveau. La fiche scolaire
+ * se saisit donc ici, et se met à jour ensuite depuis l'espace étudiant — c'est
+ * la réinscription.
+ */
+export default function Register({ mentions, levels }: Props) {
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
+        last_name: '',
+        contact: '',
+        mention: '',
+        level: '',
         email: '',
         password: '',
         password_confirmation: '',
@@ -31,166 +68,216 @@ export default function Register() {
         <GuestLayout>
             <Head title="Inscription" />
 
-            <div className="space-y-8">
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-2 text-center"
+            <motion.div
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+            >
+                <p className="app-eyebrow text-primary">Inscription</p>
+                <h1
+                    className="app-figure text-foreground mt-2.5 uppercase"
+                    style={{ fontSize: 'clamp(32px, 4vw, 44px)' }}
                 >
-                    <h2 className="text-3xl font-black tracking-tight text-foreground dark:text-white uppercase">
-                        Créer un <span className="text-primary">Compte</span>
-                    </h2>
-                    <p className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">
-                        Rejoignez l'Université ASJA
-                    </p>
-                </motion.div>
+                    Rejoindre l'ASJA
+                </h1>
+                <p className="text-muted-foreground mt-3 text-[15px]">
+                    Créez votre compte étudiant : votre fiche part directement
+                    au service de scolarité.
+                </p>
+            </motion.div>
 
-                <form onSubmit={submit} className="space-y-5">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="name"
-                                className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
-                            >
-                                Nom Complet
-                            </Label>
-                            <Input
-                                id="name"
-                                name="name"
-                                value={data.name}
-                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
-                                autoComplete="name"
-                                placeholder="John Doe"
-                                onChange={(e) =>
-                                    setData('name', e.target.value)
-                                }
-                                required
-                                autoFocus
-                            />
-                            {errors.name && (
-                                <p className="ml-1 flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                    <AlertCircle size={12} /> {errors.name}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label
-                                htmlFor="email"
-                                className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
-                            >
-                                Adresse Email
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                name="email"
-                                value={data.email}
-                                className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
-                                autoComplete="username"
-                                placeholder="votre@email.com"
-                                onChange={(e) =>
-                                    setData('email', e.target.value)
-                                }
-                                required
-                            />
-                            {errors.email && (
-                                <p className="ml-1 flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                    <AlertCircle size={12} /> {errors.email}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="password"
-                                    className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
-                                >
-                                    Mot de passe
-                                </Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                    value={data.password}
-                                    className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
-                                    autoComplete="new-password"
-                                    placeholder="••••••••"
-                                    onChange={(e) =>
-                                        setData('password', e.target.value)
-                                    }
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="password_confirmation"
-                                    className="ml-1 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
-                                >
-                                    Confirmation
-                                </Label>
-                                <Input
-                                    id="password_confirmation"
-                                    type="password"
-                                    name="password_confirmation"
-                                    value={data.password_confirmation}
-                                    className="h-12 border border-border bg-background px-4 font-bold text-foreground placeholder:text-muted-foreground"
-                                    autoComplete="new-password"
-                                    placeholder="••••••••"
-                                    onChange={(e) =>
-                                        setData(
-                                            'password_confirmation',
-                                            e.target.value,
-                                        )
-                                    }
-                                    required
-                                />
-                            </div>
-                        </div>
-                        {errors.password && (
-                            <p className="ml-1 flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                <AlertCircle size={12} /> {errors.password}
-                            </p>
-                        )}
-                        {errors.password_confirmation && (
-                            <p className="ml-1 flex items-center gap-1 text-[10px] font-black tracking-tight text-rose-500 uppercase">
-                                <AlertCircle size={12} />{' '}
-                                {errors.password_confirmation}
-                            </p>
-                        )}
+            <motion.form
+                onSubmit={submit}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+                className="mt-9 space-y-5"
+            >
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="name" className={fieldLabel}>
+                            Nom
+                        </Label>
+                        <Input
+                            id="name"
+                            name="name"
+                            value={data.name}
+                            className={fieldInput}
+                            autoComplete="family-name"
+                            placeholder="Rakoto"
+                            onChange={(e) => setData('name', e.target.value)}
+                            required
+                            autoFocus
+                        />
+                        <FieldError message={errors.name} />
                     </div>
 
-                    <div className="pt-6">
-                        <Button
-                            disabled={processing}
-                            className="h-12 bg-primary border border-border hover:bg-background hover:text-primary text-primary-foreground font-black uppercase tracking-widest flex gap-3 group/btn"
+                    <div className="space-y-2">
+                        <Label htmlFor="last_name" className={fieldLabel}>
+                            Prénom
+                        </Label>
+                        <Input
+                            id="last_name"
+                            name="last_name"
+                            value={data.last_name}
+                            className={fieldInput}
+                            autoComplete="given-name"
+                            placeholder="Hery"
+                            onChange={(e) =>
+                                setData('last_name', e.target.value)
+                            }
+                        />
+                        <FieldError message={errors.last_name} />
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="contact" className={fieldLabel}>
+                        Contact
+                    </Label>
+                    <Input
+                        id="contact"
+                        name="contact"
+                        value={data.contact}
+                        className={fieldInput}
+                        autoComplete="tel"
+                        placeholder="034 00 000 00"
+                        onChange={(e) => setData('contact', e.target.value)}
+                    />
+                    <FieldError message={errors.contact} />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="mention" className={fieldLabel}>
+                            Mention souhaitée
+                        </Label>
+                        <select
+                            id="mention"
+                            name="mention"
+                            value={data.mention}
+                            className={fieldSelect}
+                            onChange={(e) => setData('mention', e.target.value)}
                         >
-                            {processing ? (
-                                <Loader2 className="h-5 w-5 animate-spin" />
-                            ) : (
-                                <>
-                                    <span>S'inscrire</span>
-                                    <ArrowRight className="ml-auto h-4 w-4 -translate-x-4 opacity-0 transition-all duration-300 group-hover/btn:translate-x-0 group-hover/btn:opacity-100" />
-                                </>
-                            )}
-                        </Button>
+                            <option value="">Choisir…</option>
+                            {mentions.map((mention) => (
+                                <option key={mention.slug} value={mention.slug}>
+                                    {mention.name}
+                                </option>
+                            ))}
+                        </select>
+                        <FieldError message={errors.mention} />
                     </div>
 
-                    <div className="pt-6 text-center">
-                        <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">
-                            Déjà inscrit ?{' '}
-                            <Link
-                                href={route('login')}
-                                className="text-primary hover:text-primary ml-1 underline underline-offset-4"
-                            >
-                                Se connecter
-                            </Link>
-                        </p>
+                    <div className="space-y-2">
+                        <Label htmlFor="level" className={fieldLabel}>
+                            Niveau
+                        </Label>
+                        <select
+                            id="level"
+                            name="level"
+                            value={data.level}
+                            className={fieldSelect}
+                            onChange={(e) => setData('level', e.target.value)}
+                        >
+                            <option value="">Choisir…</option>
+                            {levels.map((level) => (
+                                <option key={level} value={level}>
+                                    {level}
+                                </option>
+                            ))}
+                        </select>
+                        <FieldError message={errors.level} />
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="email" className={fieldLabel}>
+                        Adresse e-mail
+                    </Label>
+                    <Input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={data.email}
+                        className={fieldInput}
+                        autoComplete="username"
+                        placeholder="votre@email.com"
+                        onChange={(e) => setData('email', e.target.value)}
+                        required
+                    />
+                    <FieldError message={errors.email} />
+                </div>
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="password" className={fieldLabel}>
+                            Mot de passe
+                        </Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            name="password"
+                            value={data.password}
+                            className={fieldInput}
+                            autoComplete="new-password"
+                            placeholder="••••••••"
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label
+                            htmlFor="password_confirmation"
+                            className={fieldLabel}
+                        >
+                            Confirmation
+                        </Label>
+                        <Input
+                            id="password_confirmation"
+                            type="password"
+                            name="password_confirmation"
+                            value={data.password_confirmation}
+                            className={fieldInput}
+                            autoComplete="new-password"
+                            placeholder="••••••••"
+                            onChange={(e) =>
+                                setData('password_confirmation', e.target.value)
+                            }
+                            required
+                        />
+                    </div>
+                </div>
+                <FieldError message={errors.password} />
+
+                <Button
+                    disabled={processing}
+                    size="lg"
+                    className="group mt-2 w-full font-bold"
+                >
+                    {processing ? (
+                        <Loader2 className="size-5 animate-spin" />
+                    ) : (
+                        <>
+                            Créer mon compte
+                            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                        </>
+                    )}
+                </Button>
+
+                <p className="text-muted-foreground pt-2 text-center text-[13.5px] font-medium">
+                    Déjà inscrit ?{' '}
+                    <Link
+                        href={route('login')}
+                        className="text-primary font-bold underline underline-offset-4"
+                    >
+                        Se connecter
+                    </Link>
+                </p>
+            </motion.form>
         </GuestLayout>
     );
 }

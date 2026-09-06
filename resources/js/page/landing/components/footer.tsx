@@ -108,6 +108,9 @@ export const Footer = () => {
 
                     {/* Université */}
                     <FooterColumn title="Université">
+                        <InertiaLink href="/a-propos" className={linkClass}>
+                            À propos
+                        </InertiaLink>
                         <ScrollTo
                             to="mission"
                             spy

@@ -242,6 +242,97 @@ return [
         ],
     ],
 
+    'about' => [
+        'label' => 'À propos — page',
+        'description' => "La page « À propos » (/a-propos) : bannière, récit, valeurs et galerie.",
+        'fields' => [
+            'eyebrow' => ['label' => 'Sur-titre', 'type' => 'text', 'default' => 'L’université'],
+            'title' => [
+                'label' => 'Titre de la page',
+                'type' => 'text',
+                'default' => 'À propos de l’ASJA',
+            ],
+            'intro' => [
+                'label' => 'Introduction',
+                'type' => 'textarea',
+                'default' => "Fondée à Antsirabe, l’Athénée Saint Joseph forme depuis plus de vingt ans des femmes et des hommes de savoir, de métier et de conviction.",
+            ],
+            'hero_image' => [
+                'label' => 'Image de bannière',
+                'type' => 'image',
+                'help' => "Laisser vide pour conserver la photo du campus par défaut.",
+                'default' => '',
+            ],
+
+            'story_title' => [
+                'label' => 'Notre histoire — titre',
+                'type' => 'text',
+                'default' => 'Notre histoire',
+            ],
+            'story_text' => [
+                'label' => 'Notre histoire — texte',
+                'type' => 'textarea',
+                'default' => "L’ASJA est née de la volonté de la congrégation des Prêtres du Sacré-Cœur d’offrir à la région du Vakinankaratra un enseignement supérieur exigeant et accessible. D’une poignée d’étudiants à ses débuts, l’université en accueille aujourd’hui plus de deux mille, répartis en six mentions et deux campus.",
+            ],
+            'story_image' => [
+                'label' => 'Notre histoire — image',
+                'type' => 'image',
+                'default' => '',
+            ],
+
+            'values_title' => [
+                'label' => 'Nos valeurs — titre',
+                'type' => 'text',
+                'default' => 'Ce qui nous tient',
+            ],
+            'values' => [
+                'label' => 'Nos valeurs',
+                'type' => 'list',
+                'item_label' => 'Valeur',
+                'help' => "Chaque valeur peut porter une image ; sans image, la carte reste un aplat.",
+                'fields' => [
+                    'title' => ['label' => 'Titre', 'type' => 'text'],
+                    'description' => ['label' => 'Description', 'type' => 'textarea'],
+                    'image' => ['label' => 'Image', 'type' => 'image'],
+                ],
+                'default' => [
+                    [
+                        'title' => 'Excellence',
+                        'description' => "Une exigence académique constante, du premier cours au mémoire de fin d’études.",
+                        'image' => '',
+                    ],
+                    [
+                        'title' => 'Foi',
+                        'description' => "L’héritage déhonien : une formation humaine autant qu’intellectuelle.",
+                        'image' => '',
+                    ],
+                    [
+                        'title' => 'Engagement',
+                        'description' => "Des diplômés qui rendent au pays ce que leur formation leur a donné.",
+                        'image' => '',
+                    ],
+                ],
+            ],
+
+            'gallery_title' => [
+                'label' => 'Galerie — titre',
+                'type' => 'text',
+                'default' => 'Le campus en images',
+            ],
+            'gallery' => [
+                'label' => 'Galerie',
+                'type' => 'list',
+                'item_label' => 'Photo',
+                'help' => "Les photos défilent au doigt sur téléphone.",
+                'fields' => [
+                    'image' => ['label' => 'Photo', 'type' => 'image'],
+                    'caption' => ['label' => 'Légende', 'type' => 'text'],
+                ],
+                'default' => [],
+            ],
+        ],
+    ],
+
     'contact' => [
         'label' => 'Contact & pied de page',
         'description' => 'Coordonnées affichées dans le pied de page de tout le site.',
