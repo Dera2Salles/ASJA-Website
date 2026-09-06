@@ -12,7 +12,7 @@ export const CampusSection = () => {
                         <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
                             2000<span className="text-[#0c8042]">+</span>
                         </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
+                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#616161] sm:text-sm">
                             étudiants sur deux campus
                         </p>
                     </div>
@@ -20,7 +20,7 @@ export const CampusSection = () => {
                         <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
                             20<span className="text-[#0c8042]">+</span>
                         </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
+                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#616161] sm:text-sm">
                             années d'expérience
                         </p>
                     </div>
@@ -28,7 +28,7 @@ export const CampusSection = () => {
                         <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
                             3
                         </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
+                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#616161] sm:text-sm">
                             clubs de sport, un tournoi par an
                         </p>
                     </div>
@@ -36,7 +36,7 @@ export const CampusSection = () => {
                         <p className="font-display text-[clamp(38px,10vw,66px)] leading-none font-black tracking-[-0.04em]">
                             2
                         </p>
-                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#5b665f] sm:text-sm">
+                        <p className="mt-2 text-[13px] leading-snug font-semibold text-[#616161] sm:text-sm">
                             cafétérias, du lundi au samedi
                         </p>
                     </div>

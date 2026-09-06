@@ -47,7 +47,7 @@ const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
                     className="absolute inset-0 h-full w-full object-cover"
                 />
             ) : (
-                <div className="absolute inset-0 bg-[#1a241f]" />
+                <div className="absolute inset-0 bg-[#121212]" />
             )}
 
             {/* Gradient overlay noir pour assombrir le bas de la photo */}
@@ -56,7 +56,7 @@ const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
                 className="absolute inset-0"
                 style={{
                     background:
-                        'linear-gradient(180deg, rgba(20,27,23,0) 0%, rgba(20,27,23,0.4) 40%, rgba(20,27,23,0.96) 100%)',
+                        'linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0.96) 100%)',
                 }}
             />
 

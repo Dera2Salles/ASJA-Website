@@ -5,6 +5,8 @@
 
 /* ==========================================================================
    ASJA Design System — brutaliste / noir·blanc·vert
+   Le noir et les gris sont neutres (aucune teinte verte) ; le vert ne
+   sert que d'accent.
    Angles à 90°, aplats francs, bordures pleines. Aucune transparence,
    aucun flou, aucun dégradé, aucun arrondi. Les composants utilisent
    exclusivement les rôles sémantiques ci-dessous (bg-background,
@@ -37,19 +39,20 @@
     --color-asja-soft: #e6f3ec;
 
     /* --- Échelle de gris (noir → blanc), aplats uniquement ---------------
-       Les deux extrémités s'arrêtent avant le noir et le blanc absolus. */
-    --color-ink-0: #161817;
-    --color-ink-50: #1c1f1d;
-    --color-ink-100: #242826;
-    --color-ink-200: #2f3331;
-    --color-ink-300: #454a47;
-    --color-ink-400: #676d6a;
-    --color-ink-500: #8b918e;
-    --color-ink-600: #aab0ad;
-    --color-ink-700: #cbcfcd;
-    --color-ink-800: #e1e4e2;
-    --color-ink-900: #f0f2f1;
-    --color-ink-1000: #fbfcfb;
+       Gris strictement neutres : aucune pointe de vert dans les aplats
+       sombres, le noir est un vrai noir. */
+    --color-ink-0: #000000;
+    --color-ink-50: #0a0a0a;
+    --color-ink-100: #171717;
+    --color-ink-200: #262626;
+    --color-ink-300: #404040;
+    --color-ink-400: #525252;
+    --color-ink-500: #737373;
+    --color-ink-600: #a3a3a3;
+    --color-ink-700: #d4d4d4;
+    --color-ink-800: #e5e5e5;
+    --color-ink-900: #f5f5f5;
+    --color-ink-1000: #ffffff;
 
     /* --- Rôles sémantiques (mappés sur les variables :root) --------------- */
     --color-background: var(--background);
@@ -100,19 +103,19 @@
 :root {
     --radius: 0px;
 
-    --background: #f3f5f4;
-    --foreground: #0f1210; /* quasi-noir → identique au mode sombre inversé */
+    --background: #f5f5f5;
+    --foreground: #0a0a0a; /* quasi-noir → identique au mode sombre inversé */
     --card: #ffffff;
-    --card-foreground: #0f1210;
+    --card-foreground: #0a0a0a;
     --popover: #ffffff;
-    --popover-foreground: #0f1210;
+    --popover-foreground: #0a0a0a;
 
     --primary: var(--color-asja);
     --primary-foreground: #ffffff;
-    --secondary: #e9ecea;
-    --secondary-foreground: #0f1210;
-    --muted: #e9ecea;
-    --muted-foreground: #2f3331; /* gris très foncé → était trop clair */
+    --secondary: #ebebeb;
+    --secondary-foreground: #0a0a0a;
+    --muted: #ebebeb;
+    --muted-foreground: #303030; /* gris très foncé → était trop clair */
     --accent: var(--color-asja-soft);
     --accent-foreground: var(--color-asja-deep);
 
@@ -124,70 +127,70 @@
     --warning: #b45309;
     --warning-surface: #fdf4e7;
 
-    --border: #a8b0ac; /* bordures plus visibles */
-    --input: #9aa09c;
+    --border: #adadad; /* bordures plus visibles */
+    --input: #9e9e9e;
     --ring: var(--color-asja);
 
     --sidebar: #ffffff;
-    --sidebar-foreground: #1c1f1d;
+    --sidebar-foreground: #1d1d1d;
     --sidebar-primary: var(--color-asja);
     --sidebar-primary-foreground: #ffffff;
     --sidebar-accent: var(--color-asja-soft);
     --sidebar-accent-foreground: var(--color-asja-deep);
-    --sidebar-border: #dfe4e1;
+    --sidebar-border: #e2e2e2;
     --sidebar-ring: var(--color-asja);
 
     --chart-1: #0c8042;
     --chart-2: #35cf7f;
     --chart-3: #08542c;
     --chart-4: #7fdaa6;
-    --chart-5: #5f6663;
+    --chart-5: #636363;
 }
 
-/* --- Mode sombre : vert profond forêt, texte blanc cassé, accent vert vif ---- */
+/* --- Mode sombre : noir franc et gris neutres, accent vert vif ------------- */
 .dark {
-    --background: #141b17;
-    --foreground: #f2f5f3;
-    --card: #1a241f;
-    --card-foreground: #f2f5f3;
-    --popover: #1a241f;
-    --popover-foreground: #f2f5f3;
+    --background: #000000;
+    --foreground: #f5f5f5;
+    --card: #121212;
+    --card-foreground: #f5f5f5;
+    --popover: #121212;
+    --popover-foreground: #f5f5f5;
 
     --primary: var(--color-asja-bright);
-    --primary-foreground: #141b17;
-    --secondary: #1f2b24;
-    --secondary-foreground: #f2f5f3;
-    --muted: #1a241f;
-    --muted-foreground: #9aa8a1;
-    --accent: #22302a;
+    --primary-foreground: #000000;
+    --secondary: #1c1c1c;
+    --secondary-foreground: #f5f5f5;
+    --muted: #121212;
+    --muted-foreground: #a3a3a3;
+    --accent: #1f1f1f;
     --accent-foreground: #7fdaa6;
 
     --destructive: #e0605a;
-    --destructive-foreground: #141b17;
+    --destructive-foreground: #000000;
     --destructive-surface: #2a1614;
     --success: var(--color-asja-bright);
     --success-surface: #12251b;
     --warning: #f0b429;
     --warning-surface: #2a1f0a;
 
-    --border: #23302a;
-    --input: #2b3a33;
+    --border: #262626;
+    --input: #333333;
     --ring: var(--color-asja-bright);
 
-    --sidebar: #12180f;
-    --sidebar-foreground: #f2f5f3;
+    --sidebar: #0a0a0a;
+    --sidebar-foreground: #f5f5f5;
     --sidebar-primary: var(--color-asja-bright);
-    --sidebar-primary-foreground: #141b17;
-    --sidebar-accent: #1a241f;
+    --sidebar-primary-foreground: #000000;
+    --sidebar-accent: #121212;
     --sidebar-accent-foreground: #7fdaa6;
-    --sidebar-border: #23302a;
+    --sidebar-border: #262626;
     --sidebar-ring: var(--color-asja-bright);
 
     --chart-1: #35cf7f;
     --chart-2: #0c8042;
     --chart-3: #7fdaa6;
     --chart-4: #08542c;
-    --chart-5: #9aa8a1;
+    --chart-5: #a3a3a3;
 }
 
 @layer base {
@@ -324,22 +327,22 @@
        `bg-card`, `border-border`, `text-primary`... à se recalculer dans le
        contexte de la bande. */
     .band-dark {
-        --background: #141b17;
-        --foreground: #f2f5f3;
-        --card: #1a241f;
-        --card-foreground: #f2f5f3;
-        --popover: #1a241f;
-        --popover-foreground: #f2f5f3;
-        --muted: #1a241f;
-        --muted-foreground: #9aa8a1;
-        --accent: #22302a;
+        --background: #000000;
+        --foreground: #f5f5f5;
+        --card: #121212;
+        --card-foreground: #f5f5f5;
+        --popover: #121212;
+        --popover-foreground: #f5f5f5;
+        --muted: #121212;
+        --muted-foreground: #a3a3a3;
+        --accent: #1f1f1f;
         --accent-foreground: #7fdaa6;
         --primary: var(--color-asja-bright);
-        --primary-foreground: #141b17;
-        --border: #23302a;
-        --secondary: #1f2b24;
-        --secondary-foreground: #f2f5f3;
-        --input: #2b3a33;
+        --primary-foreground: #000000;
+        --border: #262626;
+        --secondary: #1c1c1c;
+        --secondary-foreground: #f5f5f5;
+        --input: #333333;
         --ring: var(--color-asja-bright);
 
         /* Réaffirmation des alias Tailwind : voir la note ci-dessus. */
@@ -366,22 +369,22 @@
     }
 
     .band-light {
-        --background: #f2f5f3;
-        --foreground: #141b17;
+        --background: #f5f5f5;
+        --foreground: #000000;
         --card: #ffffff;
-        --card-foreground: #141b17;
+        --card-foreground: #000000;
         --popover: #ffffff;
-        --popover-foreground: #141b17;
-        --muted: #e6ece9;
-        --muted-foreground: #5b665f;
+        --popover-foreground: #000000;
+        --muted: #ebebeb;
+        --muted-foreground: #616161;
         --accent: var(--color-asja-soft);
         --accent-foreground: var(--color-asja-deep);
         --primary: var(--color-asja);
         --primary-foreground: #ffffff;
-        --border: #c8d0cc;
-        --secondary: #e6ece9;
-        --secondary-foreground: #141b17;
-        --input: #9aa09c;
+        --border: #cccccc;
+        --secondary: #ebebeb;
+        --secondary-foreground: #000000;
+        --input: #9e9e9e;
         --ring: var(--color-asja);
 
         /* Réaffirmation des alias Tailwind : voir la note ci-dessus. */
@@ -505,19 +508,19 @@
 .app-shell {
     /* L'application est toujours claire : le thème sombre du site public ne
        la traverse pas. */
-    --background: #f3f5f4;
-    --foreground: #141816;
+    --background: #f5f5f5;
+    --foreground: #141414;
     --card: #ffffff;
-    --card-foreground: #141816;
+    --card-foreground: #141414;
     --popover: #ffffff;
-    --popover-foreground: #141816;
+    --popover-foreground: #141414;
 
     --primary: var(--color-asja);
     --primary-foreground: #ffffff;
-    --secondary: #eef1ef;
-    --secondary-foreground: #141816;
-    --muted: #f3f5f4;
-    --muted-foreground: #6b7472;
+    --secondary: #f0f0f0;
+    --secondary-foreground: #141414;
+    --muted: #f5f5f5;
+    --muted-foreground: #717171;
     --accent: var(--color-asja-soft);
     --accent-foreground: var(--color-asja-deep);
 
@@ -525,25 +528,25 @@
     --destructive-foreground: #ffffff;
 
     /* Filets très légers : c'est eux qui portent la structure, pas l'ombre. */
-    --border: #e7eae9;
-    --input: #dfe4e1;
+    --border: #e9e9e9;
+    --input: #e2e2e2;
     --ring: var(--color-asja);
 
     /* Barre latérale claire, détourée par un filet unique. */
     --sidebar: #ffffff;
-    --sidebar-foreground: #4a5250;
+    --sidebar-foreground: #4f4f4f;
     --sidebar-primary: var(--color-asja);
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f3f5f4;
-    --sidebar-accent-foreground: #141816;
-    --sidebar-border: #e7eae9;
+    --sidebar-accent: #f5f5f5;
+    --sidebar-accent-foreground: #141414;
+    --sidebar-border: #e9e9e9;
     --sidebar-ring: var(--color-asja);
 
     --chart-1: #0c8042;
     --chart-2: #35cf7f;
     --chart-3: #08542c;
     --chart-4: #7fdaa6;
-    --chart-5: #8b918e;
+    --chart-5: #737373;
 
     /* Angles mesurés : 12px sur les surfaces, 10px sur ce qui se clique,
        8px sur les petits contrôles. Plus de pilules dans l'administration. */
@@ -728,7 +731,7 @@
 
     /* Icônes en gris : seule l'entrée active porte la couleur. */
     .app-shell [data-sidebar='menu-button'] svg {
-        color: #9aa3a0;
+        color: #a0a0a0;
     }
 
     .app-shell [data-sidebar='menu-button']:hover {
@@ -782,7 +785,7 @@
     /* Pas de soulèvement : la carte s'éclaire, elle ne bouge pas. */
     .app-card-interactive:hover,
     .app-interactive:hover {
-        border-color: #d3dad7;
+        border-color: #d6d6d6;
         box-shadow: var(--app-shadow);
     }
 }

@@ -98,7 +98,7 @@ const PhotoCard = ({
                     className="absolute inset-0"
                     style={{
                         background:
-                            'linear-gradient(to bottom, rgba(20,27,23,0.1), rgba(20,27,23,0.88))',
+                            'linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.88))',
                     }}
                 />
 
@@ -115,7 +115,7 @@ const PhotoCard = ({
                         {department.name}
                     </h3>
                     {sub && (
-                        <p className="mt-2 text-[13.5px] leading-snug font-medium text-[#c3cec8] sm:text-[14.5px]">
+                        <p className="mt-2 text-[13.5px] leading-snug font-medium text-[#cccccc] sm:text-[14.5px]">
                             {sub}
                         </p>
                     )}
@@ -167,7 +167,7 @@ const DarkCard = ({
                     className="absolute inset-0"
                     style={{
                         background:
-                            'linear-gradient(to bottom, rgba(20,27,23,0.15), rgba(20,27,23,0.85))',
+                            'linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.85))',
                     }}
                 />
 
@@ -186,7 +186,7 @@ const DarkCard = ({
                             {department.name}
                         </h3>
                         {sub && (
-                            <p className="mt-2 text-[13.5px] leading-snug font-medium text-[#9aa8a1] sm:text-sm">
+                            <p className="mt-2 text-[13.5px] leading-snug font-medium text-[#a3a3a3] sm:text-sm">
                                 {sub}
                             </p>
                         )}

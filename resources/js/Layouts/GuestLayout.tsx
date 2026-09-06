@@ -26,7 +26,7 @@ export default function Guest({ children }: PropsWithChildren) {
                     aria-hidden="true"
                     style={{
                         background:
-                            'linear-gradient(180deg, rgba(20,27,23,0.55) 0%, rgba(20,27,23,0.72) 45%, rgba(20,27,23,0.96) 100%)',
+                            'linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.72) 45%, rgba(0, 0, 0, 0.96) 100%)',
                     }}
                 />
 
@@ -63,7 +63,7 @@ export default function Guest({ children }: PropsWithChildren) {
 
                     <p
                         className="mt-5 max-w-[420px] text-[15px] leading-relaxed"
-                        style={{ color: '#c3cec8' }}
+                        style={{ color: '#cccccc' }}
                     >
                         Emploi du temps, documents, annonces et événements :
                         tout se retrouve derrière une seule connexion.

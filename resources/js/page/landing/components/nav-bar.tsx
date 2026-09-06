@@ -75,7 +75,7 @@ export const Navbar = () => {
             <nav
                 className="border-border sticky top-0 z-50 border-b"
                 style={{
-                    background: 'rgba(20, 27, 23, 0.86)',
+                    background: 'rgba(0, 0, 0, 0.86)',
                     backdropFilter: 'blur(14px)',
                     WebkitBackdropFilter: 'blur(14px)',
                 }}
@@ -239,7 +239,7 @@ const DesktopNav = () => {
 const drawerLinkClass =
     'text-muted-foreground hover:text-foreground relative flex min-h-[40px] cursor-pointer items-center pl-4 text-sm transition-colors' +
     // Le rail et les fourches sont tirés de `--foreground` et non de
-    // `--border` : sur l'aplat sombre du tiroir, #23302a plafonne à 1,3:1 de
+    // `--border` : sur l'aplat sombre du tiroir, #262626 plafonne à 1,3:1 de
     // contraste, l'arborescence y était invisible. Les fourches sont un cran
     // plus claires que le rail pour qu'on lise la branche, pas une grille.
     ' before:absolute before:top-0 before:left-0 before:h-full before:w-px before:bg-[color-mix(in_srgb,var(--foreground)_15%,transparent)] before:content-[""]' +

@@ -7,8 +7,8 @@ import {
 import { useRef } from 'react';
 
 /** Les deux aplats du site, repris tels quels de `.band-dark` / `.band-light`. */
-const DARK = '20, 27, 23'; // #141b17
-const LIGHT = '#f2f5f3';
+const DARK = '0, 0, 0'; // #000000
+const LIGHT = '#f5f5f5';
 
 /* La couche peinte déborde de 30 % en haut et en bas : elle mesure donc 160 %
    de la bande, et la fenêtre réellement visible court de 18,75 % à 81,25 % de

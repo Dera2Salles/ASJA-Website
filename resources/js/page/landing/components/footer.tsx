@@ -1,5 +1,6 @@
 import Logo from '@/assets/Logo/asja-logo.png';
 import { useSection } from '@/lib/cms';
+import { mapMarkerIcon } from '@/lib/map-marker';
 import { Link as InertiaLink, usePage } from '@inertiajs/react';
 import 'leaflet/dist/leaflet.css';
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
@@ -206,7 +207,10 @@ export const Footer = () => {
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                            <Marker position={[latitude, longitude]}>
+                            <Marker
+                                position={[latitude, longitude]}
+                                icon={mapMarkerIcon}
+                            >
                                 <Popup>Université ASJA</Popup>
                             </Marker>
                         </MapContainer>

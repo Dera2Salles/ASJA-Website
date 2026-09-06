@@ -1,4 +1,5 @@
 import Logo from '@/assets/Logo/asja-logo.png';
+import { mapMarkerIcon } from '@/lib/map-marker';
 import 'leaflet/dist/leaflet.css';
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
@@ -100,7 +101,10 @@ export const FooterFiliereSection = () => {
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                             />
-                            <Marker position={asjaPosition}>
+                            <Marker
+                                position={asjaPosition}
+                                icon={mapMarkerIcon}
+                            >
                                 <Popup>Athénée Saint Joseph Antsirabe</Popup>
                             </Marker>
                         </MapContainer>
