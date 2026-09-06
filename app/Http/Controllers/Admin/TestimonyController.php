@@ -29,6 +29,10 @@ class TestimonyController extends Controller
             'is_visible' => 'boolean',
         ]);
 
+        // Voir `update()` : un champ fichier laissé de côté arrive en chaîne
+        // vide, jamais en tant que fichier.
+        unset($validated['avatar']);
+
         if ($request->hasFile('avatar')) {
             $validated['avatar'] = Uploads::store($request->file('avatar'), 'testimonies');
         }
@@ -47,6 +51,12 @@ class TestimonyController extends Controller
             'avatar'     => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_visible' => 'boolean',
         ]);
+
+        // Le formulaire renvoie `avatar` à chaque enregistrement ; quand on ne
+        // rouvre pas le sélecteur il vaut `null`, qu'Inertia sérialise en
+        // chaîne vide. Celle-ci passe la règle `nullable` et effaçait l'avatar
+        // déjà en place à la moindre modification de texte.
+        unset($validated['avatar']);
 
         if ($request->hasFile('avatar')) {
             Uploads::delete($testimony->avatar);

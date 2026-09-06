@@ -13,6 +13,13 @@ use Inertia\Response;
 
 class DepartmentController extends Controller
 {
+    /** Champs image de la mention : colonne en base => dossier de destination. */
+    private const IMAGE_FIELDS = [
+        'logo'       => 'departments/logos',
+        'hero_image' => 'departments/heroes',
+        'card_image' => 'departments/cards',
+    ];
+
     public function index(): Response
     {
         return Inertia::render('Admin/Departments/Index', [
@@ -38,17 +45,7 @@ class DepartmentController extends Controller
             'sort_order'  => 'integer',
         ]);
 
-        if ($request->hasFile('logo')) {
-            $validated['logo'] = Uploads::store($request->file('logo'), 'departments/logos');
-        }
-        if ($request->hasFile('hero_image')) {
-            $validated['hero_image'] = Uploads::store($request->file('hero_image'), 'departments/heroes');
-        }
-        if ($request->hasFile('card_image')) {
-            $validated['card_image'] = Uploads::store($request->file('card_image'), 'departments/cards');
-        }
-
-        Department::create($validated);
+        Department::create($this->withImages($request, $validated));
 
         return redirect()->route('admin.departments.index')->with('success', 'Department created.');
     }
@@ -72,32 +69,50 @@ class DepartmentController extends Controller
             'sort_order'  => 'integer',
         ]);
 
-        if ($request->hasFile('logo')) {
-            Uploads::delete($department->logo);
-            $validated['logo'] = Uploads::store($request->file('logo'), 'departments/logos');
-        }
-        if ($request->hasFile('hero_image')) {
-            Uploads::delete($department->hero_image);
-            $validated['hero_image'] = Uploads::store($request->file('hero_image'), 'departments/heroes');
-        }
-        if ($request->hasFile('card_image')) {
-            Uploads::delete($department->card_image);
-            $validated['card_image'] = Uploads::store($request->file('card_image'), 'departments/cards');
-        }
-
-        $department->update($validated);
+        $department->update($this->withImages($request, $validated, $department));
 
         return redirect()->route('admin.departments.index')->with('success', 'Department updated.');
     }
 
     public function destroy(Department $department): RedirectResponse
     {
-        Uploads::delete($department->logo);
-        Uploads::delete($department->hero_image);
-        Uploads::delete($department->card_image);
+        foreach (array_keys(self::IMAGE_FIELDS) as $field) {
+            Uploads::delete($department->{$field});
+        }
 
         $department->delete();
         return redirect()->route('admin.departments.index')->with('success', 'Department deleted.');
+    }
+
+    /**
+     * N'écrit une colonne image que si un fichier arrive vraiment.
+     *
+     * Le formulaire renvoie ses trois champs image à chaque enregistrement ;
+     * ceux qu'on n'a pas rouverts valent `null`, qu'Inertia sérialise en chaîne
+     * vide dans le `FormData`. Cette chaîne passe la règle `nullable`, se
+     * retrouvait dans les données validées et écrasait en base le chemin de
+     * l'image qu'on n'avait pas touchée : remplacer la bannière effaçait la
+     * photo d'accueil, et inversement. On repart donc systématiquement des
+     * valeurs déjà en base, et seul un vrai téléversement les remplace.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function withImages(Request $request, array $validated, ?Department $department = null): array
+    {
+        foreach (self::IMAGE_FIELDS as $field => $folder) {
+            unset($validated[$field]);
+
+            if (! $request->hasFile($field)) {
+                continue;
+            }
+
+            Uploads::delete($department?->{$field});
+
+            $validated[$field] = Uploads::store($request->file($field), $folder);
+        }
+
+        return $validated;
     }
 
 
