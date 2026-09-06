@@ -381,7 +381,7 @@ export default function DepartmentShow({ department, cms }: Props) {
         <CmsProvider content={cms}>
             <Head title={department.name} />
             <ThemeProvider>
-                <div className="flex min-h-screen flex-col overflow-x-clip">
+                <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />
 
                     <main className="flex-1">

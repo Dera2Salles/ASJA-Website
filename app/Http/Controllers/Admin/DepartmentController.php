@@ -33,6 +33,7 @@ class DepartmentController extends Controller
             'description' => 'nullable|string',
             'logo'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'hero_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'card_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'is_visible'  => 'boolean',
             'sort_order'  => 'integer',
         ]);
@@ -42,6 +43,9 @@ class DepartmentController extends Controller
         }
         if ($request->hasFile('hero_image')) {
             $validated['hero_image'] = Uploads::store($request->file('hero_image'), 'departments/heroes');
+        }
+        if ($request->hasFile('card_image')) {
+            $validated['card_image'] = Uploads::store($request->file('card_image'), 'departments/cards');
         }
 
         Department::create($validated);
@@ -63,6 +67,7 @@ class DepartmentController extends Controller
             'description' => 'nullable|string',
             'logo'        => 'nullable|image|mimes:jpg,jpeg,png,webp,svg|max:2048',
             'hero_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'card_image'  => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'is_visible'  => 'boolean',
             'sort_order'  => 'integer',
         ]);
@@ -75,6 +80,10 @@ class DepartmentController extends Controller
             Uploads::delete($department->hero_image);
             $validated['hero_image'] = Uploads::store($request->file('hero_image'), 'departments/heroes');
         }
+        if ($request->hasFile('card_image')) {
+            Uploads::delete($department->card_image);
+            $validated['card_image'] = Uploads::store($request->file('card_image'), 'departments/cards');
+        }
 
         $department->update($validated);
 
@@ -85,6 +94,7 @@ class DepartmentController extends Controller
     {
         Uploads::delete($department->logo);
         Uploads::delete($department->hero_image);
+        Uploads::delete($department->card_image);
 
         $department->delete();
         return redirect()->route('admin.departments.index')->with('success', 'Department deleted.');

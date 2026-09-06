@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Department;
 use App\Models\Post;
 use App\Models\Testimony;
 use App\Models\User;
@@ -182,6 +183,37 @@ class UploadsTest extends TestCase
         $cover = $this->track(Post::sole()->cover_image);
 
         $this->get($cover)->assertOk();
+    }
+
+    /**
+     * La photo de la mosaïque d'accueil est une image propre à la carte, et
+     * non la bannière de la page de mention : les deux colonnes coexistent et
+     * la première doit voyager jusqu'aux props de la page d'accueil.
+     */
+    public function test_une_mention_stocke_la_photo_de_sa_carte_daccueil(): void
+    {
+        $this->actingAs($this->admin())
+            ->post('/admin/departments', [
+                'slug' => 'informatique',
+                'name' => 'Informatique',
+                'card_image' => $this->image('carte.jpg'),
+                'hero_image' => $this->image('banniere.jpg'),
+                'is_visible' => true,
+                'sort_order' => 0,
+            ])
+            ->assertRedirect('/admin/departments');
+
+        $department = Department::sole();
+        $carte = $this->track($department->card_image);
+        $banniere = $this->track($department->hero_image);
+
+        $this->assertStringStartsWith('/uploads/departments/cards/', $carte);
+        $this->assertStringStartsWith('/uploads/departments/heroes/', $banniere);
+        $this->assertFileExists(base_path(ltrim($carte, '/')));
+
+        $this->get('/')->assertInertia(
+            fn ($page) => $page->where('departments.0.card_image', $carte),
+        );
     }
 
     /** Une URL d'upload ne doit pas donner accès au reste du dépôt. */

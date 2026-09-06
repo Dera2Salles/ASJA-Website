@@ -6,13 +6,14 @@ import { PropsWithChildren } from 'react';
 
 /**
  * Écrans d'authentification — même langage que la page d'accueil : photo de
- * campus voilée de vert forêt à gauche, titre Archivo massif, formulaire posé
- * sur une surface claire à droite. `app-shell` apporte les arrondis généreux
- * et les pilules (il neutralise la remise à zéro brutaliste du site public).
+ * campus assombrie à gauche, titre Archivo massif, formulaire posé sur une
+ * surface claire à droite. `app-shell` apporte les surfaces du back-office ;
+ * `square-corners` ramène les angles droits du site public, que `app-shell`
+ * arrondissait.
  */
 export default function Guest({ children }: PropsWithChildren) {
     return (
-        <div className="app-shell grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+        <div className="app-shell square-corners grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
             {/* Volet photo : seul aplat sombre de l'écran. */}
             <aside className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between">
                 <img

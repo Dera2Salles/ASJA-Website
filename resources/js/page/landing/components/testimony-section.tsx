@@ -85,7 +85,7 @@ export const TestimonySection = () => {
     if (list.length === 0) return null;
 
     return (
-        <section id="voix" className="section-rhythm">
+        <section id="temoignages" className="section-rhythm">
             <div className="section-shell">
                 {/* Carrousel : la grille ne montrait que les trois premiers
                     témoignages, tous sont désormais atteignables. */}

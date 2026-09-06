@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Department extends Model
 {
     protected $fillable = [
-        'slug', 'name', 'description', 'logo', 'hero_image',
+        'slug', 'name', 'description', 'logo', 'hero_image', 'card_image',
         'is_visible', 'sort_order', 'parcours', 'events', 'stats',
     ];
 

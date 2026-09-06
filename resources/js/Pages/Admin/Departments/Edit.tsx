@@ -8,6 +8,7 @@ interface Department {
     color: string;
     logo: string | null;
     hero_image: string | null;
+    card_image: string | null;
     is_visible: boolean;
     sort_order: number;
     programs: any[];

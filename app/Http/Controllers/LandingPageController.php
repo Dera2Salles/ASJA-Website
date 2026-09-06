@@ -23,7 +23,7 @@ class LandingPageController extends Controller
             'testimonies' => Testimony::where('is_visible', true)->get(),
             'departments' => Department::where('is_visible', true)
                 ->orderBy('sort_order')
-                ->get(['id', 'slug', 'name', 'logo']),
+                ->get(['id', 'slug', 'name', 'logo', 'card_image']),
 
             'posts' => Post::published()->ofType(Post::TYPE_ARTICLE)->take(6)->get($postColumns),
             // Le carrousel « Ça bouge » parcourt la totalité de la liste : le

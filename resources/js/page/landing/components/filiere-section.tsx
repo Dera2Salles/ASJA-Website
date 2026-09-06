@@ -1,6 +1,4 @@
 import { cmsImage, useSection } from '@/lib/cms';
-import { departmentLogo } from '@/lib/department-logos';
-import { useThemeContext } from '@/page/theme/useThemeContext';
 import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 
@@ -16,17 +14,21 @@ type Department = {
     id: number;
     slug: string;
     name: string;
-    logo: string | null;
+    /* Photo téléversée depuis l'administration (« Photo (accueil) »). Elle
+       prime sur la table de secours ci-dessous, qui ne couvre que les six
+       mentions historiques : une mention créée en base n'y figure pas. */
+    card_image: string | null;
 };
 
-// Association des slugs aux images réelles importées
+// Photos de secours des six mentions historiques, utilisées tant qu'aucune
+// image n'a été téléversée pour la mention depuis l'administration.
 const departmentImages: Record<string, string> = {
     informatique: infoImg,
     droit: droitImg,
     economie: ecoImg,
     agronomie: agroImg,
     'sciences-de-la-terre': stImg,
-    lea: leaImg,
+    'langues-etrangeres-appliquees': leaImg,
 };
 
 // Parcours textuels de secours pour chaque filière (comme affichés dans le design HTML)
@@ -36,8 +38,14 @@ const departmentSubtitles: Record<string, string> = {
     economie: 'Développement · Commerce international',
     agronomie: 'Animale · Végétale · Agroalimentaire',
     'sciences-de-la-terre': 'Hydrogéologie · Géologie minière',
-    lea: 'Traduction · Interprétation · Communication interculturelle',
+    'langues-etrangeres-appliquees':
+        'Traduction · Interprétation · Communication interculturelle',
 };
+
+/** Photo de fond d'une carte : celle de l'administration, sinon le repli. */
+function cardImage(department: Department): string | undefined {
+    return cmsImage(department.card_image, departmentImages[department.slug]);
+}
 
 /** Returns the card "variant" for a given index, cycling if more than 6 cards. */
 function cardVariant(
@@ -59,17 +67,11 @@ function cardVariant(
 const PhotoCard = ({
     department,
     index,
-    isDark,
 }: {
     department: Department;
     index: number;
-    isDark: boolean;
 }) => {
-    const logo = cmsImage(
-        department.logo,
-        departmentLogo(department.slug, isDark),
-    );
-    const bgImage = departmentImages[department.slug] || logo;
+    const bgImage = cardImage(department);
     const sub = departmentSubtitles[department.slug] || '';
 
     return (
@@ -104,13 +106,6 @@ const PhotoCard = ({
 
                 {/* Content */}
                 <div className="relative z-10 p-6 sm:p-7 lg:p-8">
-                    {logo && (
-                        <img
-                            src={logo}
-                            alt=""
-                            className="mb-3 h-11 w-auto object-contain sm:mb-3.5 sm:h-[52px]"
-                        />
-                    )}
                     <h3 className="font-display text-2xl leading-tight font-extrabold text-white uppercase sm:text-3xl">
                         {department.name}
                     </h3>
@@ -129,17 +124,11 @@ const PhotoCard = ({
 const DarkCard = ({
     department,
     index,
-    isDark,
 }: {
     department: Department;
     index: number;
-    isDark: boolean;
 }) => {
-    const logo = cmsImage(
-        department.logo,
-        departmentLogo(department.slug, isDark),
-    );
-    const bgImage = departmentImages[department.slug] || logo;
+    const bgImage = cardImage(department);
     const sub = departmentSubtitles[department.slug] || '';
 
     return (
@@ -172,15 +161,7 @@ const DarkCard = ({
                 />
 
                 {/* Content */}
-                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-between sm:min-h-[210px] lg:min-h-[236px]">
-                    {logo && (
-                        <img
-                            src={logo}
-                            alt=""
-                            className="h-11 w-auto self-start object-contain sm:h-[52px]"
-                        />
-                    )}
-
+                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-end sm:min-h-[210px] lg:min-h-[236px]">
                     <div className="mt-auto">
                         <h3 className="font-display text-[22px] leading-tight font-extrabold text-white uppercase sm:text-[26px]">
                             {department.name}
@@ -201,17 +182,11 @@ const DarkCard = ({
 const GreenCard = ({
     department,
     index,
-    isDark,
 }: {
     department: Department;
     index: number;
-    isDark: boolean;
 }) => {
-    const logo = cmsImage(
-        department.logo,
-        departmentLogo(department.slug, isDark),
-    );
-    const bgImage = departmentImages[department.slug] || logo;
+    const bgImage = cardImage(department);
     const sub = departmentSubtitles[department.slug] || '';
 
     return (
@@ -235,15 +210,7 @@ const GreenCard = ({
                 )}
 
                 {/* Content */}
-                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-between sm:min-h-[210px] lg:min-h-[236px]">
-                    {logo && (
-                        <img
-                            src={logo}
-                            alt=""
-                            className="h-11 w-auto self-start object-contain sm:h-[52px]"
-                        />
-                    )}
-
+                <div className="relative z-10 flex h-full min-h-[184px] flex-col justify-end sm:min-h-[210px] lg:min-h-[236px]">
                     <div className="mt-auto">
                         <h3 className="font-display text-[22px] leading-tight font-extrabold uppercase sm:text-[26px]">
                             {department.name}
@@ -262,7 +229,6 @@ const GreenCard = ({
 
 /* ─── Section ─────────────────────────────────────────────────────────────── */
 export const FiliereSection = () => {
-    const { isDark } = useThemeContext();
     const programs = useSection('programs');
 
     // Les mentions proviennent de la base : leurs adresses sont donc toujours
@@ -315,7 +281,6 @@ export const FiliereSection = () => {
                                     key={department.id}
                                     department={department}
                                     index={index}
-                                    isDark={isDark}
                                 />
                             );
                         }
@@ -326,7 +291,6 @@ export const FiliereSection = () => {
                                     key={department.id}
                                     department={department}
                                     index={index}
-                                    isDark={isDark}
                                 />
                             );
                         }
@@ -337,7 +301,6 @@ export const FiliereSection = () => {
                                 key={department.id}
                                 department={department}
                                 index={index}
-                                isDark={isDark}
                             />
                         );
                     })}

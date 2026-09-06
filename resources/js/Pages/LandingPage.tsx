@@ -46,7 +46,7 @@ export default function LandingPage({ cms, posts }: LandingPageProps) {
                         décrochait la navbar `sticky` dès le premier scroll.
                         `clip` rogne le débordement horizontal sans créer de
                         scrollport, la barre reste donc épinglée. */}
-                    <div className="flex min-h-screen flex-col overflow-x-clip">
+                    <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                         <Navbar />
                         <main className="flex-1">
                             {/* 1. Hero (sombre — photo pleine page) */}

@@ -299,6 +299,17 @@
         @apply min-h-[46px] sm:min-h-0;
     }
 
+    /* Angles droits sur les pages publiques (landing, actualités, article,
+       mention). Les composants portent leurs arrondis en dur (`rounded-full`,
+       `rounded-[28px]`, ...) : plutôt que de les décoller un par un, chaque
+       page pose cette classe sur son enveloppe et tout retombe à zéro, y
+       compris la carte Leaflet et les images. Retirer `square-corners` des
+       quatre pages suffit à revenir aux arrondis. */
+    .square-corners,
+    .square-corners * {
+        border-radius: 0 !important;
+    }
+
     /* Sur-titre en capitales qui coiffe les titres de section. */
     .eyebrow {
         @apply text-primary font-sans text-xs font-bold tracking-[0.18em] uppercase;

@@ -41,6 +41,7 @@ interface Department {
     description: string;
     logo: string | null;
     hero_image: string | null;
+    card_image: string | null;
     is_visible: boolean;
     sort_order: number;
     programs?: Program[];
@@ -58,6 +59,7 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
         description: department?.description ?? '',
         logo: null as File | null,
         hero_image: null as File | null,
+        card_image: null as File | null,
         is_visible: department?.is_visible ?? true,
         sort_order: department?.sort_order ?? 0,
     });
@@ -418,6 +420,62 @@ export default function DepartmentForm({ department, isEdit = false }: Props) {
                                     {data.hero_image && (
                                         <p className="text-primary mt-2 max-w-[150px] truncate text-xs font-medium">
                                             {data.hero_image.name}
+                                        </p>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Photo de la carte affichée dans la mosaïque des
+                                mentions, sur la page d'accueil. Sans elle, la
+                                carte reste un aplat : c'est le seul visuel de
+                                cette liste depuis que le logo n'y figure plus. */}
+                            <Card className="border-border bg-card overflow-hidden border">
+                                <CardHeader className="border-border border-b px-6 py-5">
+                                    <CardTitle className="flex items-center gap-2 text-sm font-medium">
+                                        <LayoutGrid className="text-primary h-4 w-4" />{' '}
+                                        Photo (accueil)
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex min-h-[220px] flex-col items-center justify-center p-8">
+                                    {department?.card_image &&
+                                    !data.card_image ? (
+                                        <div className="relative mb-6 h-24 w-full">
+                                            <img
+                                                src={uploadUrl(
+                                                    department.card_image,
+                                                )}
+                                                alt=""
+                                                className="border-border h-full w-full border object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="border-border bg-muted text-muted-foreground dark:bg-card/5 mb-6 flex h-24 w-full items-center justify-center border border-dashed dark:border-white/10">
+                                            <ImageIcon size={32} />
+                                        </div>
+                                    )}
+                                    <Label className="bg-muted text-muted-foreground hover:bg-muted dark:bg-card/10 cursor-pointer px-5 py-2.5 text-xs font-semibold transition-colors">
+                                        {department?.card_image
+                                            ? 'Modifier la photo'
+                                            : "Photo d'accueil"}
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={(e) =>
+                                                setData(
+                                                    'card_image',
+                                                    e.target.files?.[0] ?? null,
+                                                )
+                                            }
+                                        />
+                                    </Label>
+                                    <p className="text-muted-foreground mt-3 max-w-[220px] text-center text-[11px] leading-snug">
+                                        Vignette de la mention dans la mosaïque
+                                        de la page d'accueil.
+                                    </p>
+                                    {data.card_image && (
+                                        <p className="text-primary mt-2 max-w-[150px] truncate text-xs font-medium">
+                                            {data.card_image.name}
                                         </p>
                                     )}
                                 </CardContent>

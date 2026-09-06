@@ -31,7 +31,7 @@ class MigrateUploadsCommand extends Command
     private const COLUMNS = [
         'posts' => ['cover_image'],
         'testimonies' => ['avatar'],
-        'departments' => ['logo', 'hero_image'],
+        'departments' => ['logo', 'hero_image', 'card_image'],
     ];
 
     private bool $dryRun = false;
