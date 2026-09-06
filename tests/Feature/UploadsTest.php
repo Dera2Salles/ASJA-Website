@@ -216,6 +216,73 @@ class UploadsTest extends TestCase
         );
     }
 
+    /**
+     * Le formulaire d'une mention renvoie ses trois champs image à chaque
+     * enregistrement ; ceux qu'on n'a pas rouverts arrivent en chaîne vide.
+     * Remplacer une seule image ne doit pas emporter les deux autres.
+     */
+    public function test_remplacer_une_image_de_mention_preserve_les_autres(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/admin/departments', [
+            'slug' => 'droit',
+            'name' => 'Droit',
+            'logo' => $this->image('logo.jpg'),
+            'hero_image' => $this->image('banniere.jpg'),
+            'card_image' => $this->image('carte.jpg'),
+            'is_visible' => true,
+            'sort_order' => 0,
+        ]);
+
+        $department = Department::sole();
+        $logo = $this->track($department->logo);
+        $carte = $this->track($department->card_image);
+
+        // Ce que le navigateur envoie quand seule la bannière est rouverte.
+        $this->actingAs($admin)->put("/admin/departments/{$department->id}", [
+            'name' => 'Droit',
+            'logo' => '',
+            'hero_image' => $this->image('banniere-2.jpg'),
+            'card_image' => '',
+            'is_visible' => true,
+            'sort_order' => 0,
+        ])->assertRedirect('/admin/departments');
+
+        $department->refresh();
+        $this->track($department->hero_image);
+
+        $this->assertSame($logo, $department->logo);
+        $this->assertSame($carte, $department->card_image);
+        $this->assertFileExists(base_path(ltrim($carte, '/')));
+    }
+
+    /** Même piège côté témoignage : éditer le texte ne doit pas ôter l'avatar. */
+    public function test_modifier_un_temoignage_sans_fichier_conserve_son_avatar(): void
+    {
+        $admin = $this->admin();
+
+        $this->actingAs($admin)->post('/admin/testimonies', [
+            'name' => 'Hery',
+            'content' => 'Merci.',
+            'avatar' => $this->image(),
+            'is_visible' => true,
+        ]);
+
+        $temoignage = Testimony::sole();
+        $avatar = $this->track($temoignage->avatar);
+
+        $this->actingAs($admin)->put("/admin/testimonies/{$temoignage->id}", [
+            'name' => 'Hery',
+            'content' => 'Merci beaucoup.',
+            'avatar' => '',
+            'is_visible' => true,
+        ]);
+
+        $this->assertSame($avatar, $temoignage->fresh()->avatar);
+        $this->assertFileExists(base_path(ltrim($avatar, '/')));
+    }
+
     /** Une URL d'upload ne doit pas donner accès au reste du dépôt. */
     public function test_la_route_de_repli_ne_sert_que_le_dossier_uploads(): void
     {

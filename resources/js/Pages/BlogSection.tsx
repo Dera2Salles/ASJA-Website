@@ -1,20 +1,14 @@
 import { useSection } from '@/lib/cms';
 import { formatDate, postImage, type Post } from '@/lib/posts';
 import { Link } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import { SectionCarousel } from '../page/landing/components/section-carousel';
 
-const PostCard = ({ post, index }: { post: Post; index: number }) => {
+const PostCard = ({ post }: { post: Post }) => {
     const image = postImage(post);
     const dateText = formatDate(post.published_at);
 
     return (
-        <motion.article
-            initial={{ opacity: 0, y: 28 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.5, delay: index * 0.08, ease: 'easeOut' }}
-            className="flex flex-col"
-        >
+        <article className="flex h-full flex-col">
             <Link
                 href={`/actualites/${post.slug}`}
                 className="group bg-card border-border hover:bg-accent flex h-full flex-col overflow-hidden rounded-[22px] border transition-colors duration-200"
@@ -57,7 +51,7 @@ const PostCard = ({ post, index }: { post: Post; index: number }) => {
                     ) : null}
                 </div>
             </Link>
-        </motion.article>
+        </article>
     );
 };
 
@@ -69,34 +63,35 @@ export const BlogSection = ({ posts }: { posts: Post[] }) => {
     return (
         <section id="actualites" className="section-rhythm">
             <div className="section-shell">
-                {/* Header — le titre et le lien se partageaient une rangée sans
-                    rupture ; sous 420 px, « Toutes les actus » venait mordre
-                    sur le titre. */}
-                <div className="mb-8 flex flex-col gap-4 sm:mb-10 sm:flex-row sm:items-end sm:justify-between sm:gap-10">
-                    <h2
-                        className="font-display text-foreground m-0 font-black uppercase"
-                        style={{
-                            fontSize: 'clamp(30px, 7vw, 48px)',
-                            lineHeight: 1,
-                            letterSpacing: '-0.035em',
-                        }}
-                    >
-                        {String(content.title ?? 'Actualités & Annonces')}
-                    </h2>
-                    <Link
-                        href="/actualites"
-                        className="text-primary tap-target inline-flex shrink-0 items-center text-sm font-bold hover:underline"
-                    >
-                        Toutes les actus →
-                    </Link>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {posts.slice(0, 3).map((post, index) => (
-                        <PostCard key={post.id} post={post} index={index} />
-                    ))}
-                </div>
+                <SectionCarousel
+                    items={posts}
+                    getKey={(post) => post.id}
+                    label="Actualités et annonces"
+                    itemLabel="actualité"
+                    heading={
+                        <h2
+                            className="font-display text-foreground m-0 font-black uppercase"
+                            style={{
+                                fontSize: 'clamp(30px, 7vw, 48px)',
+                                lineHeight: 1,
+                                letterSpacing: '-0.035em',
+                            }}
+                        >
+                            {String(content.title ?? 'Actualités & Annonces')}
+                        </h2>
+                    }
+                    action={
+                        <Link
+                            href="/actualites"
+                            className="text-primary tap-target inline-flex shrink-0 items-center text-sm font-bold hover:underline"
+                        >
+                            Toutes les actus →
+                        </Link>
+                    }
+                    renderItem={(post) => <PostCard post={post} />}
+                />
             </div>
         </section>
     );
 };
+

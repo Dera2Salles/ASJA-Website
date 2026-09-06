@@ -286,6 +286,37 @@
         @apply mx-auto w-full max-w-[1320px] px-6 sm:px-8 lg:px-9;
     }
 
+    /* Rangée qui défile au doigt sur téléphone, grille dès `sm`.
+
+       Empilées verticalement, six mentions ou trois actualités faisaient
+       plusieurs écrans de haut : on ne voyait plus la section, seulement une
+       carte à la fois. En rangée, la carte suivante dépasse d'une quinzaine de
+       pour cent au bord droit — le seul indice fiable qu'il reste quelque
+       chose à faire défiler — et le débord de gouttière (`-mx-6` + `px-6`)
+       laisse la piste toucher le bord de l'écran. `scroll-pl-6` remet le point
+       d'arrêt sur la gouttière, sans quoi la piste s'ouvre déjà décalée.
+
+       Tout est sous `max-sm:` plutôt que réinitialisé en `sm:` : au-delà de
+       640 px la classe ne pose plus rien du tout, et la grille écrite sur le
+       même élément (`sm:grid sm:grid-cols-2`...) reprend la main sans avoir à
+       défaire un `display: flex` que la cascade lui laissait gagner.
+
+       `touch-pan-y` laisse le doigt faire défiler la page verticalement : seul
+       le geste horizontal revient à la piste. */
+    .mobile-carousel {
+        @apply max-sm:-mx-6 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:scroll-pl-6 max-sm:gap-3 max-sm:overflow-x-auto max-sm:px-6;
+
+        scrollbar-width: none;
+    }
+
+    .mobile-carousel::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-carousel > * {
+        @apply max-sm:w-[82%] max-sm:shrink-0 max-sm:touch-pan-y max-sm:snap-start;
+    }
+
     /* Rythme vertical correspondant. Les 104 px du dessin d'origine sont
        conservés à partir de `lg` ; en dessous, ils laissaient trop peu de
        contenu à l'écran d'un téléphone entre deux respirations. */
