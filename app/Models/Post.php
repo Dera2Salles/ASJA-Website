@@ -27,12 +27,13 @@ class Post extends Model
 
     protected $fillable = [
         'user_id', 'type', 'title', 'slug', 'excerpt', 'content',
-        'cover_image', 'category', 'tags', 'is_published', 'is_pinned',
+        'cover_image', 'gallery_images', 'category', 'tags', 'is_published', 'is_pinned',
         'published_at', 'event_start_at', 'event_end_at', 'location',
     ];
 
     protected $casts = [
         'tags' => 'array',
+        'gallery_images' => 'array',
         'is_published' => 'boolean',
         'is_pinned' => 'boolean',
         'published_at' => 'datetime',

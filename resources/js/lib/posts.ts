@@ -12,6 +12,7 @@ export interface Post {
     excerpt: string | null;
     content?: string;
     cover_image: string | null;
+    gallery_images?: string[] | null;
     category: string | null;
     tags?: string[] | null;
     is_pinned?: boolean;
@@ -31,6 +32,14 @@ export const POST_TYPE_LABELS: Record<PostType, string> = {
 /** Chemin public d'une image de publication, servie depuis `public/uploads`. */
 export function postImage(post: Pick<Post, 'cover_image'>): string | null {
     return uploadUrl(post.cover_image) ?? null;
+}
+
+/** Chemins publics des images de la galerie d'une publication. */
+export function postGalleryImages(post: Pick<Post, 'gallery_images'>): string[] {
+    if (!post.gallery_images || !Array.isArray(post.gallery_images)) return [];
+    return post.gallery_images
+        .map((img) => uploadUrl(img))
+        .filter((url): url is string => Boolean(url));
 }
 
 function safeParse(value: string | null): Date | null {

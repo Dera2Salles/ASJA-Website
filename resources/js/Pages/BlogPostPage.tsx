@@ -3,21 +3,27 @@ import {
     formatDate,
     formatEventPeriod,
     POST_TYPE_LABELS,
+    postGalleryImages,
     postImage,
     type Post,
 } from '@/lib/posts';
 import { Head, Link } from '@inertiajs/react';
-import { motion } from 'framer-motion';
+import useEmblaCarousel from 'embla-carousel-react';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
     ArrowLeft,
     ArrowRight,
     CalendarDays,
     Check,
+    ChevronLeft,
+    ChevronRight,
+    Images,
     Link2,
     MapPin,
     User,
+    X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { BandTransition } from '../page/landing/components/band-transition';
 import { Footer } from '../page/landing/components/footer';
 import { Navbar } from '../page/landing/components/nav-bar';
@@ -28,6 +34,223 @@ interface Props {
     related: Post[];
     cms: CmsContent;
 }
+
+const GalleryViewer = ({ images }: { images: string[] }) => {
+    const reduceMotion = useReducedMotion();
+    const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+    const [emblaRef, embla] = useEmblaCarousel({
+        align: 'start',
+        containScroll: 'trimSnaps',
+        loop: false,
+        duration: reduceMotion ? 0 : 26,
+    });
+
+    const [snaps, setSnaps] = useState<number[]>([]);
+    const [selected, setSelected] = useState(0);
+    const [canPrev, setCanPrev] = useState(false);
+    const [canNext, setCanNext] = useState(false);
+
+    const onSelect = useCallback(() => {
+        if (!embla) return;
+        setSelected(embla.selectedScrollSnap());
+        setCanPrev(embla.canScrollPrev());
+        setCanNext(embla.canScrollNext());
+    }, [embla]);
+
+    const onReInit = useCallback(() => {
+        if (!embla) return;
+        setSnaps(embla.scrollSnapList());
+        onSelect();
+    }, [embla, onSelect]);
+
+    useEffect(() => {
+        if (!embla) return;
+        onReInit();
+        embla.on('select', onSelect);
+        embla.on('reInit', onReInit);
+        return () => {
+            embla.off('select', onSelect);
+            embla.off('reInit', onReInit);
+        };
+    }, [embla, onSelect, onReInit]);
+
+    const scrollPrev = useCallback(() => embla?.scrollPrev(), [embla]);
+    const scrollNext = useCallback(() => embla?.scrollNext(), [embla]);
+
+    // Clavier pour la modal lightbox
+    useEffect(() => {
+        if (lightboxIndex === null) return;
+
+        const onKey = (e: globalThis.KeyboardEvent) => {
+            if (e.key === 'Escape') setLightboxIndex(null);
+            else if (e.key === 'ArrowLeft') {
+                setLightboxIndex((prev) =>
+                    prev !== null && prev > 0 ? prev - 1 : images.length - 1,
+                );
+            } else if (e.key === 'ArrowRight') {
+                setLightboxIndex((prev) =>
+                    prev !== null && prev < images.length - 1 ? prev + 1 : 0,
+                );
+            }
+        };
+
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [lightboxIndex, images.length]);
+
+    if (images.length === 0) return null;
+
+    return (
+        <div className="mt-12 space-y-4 border-t border-border pt-10">
+            <div className="flex items-center justify-between">
+                <h3 className="font-display text-foreground flex items-center gap-2 text-xl font-bold uppercase">
+                    <Images className="text-primary h-5 w-5" />
+                    Galerie photos ({images.length})
+                </h3>
+
+                <div className="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onClick={scrollPrev}
+                        disabled={!canPrev}
+                        aria-label="Image précédente"
+                        className="border-border text-foreground hover:bg-primary hover:border-primary hover:text-primary-foreground flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-30"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={scrollNext}
+                        disabled={!canNext}
+                        aria-label="Image suivante"
+                        className="border-border text-foreground hover:bg-primary hover:border-primary hover:text-primary-foreground flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border transition-colors disabled:pointer-events-none disabled:opacity-30"
+                    >
+                        <ChevronRight className="h-4 w-4" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Piste Carrousel */}
+            <div ref={emblaRef} className="overflow-hidden rounded-[22px]">
+                <div className="-ml-3 flex touch-pan-y sm:-ml-4">
+                    {images.map((url, idx) => (
+                        <div
+                            key={idx}
+                            className="min-w-0 shrink-0 grow-0 basis-[85%] pl-3 sm:basis-1/2 sm:pl-4 md:basis-1/3"
+                        >
+                            <button
+                                type="button"
+                                onClick={() => setLightboxIndex(idx)}
+                                className="group relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-[16px] border border-border bg-muted transition-transform"
+                            >
+                                <img
+                                    src={url}
+                                    alt={`Photo ${idx + 1}`}
+                                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Pastilles indicatrices */}
+            {snaps.length > 1 ? (
+                <div className="flex items-center justify-center gap-1 pt-2">
+                    {snaps.map((_, idx) => (
+                        <button
+                            key={idx}
+                            type="button"
+                            onClick={() => embla?.scrollTo(idx)}
+                            className="flex h-6 items-center justify-center px-1"
+                        >
+                            <span
+                                className={`block h-1.5 rounded-full ${
+                                    idx === selected
+                                        ? 'bg-primary w-6'
+                                        : 'bg-foreground/20 w-1.5'
+                                }`}
+                                style={{
+                                    transition:
+                                        'width 240ms ease-out, background-color 200ms ease-out',
+                                }}
+                            />
+                        </button>
+                    ))}
+                </div>
+            ) : null}
+
+            {/* Lightbox plein écran */}
+            {lightboxIndex !== null ? (
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+                    onClick={() => setLightboxIndex(null)}
+                >
+                    <button
+                        type="button"
+                        onClick={() => setLightboxIndex(null)}
+                        aria-label="Fermer"
+                        className="text-white hover:text-primary absolute top-5 right-5 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 transition-colors"
+                    >
+                        <X className="h-6 w-6" />
+                    </button>
+
+                    <div
+                        className="relative max-h-[85vh] max-w-[90vw]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <img
+                            src={images[lightboxIndex]}
+                            alt=""
+                            className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+                        />
+                        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-semibold text-white/80">
+                            {lightboxIndex + 1} / {images.length}
+                        </div>
+                    </div>
+
+                    {images.length > 1 ? (
+                        <>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLightboxIndex((prev) =>
+                                        prev !== null && prev > 0
+                                            ? prev - 1
+                                            : images.length - 1,
+                                    );
+                                }}
+                                aria-label="Précédente"
+                                className="text-white hover:text-primary absolute top-1/2 left-4 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 transition-colors"
+                            >
+                                <ChevronLeft className="h-6 w-6" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setLightboxIndex((prev) =>
+                                        prev !== null && prev < images.length - 1
+                                            ? prev + 1
+                                            : 0,
+                                    );
+                                }}
+                                aria-label="Suivante"
+                                className="text-white hover:text-primary absolute top-1/2 right-4 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 transition-colors"
+                            >
+                                <ChevronRight className="h-6 w-6" />
+                            </button>
+                        </>
+                    ) : null}
+                </div>
+            ) : null}
+        </div>
+    );
+};
 
 const ShareButton = () => {
     const [copied, setCopied] = useState(false);
@@ -99,6 +322,7 @@ const RelatedCard = ({ post }: { post: Post }) => {
 
 function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
     const image = postImage(post);
+    const gallery = postGalleryImages(post);
     const isEvent = post.type === 'evenement';
     const period = isEvent ? formatEventPeriod(post) : '';
 
@@ -221,6 +445,9 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
                                     __html: post.content ?? '',
                                 }}
                             />
+
+                            {/* Galerie d'images */}
+                            <GalleryViewer images={gallery} />
 
                             {post.tags && post.tags.length > 0 ? (
                                 <div className="mt-12 flex flex-wrap gap-2">

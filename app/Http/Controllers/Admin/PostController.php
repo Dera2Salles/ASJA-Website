@@ -52,6 +52,7 @@ class PostController extends Controller
         $validated['user_id'] = $request->user()->id;
         $validated['slug'] = Post::uniqueSlug($validated['title']);
         $validated = $this->withCoverImage($request, $validated);
+        $validated = $this->withGalleryImages($request, $validated);
         $validated = $this->withPublicationDate($validated, null);
 
         Post::create($validated);
@@ -73,6 +74,7 @@ class PostController extends Controller
         $validated = $this->validated($request);
 
         $validated = $this->withCoverImage($request, $validated, $post);
+        $validated = $this->withGalleryImages($request, $validated, $post);
         $validated = $this->withPublicationDate($validated, $post);
 
         $post->update($validated);
@@ -84,6 +86,12 @@ class PostController extends Controller
     public function destroy(Post $post): RedirectResponse
     {
         Uploads::delete($post->cover_image);
+
+        if (is_array($post->gallery_images)) {
+            foreach ($post->gallery_images as $image) {
+                Uploads::delete($image);
+            }
+        }
 
         $post->delete();
 
@@ -99,6 +107,10 @@ class PostController extends Controller
             'excerpt' => ['nullable', 'string', 'max:500'],
             'content' => ['required', 'string'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
+            'gallery_images' => ['nullable', 'array'],
+            'gallery_images.*' => ['nullable', 'string'],
+            'new_gallery_images' => ['nullable', 'array'],
+            'new_gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,avif', 'max:5120'],
             'category' => ['nullable', 'string', 'max:100'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['string', 'max:50'],
@@ -132,19 +144,56 @@ class PostController extends Controller
     }
 
     /**
-     * Une publication mise en ligne sans date explicite est datée de maintenant ;
-     * une date future vaut programmation (le scope `published` la masque
-     * jusqu'à l'échéance).
+     * Gère les images de la galerie : conserve les images existantes transmises
+     * dans `gallery_images`, téléverse les nouveaux fichiers envoyés dans
+     * `new_gallery_images`, et supprime du disque les images retirées.
+     */
+    private function withGalleryImages(Request $request, array $validated, ?Post $post = null): array
+    {
+        $existing = $validated['gallery_images'] ?? [];
+        $currentInDb = $post?->gallery_images ?? [];
+
+        // Supprimer les images qui étaient présentes en DB mais ne sont plus dans la sélection
+        if (is_array($currentInDb)) {
+            foreach ($currentInDb as $path) {
+                if (! in_array($path, $existing, true)) {
+                    Uploads::delete($path);
+                }
+            }
+        }
+
+        $gallery = array_values(array_filter($existing, fn ($path) => is_string($path) && $path !== ''));
+
+        if ($request->hasFile('new_gallery_images')) {
+            foreach ($request->file('new_gallery_images') as $file) {
+                if ($file->isValid()) {
+                    $gallery[] = Uploads::store($file, 'posts/gallery');
+                }
+            }
+        }
+
+        $validated['gallery_images'] = $gallery;
+        unset($validated['new_gallery_images']);
+
+        return $validated;
+    }
+
+    /**
+     * Gère la date et le statut de publication :
+     * - Si `is_published` est false -> publication_at est nullifié (Brouillon garanti).
+     * - Si `is_published` est true et `published_at` est fourni -> la date choisie est conservée (Programmation ou date précise).
+     * - Si `is_published` est true et `published_at` est vide -> date actuelle (Publication immédiate).
      */
     private function withPublicationDate(array $validated, ?Post $post): array
     {
         $isPublished = $validated['is_published'] ?? false;
 
         if (! $isPublished) {
+            $validated['published_at'] = null;
             return $validated;
         }
 
-        if (empty($validated['published_at']) && ! $post?->published_at) {
+        if (empty($validated['published_at'])) {
             $validated['published_at'] = now();
         }
 

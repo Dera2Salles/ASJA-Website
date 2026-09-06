@@ -35,6 +35,8 @@ type FormState = {
     event_end_at: string;
     location: string;
     cover_image: File | null;
+    existing_gallery: string[];
+    new_gallery_files: File[];
 };
 
 /** Convertit une date ISO du serveur vers la valeur d'un input datetime-local. */
@@ -84,6 +86,8 @@ export function PostForm({ post }: { post?: Post }) {
         event_end_at: toInputDate(post?.event_end_at),
         location: post?.location ?? '',
         cover_image: null,
+        existing_gallery: (post?.gallery_images as string[]) ?? [],
+        new_gallery_files: [],
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -91,6 +95,7 @@ export function PostForm({ post }: { post?: Post }) {
     const [preview, setPreview] = useState<string | null>(
         post ? postImage(post) : null,
     );
+    const [newGalleryPreviews, setNewGalleryPreviews] = useState<string[]>([]);
     const [newTag, setNewTag] = useState('');
 
     const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
@@ -115,9 +120,13 @@ export function PostForm({ post }: { post?: Post }) {
             location: isEvent ? data.location : null,
             event_start_at: isEvent ? data.event_start_at || null : null,
             event_end_at: isEvent ? data.event_end_at || null : null,
+            gallery_images: data.existing_gallery,
         };
 
         if (data.cover_image) payload.cover_image = data.cover_image;
+        if (data.new_gallery_files.length > 0) {
+            payload.new_gallery_images = data.new_gallery_files;
+        }
         if (isEdit) payload._method = 'put';
 
         router.post(
@@ -319,6 +328,120 @@ export function PostForm({ post }: { post?: Post }) {
                                     }}
                                 />
                             </label>
+                        </div>
+                    </Field>
+
+                    {/* Galerie d'images additionnelles */}
+                    <Field
+                        label="Galerie d'images"
+                        hint="Ajoutez une ou plusieurs photos pour enrichir l'article (affichées dans un carrousel / galerie dans la publication)."
+                    >
+                        <div className="space-y-3">
+                            <label className="border-border text-foreground hover:border-primary hover:text-primary inline-flex cursor-pointer items-center gap-2 border px-4 py-2 text-sm font-medium transition-colors">
+                                <ImageUp className="h-4 w-4" />
+                                Ajouter des photos à la galerie
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const files = Array.from(
+                                            e.target.files ?? [],
+                                        );
+                                        if (files.length === 0) return;
+
+                                        set('new_gallery_files', [
+                                            ...data.new_gallery_files,
+                                            ...files,
+                                        ]);
+
+                                        files.forEach((file) => {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setNewGalleryPreviews((prev) => [
+                                                    ...prev,
+                                                    reader.result as string,
+                                                ]);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        });
+                                    }}
+                                />
+                            </label>
+
+                            {/* Aperçu des images déjà enregistrées */}
+                            {data.existing_gallery.length > 0 ||
+                            newGalleryPreviews.length > 0 ? (
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                                    {data.existing_gallery.map((img, idx) => (
+                                        <div
+                                            key={`existing-${idx}`}
+                                            className="border-border bg-muted relative aspect-square overflow-hidden border"
+                                        >
+                                            <img
+                                                src={img}
+                                                alt=""
+                                                className="h-full w-full object-cover"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    set(
+                                                        'existing_gallery',
+                                                        data.existing_gallery.filter(
+                                                            (_, i) => i !== idx,
+                                                        ),
+                                                    );
+                                                }}
+                                                className="bg-background/80 hover:bg-destructive hover:text-destructive-foreground absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-xs shadow-sm transition-colors"
+                                                title="Supprimer cette photo"
+                                            >
+                                                <X className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+
+                                    {/* Aperçu des nouvelles images ajoutées */}
+                                    {newGalleryPreviews.map((previewUrl, idx) => (
+                                        <div
+                                            key={`new-${idx}`}
+                                            className="border-primary/50 bg-muted relative aspect-square overflow-hidden border-2"
+                                        >
+                                            <img
+                                                src={previewUrl}
+                                                alt=""
+                                                className="h-full w-full object-cover"
+                                            />
+                                            <span className="bg-primary text-primary-foreground absolute bottom-1 left-1 px-1 text-[9px] font-bold uppercase">
+                                                Nouveau
+                                            </span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    set(
+                                                        'new_gallery_files',
+                                                        data.new_gallery_files.filter(
+                                                            (_, i) => i !== idx,
+                                                        ),
+                                                    );
+                                                    setNewGalleryPreviews(
+                                                        (prev) =>
+                                                            prev.filter(
+                                                                (_, i) =>
+                                                                    i !== idx,
+                                                            ),
+                                                    );
+                                                }}
+                                                className="bg-background/80 hover:bg-destructive hover:text-destructive-foreground absolute top-1 right-1 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full text-xs shadow-sm transition-colors"
+                                                title="Retirer cette photo"
+                                            >
+                                                <X className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
                         </div>
                     </Field>
                 </div>
