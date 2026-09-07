@@ -134,11 +134,13 @@ export const Navbar = () => {
                             {user ? 'Mon espace' : 'Espace étudiant'}
                         </InertiaLink>
 
-                        {/* « Je candidate » menait au formulaire de connexion,
+                        {/* « S'inscrire » menait au formulaire de connexion,
                             que le candidat n'a par définition pas encore de
-                            compte pour remplir. */}
+                            compte pour remplir, puis à la création de compte —
+                            qui n'est pas non plus une inscription. Il mène
+                            maintenant au dépôt de dossier, ouvert sans compte. */}
                         <InertiaLink
-                            href={user ? spaceHref(user) : '/register'}
+                            href={user ? spaceHref(user) : '/candidature'}
                             className="bg-primary text-primary-foreground hidden rounded-full px-5 py-2.5 text-[13.5px] font-bold hover:bg-white hover:text-black sm:inline-flex"
                         >
                             {user ? 'Ma fiche' : "S'inscrire"}
@@ -438,7 +440,7 @@ const MobileNav = ({
                     <InertiaLink
                         href={spaceHref(user)}
                         onClick={close}
-                        // `flex-1` contre le `flex-none` de « Je candidate » :
+                        // `flex-1` contre le `flex-none` de « S'inscrire » :
                         // à parts égales, le libellé le plus long des deux se
                         // brisait sur deux lignes dans les 152 px qu'il
                         // recevait. Il prend maintenant ce que l'autre laisse.
@@ -448,7 +450,7 @@ const MobileNav = ({
                         {user ? 'Mon espace' : 'Espace étudiant'}
                     </InertiaLink>
                     <InertiaLink
-                        href={user ? spaceHref(user) : '/register'}
+                        href={user ? spaceHref(user) : '/candidature'}
                         onClick={close}
                         className={`bg-primary text-primary-foreground shrink-0 px-5 hover:bg-white hover:text-black min-[480px]:flex-none ${drawerCtaClass}`}
                     >

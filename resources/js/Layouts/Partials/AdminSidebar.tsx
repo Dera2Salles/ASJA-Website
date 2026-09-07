@@ -37,6 +37,7 @@ import {
     Building2,
     ChevronRight,
     ChevronsUpDown,
+    ClipboardList,
     ExternalLink,
     FileText,
     LayoutDashboard,
@@ -107,6 +108,11 @@ export const MENU_GROUPS: MenuGroup[] = [
     {
         label: 'Communauté',
         items: [
+            {
+                title: 'Candidatures',
+                icon: ClipboardList,
+                route: 'admin.applications.index',
+            },
             { title: 'Étudiants', icon: Users, route: 'admin.students.index' },
         ],
     },

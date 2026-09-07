@@ -41,6 +41,7 @@ import {
     Building2,
     CalendarClock,
     CalendarX,
+    ClipboardList,
     FileText,
     MapPin,
     MessageSquare,
@@ -57,6 +58,8 @@ interface Stats {
     drafts: number;
     scheduled: number;
     students: number;
+    applications: number;
+    applicationsPending: number;
     testimonies: number;
     departments: number;
     upcomingEvents: number;
@@ -161,6 +164,50 @@ export default function DashboardPage({
                     />
                 </Link>
             </KpiRow>
+
+            {/* Candidatures : une bande à part plutôt qu'une cinquième carte,
+                qui aurait laissé la grille des indicateurs bancale sur une
+                seconde ligne. Ce qui compte ici n'est pas le total mais la
+                pile en attente — c'est la seule qui réclame une action. */}
+            <Link
+                href={route('admin.applications.index')}
+                className="mb-6 block sm:mb-8"
+            >
+                <Card className="app-interactive gap-0 py-0">
+                    <CardContent className="flex flex-wrap items-center gap-x-8 gap-y-4 p-5">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <ClipboardList
+                                className="admin-kpi-icon size-4 shrink-0"
+                                aria-hidden="true"
+                            />
+                            <div className="min-w-0">
+                                <p className="text-foreground text-[15px] font-semibold">
+                                    Candidatures
+                                </p>
+                                <p className="admin-meta">
+                                    Demandes d'inscription et de réinscription
+                                    déposées en ligne
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="ml-auto flex items-center gap-8">
+                            <div>
+                                <p className="admin-mono text-foreground text-xl">
+                                    {stats.applicationsPending}
+                                </p>
+                                <p className="admin-label">En attente</p>
+                            </div>
+                            <div>
+                                <p className="admin-mono text-muted-foreground text-xl">
+                                    {stats.applications}
+                                </p>
+                                <p className="admin-label">Total</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </Link>
 
             <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
                 <Card className="lg:col-span-2">

@@ -1,14 +1,16 @@
 <?php
 
+use App\Http\Controllers\AboutController;
+use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\ComponentDataController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
 use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TestimonyController;
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\AboutController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentSpaceController;
@@ -33,6 +35,19 @@ Route::get('/blog/{slug}', fn (string $slug) => redirect()->route('blog.show', $
 Route::get('/mention/{slug}', [DepartmentController::class, 'show'])->name('department.show');
 
 Route::get('/a-propos', [AboutController::class, 'index'])->name('about');
+
+/*
+ * Candidature : dépôt d'une demande d'inscription ou de réinscription.
+ *
+ * Volontairement hors du groupe `auth` — un candidat n'a pas encore de compte.
+ * La confirmation passe par un lien signé : le numéro de demande ne suffit pas
+ * à ouvrir le dossier d'un autre.
+ */
+Route::get('/candidature', [ApplicationController::class, 'create'])->name('candidature.create');
+Route::post('/candidature', [ApplicationController::class, 'store'])->name('candidature.store');
+Route::get('/candidature/confirmation/{application:reference}', [ApplicationController::class, 'confirmation'])
+    ->middleware('signed')
+    ->name('candidature.confirmation');
 
 /*
  * Fichiers téléversés.
@@ -102,6 +117,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/students', [StudentController::class, 'store'])->name('students.store');
     Route::put('/students/{student}', [StudentController::class, 'update'])->name('students.update');
     Route::delete('/students/{student}', [StudentController::class, 'destroy'])->name('students.destroy');
+
+    // Candidatures : demandes d'inscription et de réinscription
+    Route::get('/candidatures', [AdminApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/candidatures/{application}', [AdminApplicationController::class, 'show'])->name('applications.show');
+    Route::put('/candidatures/{application}/statut', [AdminApplicationController::class, 'updateStatus'])->name('applications.status');
+    Route::post('/candidatures/{application}/accuse-reception', [AdminApplicationController::class, 'resendReceipt'])->name('applications.receipt');
+    Route::get('/candidatures/{application}/pieces/{document}', [AdminApplicationController::class, 'document'])->name('applications.document');
+    Route::delete('/candidatures/{application}', [AdminApplicationController::class, 'destroy'])->name('applications.destroy');
 
     // Mentions
     Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('departments.index');

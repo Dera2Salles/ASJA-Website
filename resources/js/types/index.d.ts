@@ -21,4 +21,9 @@ export type PageProps<
     };
     /** Sommaire des sections éditables (clé => libellé), partagé par Inertia. */
     cmsSections?: Record<string, string>;
+    /** Messages éphémères de session, partagés par `HandleInertiaRequests`. */
+    flash?: {
+        success?: string | null;
+        error?: string | null;
+    };
 };

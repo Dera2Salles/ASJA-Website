@@ -36,11 +36,15 @@ export const AppelCandidaterSection = () => {
                         // tiennent côte à côte.
                         className="mx-auto mt-8 flex w-full max-w-[420px] flex-col gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3.5"
                     >
+                        {/* Le lien ne menait nulle part (`#`) : il ouvre
+                            maintenant le dépôt de dossier en ligne, où les
+                            pièces attendues sont énumérées avec leurs formats
+                            et leur taille maximale. */}
                         <a
-                            href="#"
+                            href="/candidature"
                             className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#000000] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#000000] sm:w-auto sm:px-[34px]"
                         >
-                            Voir les pièces à fournir
+                            Déposer ma demande en ligne
                         </a>
                         <a
                             href="#"

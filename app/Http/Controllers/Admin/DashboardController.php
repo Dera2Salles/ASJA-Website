@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
 use App\Models\Department;
 use App\Models\Post;
 use App\Models\Testimony;
@@ -24,6 +25,12 @@ class DashboardController extends Controller
                     ->where('published_at', '>', now())
                     ->count(),
                 'students' => User::where('role', 'Student')->count(),
+
+                /* Les demandes en attente sont ce que l'administration doit
+                   voir en premier : c'est la seule pile qui réclame une
+                   action de sa part. */
+                'applications' => Application::count(),
+                'applicationsPending' => Application::where('status', Application::STATUS_PENDING)->count(),
                 'testimonies' => Testimony::count(),
                 'departments' => Department::count(),
                 'upcomingEvents' => Post::published()->upcoming()->count(),
