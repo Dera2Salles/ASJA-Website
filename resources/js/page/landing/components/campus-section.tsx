@@ -44,7 +44,7 @@ export const CampusSection = () => {
 
                 {/* Section title */}
                 <h2 className="font-display mb-7 text-[clamp(34px,9vw,48px)] leading-none font-black tracking-[-0.04em] uppercase sm:mb-8">
-                    La vie ici
+                    La vie au sein de l’ASJA
                 </h2>
 
                 {/* Photo grid layout matching reference */}

@@ -9,7 +9,7 @@ import {
 import { useLangue } from '@/page/lang/useLang';
 import { useThemeContext } from '@/page/theme/useThemeContext';
 import { Link as InertiaLink, usePage } from '@inertiajs/react';
-import { LogIn, MenuIcon, Moon, Sun, X } from 'lucide-react';
+import { LogIn, MenuIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link as ScrollTo } from 'react-scroll';
 import { useScrollLock } from '../hooks/useScrollLock';
@@ -141,7 +141,7 @@ export const Navbar = () => {
                             href={user ? spaceHref(user) : '/register'}
                             className="bg-primary text-primary-foreground hidden rounded-full px-5 py-2.5 text-[13.5px] font-bold hover:bg-white hover:text-black sm:inline-flex"
                         >
-                            {user ? 'Ma fiche' : 'Je candidate'}
+                            {user ? 'Ma fiche' : "S'inscrire"}
                         </InertiaLink>
 
                         <button
@@ -159,22 +159,6 @@ export const Navbar = () => {
         </>
     );
 };
-
-const ThemeToggle = ({
-    isDark,
-    onToggle,
-}: {
-    isDark: boolean;
-    onToggle: () => void;
-}) => (
-    <button
-        onClick={onToggle}
-        aria-label={isDark ? 'Passer en mode clair' : 'Passer en mode sombre'}
-        className="border-border text-foreground hover:border-primary hover:text-primary cursor-pointer rounded-full border p-2.5"
-    >
-        {isDark ? <Sun size={18} /> : <Moon size={18} />}
-    </button>
-);
 
 const DesktopNav = () => {
     const { translate } = useLangue();

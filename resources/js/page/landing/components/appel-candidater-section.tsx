@@ -12,7 +12,7 @@ export const AppelCandidaterSection = () => {
                         transition={{ duration: 0.5 }}
                         className="font-display m-0 text-[clamp(34px,9vw,72px)] leading-[0.98] font-black tracking-[-0.045em] uppercase"
                     >
-                        On t'attend
+                        Nous vous attendons avec plaisir.
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -21,9 +21,9 @@ export const AppelCandidaterSection = () => {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="mx-auto mt-4 max-w-[620px] text-base leading-[1.58] font-medium text-[#000000]/90 sm:mt-5 sm:text-lg"
                     >
-                        Service de scolarité ouvert de 8h à 12h et de 13h30 à
-                        15h, à Antsaha. Apporte ton dossier — on s'occupe du
-                        reste.
+                        Le service de scolarité est ouvert de 8h à 12h et de
+                        13h30 à 15h, à Antsaha. Présentez votre dossier auprès
+                        de notre service, nous nous occupons du reste.
                     </motion.p>
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
