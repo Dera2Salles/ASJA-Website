@@ -452,7 +452,7 @@ const MobileNav = ({
                         onClick={close}
                         className={`bg-primary text-primary-foreground shrink-0 px-5 hover:bg-white hover:text-black min-[480px]:flex-none ${drawerCtaClass}`}
                     >
-                        {user ? 'Ma fiche' : 'Je candidate'}
+                        {user ? 'Ma fiche' : "S'inscrire"}
                     </InertiaLink>
                 </div>
             </div>
