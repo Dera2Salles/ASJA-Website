@@ -7,9 +7,8 @@ import {
     NavigationMenuTrigger,
 } from '@/components/ui/navigation-menu';
 import { useLangue } from '@/page/lang/useLang';
-import { useThemeContext } from '@/page/theme/useThemeContext';
-import { Link as InertiaLink, usePage } from '@inertiajs/react';
-import { LogIn, MenuIcon, X } from 'lucide-react';
+import { Link as InertiaLink, router, usePage } from '@inertiajs/react';
+import { MenuIcon, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link as ScrollTo } from 'react-scroll';
 import { useScrollLock } from '../hooks/useScrollLock';
@@ -73,9 +72,22 @@ const triggerClass =
  */
 export const Navbar = () => {
     const [open, setOpen] = useState(false);
-    const { toggleTheme, isDark } = useThemeContext();
-    const { translate } = useLangue();
     const user = useAuthUser();
+    const [pressTimer, setPressTimer] = useState<NodeJS.Timeout | null>(null);
+
+    const handlePressStart = () => {
+        const timer = setTimeout(() => {
+            router.visit('/login');
+        }, 1500); // 3000 ms = 3 secondes
+        setPressTimer(timer);
+    };
+
+    const handlePressEnd = () => {
+        if (pressTimer) {
+            clearTimeout(pressTimer);
+            setPressTimer(null);
+        }
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -114,7 +126,14 @@ export const Navbar = () => {
                             alt=""
                             className="h-10 w-10 rounded-[10px] object-contain sm:h-[42px] sm:w-[42px]"
                         />
-                        <span className="font-display text-foreground hidden text-[19px] font-black tracking-[-0.02em] uppercase sm:block">
+                        <span
+                            className="font-display text-foreground hidden cursor-pointer text-[19px] font-black tracking-[-0.02em] uppercase select-none sm:block"
+                            onMouseDown={handlePressStart}
+                            onMouseUp={handlePressEnd}
+                            onMouseLeave={handlePressEnd}
+                            onTouchStart={handlePressStart}
+                            onTouchEnd={handlePressEnd}
+                        >
                             Université ASJA
                         </span>
                     </InertiaLink>
@@ -126,13 +145,13 @@ export const Navbar = () => {
 
                     {/* Actions droite */}
                     <div className="flex shrink-0 items-center gap-2.5">
-                        <InertiaLink
+                        {/*<InertiaLink
                             href={spaceHref(user)}
                             className="border-border text-foreground hover:border-primary hover:text-primary hidden items-center gap-2 rounded-full border px-4 py-2.5 text-[13.5px] font-semibold sm:inline-flex"
                         >
                             <LogIn size={14} />
                             {user ? 'Mon espace' : 'Espace étudiant'}
-                        </InertiaLink>
+                        </InertiaLink>*/}
 
                         {/* « S'inscrire » menait au formulaire de connexion,
                             que le candidat n'a par définition pas encore de
@@ -437,7 +456,7 @@ const MobileNav = ({
                     dès 480 px — en dessous, « Espace étudiant » se briserait
                     sur deux lignes. */}
                 <div className="border-border flex shrink-0 flex-col gap-2 border-t p-3.5 min-[480px]:flex-row">
-                    <InertiaLink
+                    {/*<InertiaLink
                         href={spaceHref(user)}
                         onClick={close}
                         // `flex-1` contre le `flex-none` de « S'inscrire » :
@@ -448,7 +467,7 @@ const MobileNav = ({
                     >
                         <LogIn size={14} className="shrink-0" />
                         {user ? 'Mon espace' : 'Espace étudiant'}
-                    </InertiaLink>
+                    </InertiaLink>*/}
                     <InertiaLink
                         href={user ? spaceHref(user) : '/candidature'}
                         onClick={close}
