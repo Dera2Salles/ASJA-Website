@@ -8,6 +8,7 @@ use App\Models\Application;
 use App\Models\Department;
 use App\Support\Cms;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -32,10 +33,21 @@ class ApplicationController extends Controller
     /** Durée de validité du lien de confirmation envoyé après le dépôt. */
     private const CONFIRMATION_DAYS = 7;
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
         return Inertia::render('Application/Create', [
             'options' => Application::formOptions(),
+
+            /* Mention pré-choisie quand le candidat arrive depuis la page
+               d'une mention (`/candidature?mention=informatique`). Elle est
+               confrontée aux mentions réellement visibles : un slug inventé
+               dans l'adresse ne doit pas préremplir un champ contraint, ni
+               laisser croire à un choix qui sera refusé à l'envoi. */
+            'prefill' => [
+                'mention' => Department::where('slug', $request->query('mention'))
+                    ->where('is_visible', true)
+                    ->value('slug'),
+            ],
 
             // Navigation et pied de page communs à tout le site public.
             'departments' => Department::where('is_visible', true)
@@ -56,16 +68,21 @@ class ApplicationController extends Controller
             return redirect()->to($this->confirmationUrl($existing));
         }
 
-        $department = Department::where('slug', $request->input('mention'))->firstOrFail();
+        /* La mention n'est demandée qu'en première inscription : une
+           réinscription reprend celle déjà au dossier de l'étudiant, que son
+           matricule désigne. */
+        $department = $request->filled('mention')
+            ? Department::where('slug', $request->input('mention'))->firstOrFail()
+            : null;
 
         try {
             $application = DB::transaction(function () use ($request, $department) {
                 $application = Application::createWithReference([
                     ...$request->safe()->except(['documents', 'mention']),
 
-                    'mention' => $department->slug,
-                    'mention_name' => $department->name,
-                    'department_id' => $department->id,
+                    'mention' => $department?->slug,
+                    'mention_name' => $department?->name,
+                    'department_id' => $department?->id,
 
                     // Jamais depuis la requête : le statut appartient à l'établissement.
                     'status' => Application::STATUS_PENDING,
@@ -116,10 +133,13 @@ class ApplicationController extends Controller
         return Inertia::render('Application/Confirmation', [
             'application' => [
                 'reference' => $application->reference,
-                'full_name' => $application->full_name,
+                // Le nom pour une première inscription, le matricule pour une
+                // réinscription : elle ne redéclare pas d'état civil.
+                'display_name' => $application->display_name,
                 'type_label' => $application->type_label,
                 'level' => $application->level,
                 'mention_name' => $application->mention_name,
+                'student_number' => $application->student_number,
                 'email' => $application->email,
                 'status_label' => $application->status_label,
                 'receipt_sent' => $application->receipt_sent_at !== null,

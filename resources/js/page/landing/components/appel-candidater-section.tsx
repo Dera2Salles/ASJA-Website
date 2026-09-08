@@ -30,10 +30,8 @@ export const AppelCandidaterSection = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: 0.2 }}
-                        // Les deux libellés se brisaient sur deux lignes dans
-                        // des pastilles collées l'une à l'autre : pleine
-                        // largeur et bien séparés au doigt, alignés dès qu'ils
-                        // tiennent côte à côte.
+                        // Un seul appel à l'action depuis que « Poser une
+                        // question » — qui ne menait nulle part — a été retiré.
                         className="mx-auto mt-8 flex w-full max-w-[420px] flex-col gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3.5"
                     >
                         {/* Le lien ne menait nulle part (`#`) : il ouvre
@@ -45,12 +43,6 @@ export const AppelCandidaterSection = () => {
                             className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#000000] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#000000] sm:w-auto sm:px-[34px]"
                         >
                             Déposer ma demande en ligne
-                        </a>
-                        <a
-                            href="#"
-                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#000000]/35 px-8 text-[15px] font-semibold text-[#000000] hover:bg-[#000000]/10 sm:w-auto sm:px-[32px]"
-                        >
-                            Poser une question
                         </a>
                     </motion.div>
                 </div>

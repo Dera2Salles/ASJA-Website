@@ -17,68 +17,101 @@ import { Navbar } from '../../page/landing/components/nav-bar';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
 import { ChoiceField, SelectField, StepHeader, TextField } from './fields';
 import { FileField, type UploadState } from './FileField';
+import { Requirements } from './Requirements';
 import { Stepper, type Step } from './Stepper';
-import { REINSCRIPTION, type ApplicationForm, type FormOptions } from './types';
 import {
+    MARRIED,
+    REINSCRIPTION,
+    RELIGION_OTHER,
+    type ApplicationForm,
+    type FormOptions,
+} from './types';
+import {
+    documentsFor,
+    fieldsFor,
     firstInvalidStep,
     formatSize,
     requiredDocuments,
-    STEP_FIELDS,
+    stepKeysFor,
+    stepOfFields,
+    today,
     validateStep,
     type Errors,
+    type StepKey,
 } from './validation';
 
 interface Props {
     options: FormOptions;
+    /** Champs déjà décidés à l'arrivée : la mention, quand on vient de sa page. */
+    prefill: { mention: string | null };
     cms: CmsContent;
 }
 
-const STEPS: Step[] = [
-    {
+/**
+ * Les écrans du dossier.
+ *
+ * `key` est ce qui relie un écran à ses règles (`validation.ts`) : le rang
+ * n'est qu'une position d'affichage, et il dépend désormais du type de
+ * demande — une réinscription ne traverse ni l'état civil, ni la carte
+ * d'identité, ni le baccalauréat, ni les parents, tous déjà à son dossier.
+ * `stepKeysFor` dit, pour chaque type, lesquels de ces écrans sont parcourus.
+ */
+const STEP_DEFS: Record<StepKey, Step> = {
+    type: {
         title: 'Type de demande',
         short: 'Type de demande',
         description:
             'Indiquez si vous rejoignez l’ASJA pour la première fois ou si vous poursuivez votre cursus.',
     },
-    {
+    identity: {
         title: 'Informations personnelles',
         short: 'Informations personnelles',
         description:
             'Votre état civil, tel qu’il figure sur vos pièces officielles. L’adresse e-mail servira à vous envoyer l’accusé de réception.',
     },
-    {
+    student: {
+        title: 'Identification',
+        short: 'Identification',
+        description:
+            'Votre matricule suffit à retrouver votre dossier : votre état civil y figure déjà. L’adresse e-mail servira à vous envoyer l’accusé de réception.',
+    },
+    cin: {
+        title: 'Carte d’identité nationale',
+        short: 'Carte d’identité',
+        description:
+            'Les mentions portées sur votre CIN. Recopiez-les exactement, elles serviront à établir votre dossier scolaire.',
+    },
+    bac: {
         title: 'Baccalauréat',
         short: 'Baccalauréat',
         description:
             'Les informations portées sur votre relevé de notes. Le relevé lui-même est à joindre à l’étape « Documents ».',
     },
-    {
+    enrolment: {
         title: 'Informations d’inscription',
         short: 'Inscription',
         description:
             'Le niveau et la mention dans lesquels vous souhaitez vous inscrire cette année.',
     },
-    {
+    parents: {
         title: 'Informations des parents',
         short: 'Parents',
         description:
             'Les personnes à contacter au sujet de votre scolarité. Le second parent est facultatif.',
     },
-    {
+    documents: {
         title: 'Documents justificatifs',
         short: 'Documents',
         description:
             'Les pièces sont conservées de façon confidentielle et ne sont consultables que par le service de la scolarité.',
     },
-    {
+    summary: {
         title: 'Récapitulatif',
         short: 'Récapitulatif',
         description:
             'Relisez votre dossier. Vous pouvez encore revenir sur chaque étape avant de l’envoyer.',
     },
-];
-
-const RECAP_STEP = STEPS.length - 1;
+};
 
 /** Clé du brouillon local — un candidat par navigateur. */
 const DRAFT_KEY = 'asja.candidature.draft';
@@ -102,9 +135,14 @@ function newKey(): string {
     });
 }
 
+/* Les cinq natures de pièces, quel que soit le type : l'étape « Documents »
+   n'affiche que celles de son parcours, mais le formulaire garde une entrée
+   par pièce pour que passer d'un type à l'autre n'en laisse aucune derrière. */
 const EMPTY_DOCUMENTS = {
     bac_transcript: null,
     cin: null,
+    report_card: null,
+    photo: null,
     payment_receipt: null,
 };
 
@@ -120,7 +158,14 @@ function blankForm(): ApplicationForm {
         birth_place: '',
         phone: '',
         email: '',
+        marital_status: '',
         religion: '',
+        religion_other: '',
+        cin_number: '',
+        cin_issued_place: '',
+        cin_issued_at: '',
+        cin_duplicate_at: '',
+        spouse_cin_number: '',
         bac_year: '',
         bac_series: '',
         bac_number: '',
@@ -219,7 +264,7 @@ const RecapBlock = ({
  * où il en est. Rien ne part au serveur avant la dernière — l'envoi est unique,
  * pièces comprises.
  */
-export default function ApplicationCreate({ options, cms }: Props) {
+export default function ApplicationCreate({ options, prefill, cms }: Props) {
     const page = usePage<PageProps>();
 
     const [step, setStep] = useState(0);
@@ -231,8 +276,14 @@ export default function ApplicationCreate({ options, cms }: Props) {
     const topRef = useRef<HTMLDivElement>(null);
     const restored = useRef(false);
 
+    /* La mention retenue sur la page d'où l'on vient est déjà en place : le
+       serveur l'a confrontée aux mentions visibles, une valeur inventée dans
+       l'adresse arrive donc nulle. */
     const { data, setData, post, processing, errors, transform } =
-        useForm<ApplicationForm>(blankForm());
+        useForm<ApplicationForm>({
+            ...blankForm(),
+            mention: prefill.mention ?? '',
+        });
 
     /* Reprise du brouillon, une seule fois au montage. Le jeton d'idempotence
        en fait partie : un dossier déjà parti puis redéposé depuis le même
@@ -245,6 +296,9 @@ export default function ApplicationCreate({ options, cms }: Props) {
                 ...current,
                 ...draft,
                 documents: current.documents,
+                // Le lien suivi à l'instant l'emporte sur un brouillon
+                // vieux de plusieurs jours.
+                mention: prefill.mention ?? draft.mention ?? current.mention,
             }));
         }
 
@@ -258,18 +312,30 @@ export default function ApplicationCreate({ options, cms }: Props) {
         if (restored.current) writeDraft(data);
     }, [data]);
 
-    /* Seules les pièces réellement choisies partent : une entrée nulle
-       traverserait la requête en chaîne vide et n'apprendrait rien au
-       serveur. */
+    /* Ce qui part au serveur : les seuls champs du parcours suivi, et les
+       seules pièces réellement choisies.
+
+       Le formulaire garde en mémoire tous les champs — passer d'un type à
+       l'autre ne doit rien effacer — mais le serveur refuse ce qu'il n'a pas
+       demandé : une nationalité préremplie ou une mention venue de l'adresse
+       feraient échouer une réinscription qui ne les déclare pas. Une entrée de
+       pièce restée nulle, elle, traverserait la requête en chaîne vide sans
+       rien lui apprendre. */
     useEffect(() => {
         transform((form) => {
+            const kept = new Set([...fieldsFor(form.type), 'idempotency_key']);
+
+            const fields = Object.fromEntries(
+                Object.entries(form).filter(([name]) => kept.has(name)),
+            );
+
             const documents = Object.fromEntries(
                 Object.entries(form.documents).filter(
                     ([, file]) => file instanceof File,
                 ),
             );
 
-            return { ...form, documents };
+            return { ...fields, documents };
         });
     }, [transform]);
 
@@ -279,12 +345,43 @@ export default function ApplicationCreate({ options, cms }: Props) {
     const errorFor = (field: string): string | undefined =>
         serverErrors[field] ?? stepErrors[field];
 
-    const isReinscription = data.type === REINSCRIPTION;
+    /* Le parcours suit le type de demande : les écrans d'une réinscription ne
+       sont pas ceux d'une première inscription, et le rang d'un écran n'a de
+       sens que dans son propre parcours. */
+    const steps = useMemo(
+        () => stepKeysFor(data.type).map((key) => ({ ...STEP_DEFS[key], key })),
+        [data.type],
+    );
+
+    const recapStep = steps.length - 1;
+    const current = steps[Math.min(step, recapStep)];
+    const stepKey = current.key;
+
+    /** Rang d'affichage d'une étape du parcours en cours. */
+    const stepIndex = (key: StepKey): number =>
+        steps.findIndex((entry) => entry.key === key);
+
+    /** L'étape appartient-elle au parcours suivi ? Le récapitulatif s'y règle. */
+    const shows = (key: StepKey): boolean => stepIndex(key) >= 0;
+
+    const isMarried = data.marital_status === MARRIED;
+
+    /* Les pièces suivent le type de demande : une réinscription ne dépose ni
+       relevé de baccalauréat ni CIN — l'un et l'autre sont déjà au dossier —
+       mais un bulletin de notes et une photo d'identité. Le serveur refuse
+       d'ailleurs toute pièce hors de cette liste. */
+    const documents = useMemo(
+        () => documentsFor(options, data.type),
+        [options, data.type],
+    );
 
     const required = useMemo(
         () => requiredDocuments(options, data.type),
         [options, data.type],
     );
+
+    /** Frais du type choisi : ils viennent du serveur, déjà mis en forme. */
+    const fees = options.fees[data.type];
 
     const uploadState: UploadState = !processing
         ? 'idle'
@@ -299,19 +396,27 @@ export default function ApplicationCreate({ options, cms }: Props) {
     };
 
     const next = () => {
-        const found = validateStep(step, data, options);
+        const found = validateStep(stepKey, data, options);
 
         if (Object.keys(found).length > 0) {
             setStepErrors(found);
             return;
         }
 
-        const target = Math.min(step + 1, RECAP_STEP);
+        const target = Math.min(step + 1, recapStep);
         setFurthest((current) => Math.max(current, target));
         goTo(target);
     };
 
     const previous = () => goTo(Math.max(step - 1, 0));
+
+    /* Changer de type change le parcours : les écrans déjà franchis ne sont
+       plus les mêmes, et le sommaire ne doit plus laisser sauter en avant. */
+    const chooseType = (value: string) => {
+        setData('type', value);
+        setFurthest(0);
+        setStepErrors({});
+    };
 
     const saveDraft = () => {
         writeDraft(data);
@@ -329,7 +434,7 @@ export default function ApplicationCreate({ options, cms }: Props) {
         const invalid = firstInvalidStep(data, options);
 
         if (invalid !== null) {
-            setStepErrors(validateStep(invalid, data, options));
+            setStepErrors(validateStep(steps[invalid].key, data, options));
             goTo(invalid);
             return;
         }
@@ -346,15 +451,7 @@ export default function ApplicationCreate({ options, cms }: Props) {
                 /* Le serveur a refusé quelque chose : on ramène le candidat à
                    la première étape concernée plutôt que de le laisser devant
                    un récapitulatif qui n'affiche pas le champ fautif. */
-                const fields = Object.keys(received);
-                const index = STEP_FIELDS.findIndex((stepFields) =>
-                    stepFields.some((field) =>
-                        fields.some(
-                            (name) =>
-                                name === field || name.startsWith(`${field}.`),
-                        ),
-                    ),
-                );
+                const index = stepOfFields(Object.keys(received), data.type);
 
                 if (index >= 0) goTo(index);
             },
@@ -364,6 +461,20 @@ export default function ApplicationCreate({ options, cms }: Props) {
     const mentionName =
         options.mentions.find((mention) => mention.slug === data.mention)
             ?.name ?? '';
+
+    const maritalLabel =
+        options.maritalStatuses.find(
+            (status) => status.value === data.marital_status,
+        )?.label ?? '';
+
+    /* « Autre » cède la place à la précision saisie : c'est elle que le
+       candidat doit relire, pas le mot « Autre ». */
+    const religionLabel =
+        data.religion === RELIGION_OTHER
+            ? data.religion_other
+            : (options.religions.find(
+                  (religion) => religion.value === data.religion,
+              )?.label ?? '');
 
     const genderLabel =
         options.genders.find((gender) => gender.value === data.gender)?.label ??
@@ -377,7 +488,7 @@ export default function ApplicationCreate({ options, cms }: Props) {
     const typeLabel =
         options.types.find((type) => type.value === data.type)?.label ?? '';
 
-    const chosenDocuments = options.documents.filter(
+    const chosenDocuments = documents.filter(
         (spec) => data.documents[spec.type],
     );
 
@@ -434,7 +545,7 @@ export default function ApplicationCreate({ options, cms }: Props) {
                                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)] lg:gap-14">
                                     <div className="lg:sticky lg:top-24 lg:self-start">
                                         <Stepper
-                                            steps={STEPS}
+                                            steps={steps}
                                             current={step}
                                             furthest={furthest}
                                             onSelect={goTo}
@@ -459,42 +570,108 @@ export default function ApplicationCreate({ options, cms }: Props) {
                                         )}
 
                                         <StepHeader
-                                            title={STEPS[step].title}
-                                            description={
-                                                STEPS[step].description
-                                            }
+                                            title={current.title}
+                                            description={current.description}
                                             showRequiredHint={
-                                                step !== RECAP_STEP
+                                                step !== recapStep
                                             }
                                         />
 
                                         <div className="mt-7 space-y-6">
                                             {/* ── 1. Type de demande ── */}
-                                            {step === 0 && (
-                                                <ChoiceField
-                                                    name="type"
-                                                    label="Type de demande"
-                                                    required
-                                                    value={data.type}
-                                                    error={errorFor('type')}
-                                                    onChange={(value) =>
-                                                        setData('type', value)
-                                                    }
-                                                    options={options.types.map(
-                                                        (type) => ({
-                                                            ...type,
-                                                            description:
-                                                                type.value ===
-                                                                REINSCRIPTION
-                                                                    ? 'Vous êtes déjà étudiant à l’ASJA et poursuivez votre cursus.'
-                                                                    : 'Vous rejoignez l’ASJA pour la première fois.',
-                                                        }),
-                                                    )}
-                                                />
+                                            {stepKey === 'type' && (
+                                                <>
+                                                    <ChoiceField
+                                                        name="type"
+                                                        label="Type de demande"
+                                                        required
+                                                        value={data.type}
+                                                        error={errorFor('type')}
+                                                        onChange={chooseType}
+                                                        options={options.types.map(
+                                                            (type) => ({
+                                                                ...type,
+                                                                description:
+                                                                    type.value ===
+                                                                    REINSCRIPTION
+                                                                        ? 'Vous êtes déjà étudiant à l’ASJA et poursuivez votre cursus.'
+                                                                        : 'Vous rejoignez l’ASJA pour la première fois.',
+                                                            }),
+                                                        )}
+                                                    />
+
+                                                    {/* Pièces et frais annoncés
+                                                        d'emblée : le candidat sait
+                                                        ce qu'il doit réunir avant
+                                                        de commencer sa saisie. */}
+                                                    <Requirements
+                                                        options={options}
+                                                        type={data.type}
+                                                    />
+                                                </>
                                             )}
 
                                             {/* ── 2. Informations personnelles ── */}
-                                            {step === 1 && (
+                                            {/* ── Réinscription : identification ── */}
+                                            {stepKey === 'student' && (
+                                                <>
+                                                    <div className="grid gap-6 sm:grid-cols-2">
+                                                        <TextField
+                                                            id="student_number"
+                                                            label="Numéro matricule"
+                                                            required
+                                                            hint="Celui qui figure sur votre carte d’étudiant."
+                                                            value={
+                                                                data.student_number
+                                                            }
+                                                            error={errorFor(
+                                                                'student_number',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'student_number',
+                                                                    value,
+                                                                )
+                                                            }
+                                                        />
+                                                        <TextField
+                                                            id="email"
+                                                            label="Adresse e-mail"
+                                                            type="email"
+                                                            inputMode="email"
+                                                            autoComplete="email"
+                                                            required
+                                                            hint="L’accusé de réception y sera envoyé."
+                                                            value={data.email}
+                                                            error={errorFor(
+                                                                'email',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'email',
+                                                                    value,
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+
+                                                    <p className="border-border bg-card text-muted-foreground border p-4 text-[13.5px] leading-relaxed">
+                                                        Votre état civil, votre
+                                                        CIN, votre baccalauréat
+                                                        et les coordonnées de
+                                                        vos parents sont déjà à
+                                                        votre dossier depuis
+                                                        votre première
+                                                        inscription&nbsp;: ils
+                                                        ne vous sont pas
+                                                        redemandés. Signalez
+                                                        tout changement au
+                                                        bureau de la scolarité.
+                                                    </p>
+                                                </>
+                                            )}
+
+                                            {stepKey === 'identity' && (
                                                 <>
                                                     <div className="grid gap-6 sm:grid-cols-2">
                                                         <TextField
@@ -653,26 +830,208 @@ export default function ApplicationCreate({ options, cms }: Props) {
                                                         />
                                                     </div>
 
-                                                    <TextField
-                                                        id="religion"
-                                                        label="Religion"
-                                                        hint="Facultatif."
-                                                        value={data.religion}
+                                                    <ChoiceField
+                                                        name="marital_status"
+                                                        label="Situation matrimoniale"
+                                                        required
+                                                        value={
+                                                            data.marital_status
+                                                        }
                                                         error={errorFor(
-                                                            'religion',
+                                                            'marital_status',
                                                         )}
                                                         onChange={(value) =>
                                                             setData(
-                                                                'religion',
+                                                                'marital_status',
                                                                 value,
                                                             )
                                                         }
+                                                        options={
+                                                            options.maritalStatuses
+                                                        }
                                                     />
+
+                                                    <div className="grid gap-6 sm:grid-cols-2">
+                                                        <SelectField
+                                                            id="religion"
+                                                            label="Religion"
+                                                            required
+                                                            value={
+                                                                data.religion
+                                                            }
+                                                            error={errorFor(
+                                                                'religion',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'religion',
+                                                                    value,
+                                                                )
+                                                            }
+                                                            options={
+                                                                options.religions
+                                                            }
+                                                        />
+
+                                                        {/* « Autre » sans
+                                                            précision n'apprend
+                                                            rien : le champ
+                                                            n'apparaît que dans
+                                                            ce cas, et devient
+                                                            alors obligatoire. */}
+                                                        {data.religion ===
+                                                            RELIGION_OTHER && (
+                                                            <TextField
+                                                                id="religion_other"
+                                                                label="Précisez"
+                                                                required
+                                                                value={
+                                                                    data.religion_other
+                                                                }
+                                                                error={errorFor(
+                                                                    'religion_other',
+                                                                )}
+                                                                onChange={(
+                                                                    value,
+                                                                ) =>
+                                                                    setData(
+                                                                        'religion_other',
+                                                                        value,
+                                                                    )
+                                                                }
+                                                            />
+                                                        )}
+                                                    </div>
                                                 </>
                                             )}
 
-                                            {/* ── 3. Baccalauréat ── */}
-                                            {step === 2 && (
+                                            {/* ── 3. Carte d'identité nationale ── */}
+                                            {stepKey === 'cin' && (
+                                                <>
+                                                    <div className="grid gap-6 sm:grid-cols-2">
+                                                        <TextField
+                                                            id="cin_number"
+                                                            label="Numéro de CIN"
+                                                            required
+                                                            inputMode="numeric"
+                                                            placeholder="123456789012"
+                                                            hint={`${options.cinLength} chiffres, sans espace.`}
+                                                            value={
+                                                                data.cin_number
+                                                            }
+                                                            error={errorFor(
+                                                                'cin_number',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'cin_number',
+                                                                    value,
+                                                                )
+                                                            }
+                                                        />
+                                                        <TextField
+                                                            id="cin_issued_place"
+                                                            label="Fait à"
+                                                            required
+                                                            placeholder="Antananarivo"
+                                                            hint="Le lieu de délivrance porté sur la carte."
+                                                            value={
+                                                                data.cin_issued_place
+                                                            }
+                                                            error={errorFor(
+                                                                'cin_issued_place',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'cin_issued_place',
+                                                                    value,
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid gap-6 sm:grid-cols-2">
+                                                        <TextField
+                                                            id="cin_issued_at"
+                                                            label="Date de délivrance"
+                                                            required
+                                                            type="date"
+                                                            max={today()}
+                                                            value={
+                                                                data.cin_issued_at
+                                                            }
+                                                            error={errorFor(
+                                                                'cin_issued_at',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'cin_issued_at',
+                                                                    value,
+                                                                )
+                                                            }
+                                                        />
+                                                        <TextField
+                                                            id="cin_duplicate_at"
+                                                            label="Date du duplicata"
+                                                            type="date"
+                                                            max={today()}
+                                                            hint="À ne remplir que si votre carte est un duplicata."
+                                                            value={
+                                                                data.cin_duplicate_at
+                                                            }
+                                                            error={errorFor(
+                                                                'cin_duplicate_at',
+                                                            )}
+                                                            onChange={(value) =>
+                                                                setData(
+                                                                    'cin_duplicate_at',
+                                                                    value,
+                                                                )
+                                                            }
+                                                        />
+                                                    </div>
+
+                                                    {/* La CIN du conjoint ne
+                                                        concerne que les
+                                                        candidats mariés : le
+                                                        champ n'existe pas pour
+                                                        les autres, et le
+                                                        serveur le refuse s'il
+                                                        arrive quand même. */}
+                                                    {isMarried && (
+                                                        <fieldset className="border-border border p-5">
+                                                            <legend className="text-foreground px-2 text-[13px] font-bold tracking-[0.12em] uppercase">
+                                                                Conjoint
+                                                            </legend>
+                                                            <TextField
+                                                                id="spouse_cin_number"
+                                                                label="Numéro de CIN du conjoint"
+                                                                required
+                                                                inputMode="numeric"
+                                                                placeholder="123456789012"
+                                                                hint={`${options.cinLength} chiffres, sans espace.`}
+                                                                value={
+                                                                    data.spouse_cin_number
+                                                                }
+                                                                error={errorFor(
+                                                                    'spouse_cin_number',
+                                                                )}
+                                                                onChange={(
+                                                                    value,
+                                                                ) =>
+                                                                    setData(
+                                                                        'spouse_cin_number',
+                                                                        value,
+                                                                    )
+                                                                }
+                                                            />
+                                                        </fieldset>
+                                                    )}
+                                                </>
+                                            )}
+
+                                            {/* ── 4. Baccalauréat ── */}
+                                            {stepKey === 'bac' && (
                                                 <>
                                                     <div className="grid gap-6 sm:grid-cols-2">
                                                         <TextField
@@ -790,112 +1149,56 @@ export default function ApplicationCreate({ options, cms }: Props) {
                                                 </>
                                             )}
 
-                                            {/* ── 4. Inscription ── */}
-                                            {step === 3 && (
-                                                <>
-                                                    <div className="grid gap-6 sm:grid-cols-2">
-                                                        <SelectField
-                                                            id="level"
-                                                            label="Niveau demandé"
-                                                            required
-                                                            value={data.level}
-                                                            error={errorFor(
+                                            {/* ── 5. Inscription ── */}
+                                            {stepKey === 'enrolment' && (
+                                                <div className="grid gap-6 sm:grid-cols-2">
+                                                    <SelectField
+                                                        id="level"
+                                                        label="Niveau demandé"
+                                                        required
+                                                        value={data.level}
+                                                        error={errorFor(
+                                                            'level',
+                                                        )}
+                                                        onChange={(value) =>
+                                                            setData(
                                                                 'level',
-                                                            )}
-                                                            onChange={(value) =>
-                                                                setData(
-                                                                    'level',
-                                                                    value,
-                                                                )
-                                                            }
-                                                            options={options.levels.map(
-                                                                (level) => ({
-                                                                    value: level,
-                                                                    label: level,
-                                                                }),
-                                                            )}
-                                                        />
-                                                        <SelectField
-                                                            id="mention"
-                                                            label="Mention"
-                                                            required
-                                                            value={data.mention}
-                                                            error={errorFor(
+                                                                value,
+                                                            )
+                                                        }
+                                                        options={options.levels.map(
+                                                            (level) => ({
+                                                                value: level,
+                                                                label: level,
+                                                            }),
+                                                        )}
+                                                    />
+                                                    <SelectField
+                                                        id="mention"
+                                                        label="Mention"
+                                                        required
+                                                        value={data.mention}
+                                                        error={errorFor(
+                                                            'mention',
+                                                        )}
+                                                        onChange={(value) =>
+                                                            setData(
                                                                 'mention',
-                                                            )}
-                                                            onChange={(value) =>
-                                                                setData(
-                                                                    'mention',
-                                                                    value,
-                                                                )
-                                                            }
-                                                            options={options.mentions.map(
-                                                                (mention) => ({
-                                                                    value: mention.slug,
-                                                                    label: mention.name,
-                                                                }),
-                                                            )}
-                                                        />
-                                                    </div>
-
-                                                    {/* Propres à la réinscription : un
-                                                        étudiant déjà inscrit a un
-                                                        matricule, un candidat non. */}
-                                                    {isReinscription && (
-                                                        <div className="grid gap-6 sm:grid-cols-2">
-                                                            <TextField
-                                                                id="student_number"
-                                                                label="Numéro matricule"
-                                                                required
-                                                                hint="Celui qui figure sur votre carte d’étudiant."
-                                                                value={
-                                                                    data.student_number
-                                                                }
-                                                                error={errorFor(
-                                                                    'student_number',
-                                                                )}
-                                                                onChange={(
-                                                                    value,
-                                                                ) =>
-                                                                    setData(
-                                                                        'student_number',
-                                                                        value,
-                                                                    )
-                                                                }
-                                                            />
-                                                            <SelectField
-                                                                id="previous_level"
-                                                                label="Niveau de l’année précédente"
-                                                                value={
-                                                                    data.previous_level
-                                                                }
-                                                                error={errorFor(
-                                                                    'previous_level',
-                                                                )}
-                                                                onChange={(
-                                                                    value,
-                                                                ) =>
-                                                                    setData(
-                                                                        'previous_level',
-                                                                        value,
-                                                                    )
-                                                                }
-                                                                options={options.levels.map(
-                                                                    (
-                                                                        level,
-                                                                    ) => ({
-                                                                        value: level,
-                                                                        label: level,
-                                                                    }),
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </>
+                                                                value,
+                                                            )
+                                                        }
+                                                        options={options.mentions.map(
+                                                            (mention) => ({
+                                                                value: mention.slug,
+                                                                label: mention.name,
+                                                            }),
+                                                        )}
+                                                    />
+                                                </div>
                                             )}
 
-                                            {/* ── 5. Parents ── */}
-                                            {step === 4 && (
+                                            {/* ── 6. Parents ── */}
+                                            {stepKey === 'parents' && (
                                                 <>
                                                     <fieldset className="border-border border p-5">
                                                         <legend className="text-foreground px-2 text-[13px] font-bold tracking-[0.12em] uppercase">
@@ -996,232 +1299,344 @@ export default function ApplicationCreate({ options, cms }: Props) {
                                                 </>
                                             )}
 
-                                            {/* ── 6. Documents ── */}
-                                            {step === 5 && (
+                                            {/* ── 7. Documents ── */}
+                                            {stepKey === 'documents' && (
                                                 <div className="space-y-4">
-                                                    {options.documents.map(
-                                                        (spec) => (
-                                                            <FileField
-                                                                key={spec.type}
-                                                                spec={spec}
-                                                                options={
-                                                                    options
-                                                                }
-                                                                file={
-                                                                    data
-                                                                        .documents[
-                                                                        spec
-                                                                            .type
-                                                                    ] ?? null
-                                                                }
-                                                                required={required.includes(
-                                                                    spec.type,
-                                                                )}
-                                                                state={
-                                                                    uploadState
-                                                                }
-                                                                error={errorFor(
-                                                                    `documents.${spec.type}`,
-                                                                )}
-                                                                onChange={(
-                                                                    file,
-                                                                ) =>
-                                                                    setData(
-                                                                        'documents',
-                                                                        {
-                                                                            ...data.documents,
-                                                                            [spec.type]:
-                                                                                file,
-                                                                        },
-                                                                    )
-                                                                }
-                                                            />
-                                                        ),
-                                                    )}
+                                                    {documents.map((spec) => (
+                                                        <FileField
+                                                            key={spec.type}
+                                                            spec={spec}
+                                                            options={options}
+                                                            file={
+                                                                data.documents[
+                                                                    spec.type
+                                                                ] ?? null
+                                                            }
+                                                            required={required.includes(
+                                                                spec.type,
+                                                            )}
+                                                            state={uploadState}
+                                                            error={errorFor(
+                                                                `documents.${spec.type}`,
+                                                            )}
+                                                            onChange={(file) =>
+                                                                setData(
+                                                                    'documents',
+                                                                    {
+                                                                        ...data.documents,
+                                                                        [spec.type]:
+                                                                            file,
+                                                                    },
+                                                                )
+                                                            }
+                                                        />
+                                                    ))}
 
-                                                    {isReinscription && (
+                                                    {/* Rappel au moment de joindre
+                                                        le bordereau : ce qu'il
+                                                        doit porter, et sur quel
+                                                        compte. */}
+                                                    {fees?.dueAtSubmission && (
                                                         <p className="border-border bg-card text-muted-foreground border p-4 text-[13.5px] leading-relaxed">
-                                                            En réinscription, le
-                                                            relevé du
-                                                            baccalauréat et la
-                                                            CIN sont déjà à
-                                                            votre dossier : seul
-                                                            le bordereau de
-                                                            versement est exigé.
-                                                            Vous pouvez
-                                                            néanmoins joindre
-                                                            les autres pièces si
-                                                            elles ont changé.
+                                                            Le bordereau à
+                                                            joindre est celui du
+                                                            versement de{' '}
+                                                            <strong className="text-foreground">
+                                                                {
+                                                                    fees.dueAtSubmission
+                                                                }
+                                                            </strong>{' '}
+                                                            sur le compte{' '}
+                                                            {
+                                                                options
+                                                                    .bankAccount
+                                                                    .bank
+                                                            }{' '}
+                                                            {
+                                                                options
+                                                                    .bankAccount
+                                                                    .holder
+                                                            }{' '}
+                                                            n<sup>o</sup>&nbsp;
+                                                            <strong className="text-foreground whitespace-nowrap">
+                                                                {
+                                                                    options
+                                                                        .bankAccount
+                                                                        .number
+                                                                }
+                                                            </strong>
+                                                            {fees.dueAfterValidation && (
+                                                                <>
+                                                                    . Les{' '}
+                                                                    <strong className="text-foreground">
+                                                                        {
+                                                                            fees.dueAfterValidation
+                                                                        }
+                                                                    </strong>{' '}
+                                                                    de frais
+                                                                    généraux ne
+                                                                    se versent
+                                                                    qu’après
+                                                                    validation
+                                                                    de votre
+                                                                    dossier
+                                                                </>
+                                                            )}
+                                                            .
                                                         </p>
                                                     )}
                                                 </div>
                                             )}
 
-                                            {/* ── 7. Récapitulatif ── */}
-                                            {step === RECAP_STEP && (
+                                            {/* ── 8. Récapitulatif ── */}
+                                            {stepKey === 'summary' && (
                                                 <div className="space-y-4">
                                                     <RecapBlock
                                                         title="Type de demande"
-                                                        step={0}
+                                                        step={stepIndex('type')}
                                                         onEdit={goTo}
                                                     >
                                                         <Recap
                                                             label="Demande"
                                                             value={typeLabel}
                                                         />
-                                                        {isReinscription && (
+                                                    </RecapBlock>
+
+                                                    {shows('student') && (
+                                                        <RecapBlock
+                                                            title="Identification"
+                                                            step={stepIndex(
+                                                                'student',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
                                                             <Recap
                                                                 label="Numéro matricule"
                                                                 value={
                                                                     data.student_number
                                                                 }
                                                             />
-                                                        )}
-                                                    </RecapBlock>
-
-                                                    <RecapBlock
-                                                        title="Informations personnelles"
-                                                        step={1}
-                                                        onEdit={goTo}
-                                                    >
-                                                        <Recap
-                                                            label="Nom"
-                                                            value={
-                                                                data.last_name
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Prénom"
-                                                            value={
-                                                                data.first_name
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Sexe"
-                                                            value={genderLabel}
-                                                        />
-                                                        <Recap
-                                                            label="Nationalité"
-                                                            value={
-                                                                data.nationality
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Date de naissance"
-                                                            value={
-                                                                data.birth_date
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Lieu de naissance"
-                                                            value={
-                                                                data.birth_place
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Téléphone"
-                                                            value={data.phone}
-                                                        />
-                                                        <Recap
-                                                            label="Adresse e-mail"
-                                                            value={data.email}
-                                                        />
-                                                        <Recap
-                                                            label="Religion"
-                                                            value={
-                                                                data.religion
-                                                            }
-                                                        />
-                                                    </RecapBlock>
-
-                                                    <RecapBlock
-                                                        title="Baccalauréat"
-                                                        step={2}
-                                                        onEdit={goTo}
-                                                    >
-                                                        <Recap
-                                                            label="Année d’obtention"
-                                                            value={
-                                                                data.bac_year
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Série"
-                                                            value={
-                                                                data.bac_series
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Numéro"
-                                                            value={
-                                                                data.bac_number
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Mention"
-                                                            value={
-                                                                bacMentionLabel
-                                                            }
-                                                        />
-                                                    </RecapBlock>
-
-                                                    <RecapBlock
-                                                        title="Inscription demandée"
-                                                        step={3}
-                                                        onEdit={goTo}
-                                                    >
-                                                        <Recap
-                                                            label="Niveau"
-                                                            value={data.level}
-                                                        />
-                                                        <Recap
-                                                            label="Mention"
-                                                            value={mentionName}
-                                                        />
-                                                        {isReinscription && (
                                                             <Recap
-                                                                label="Niveau précédent"
+                                                                label="Adresse e-mail"
                                                                 value={
-                                                                    data.previous_level
+                                                                    data.email
                                                                 }
                                                             />
-                                                        )}
-                                                    </RecapBlock>
+                                                        </RecapBlock>
+                                                    )}
 
-                                                    <RecapBlock
-                                                        title="Parents"
-                                                        step={4}
-                                                        onEdit={goTo}
-                                                    >
-                                                        <Recap
-                                                            label="Parent 1"
-                                                            value={
-                                                                data.parent1_name
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Téléphone 1"
-                                                            value={
-                                                                data.parent1_phone
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Parent 2"
-                                                            value={
-                                                                data.parent2_name
-                                                            }
-                                                        />
-                                                        <Recap
-                                                            label="Téléphone 2"
-                                                            value={
-                                                                data.parent2_phone
-                                                            }
-                                                        />
-                                                    </RecapBlock>
+                                                    {shows('identity') && (
+                                                        <RecapBlock
+                                                            title="Informations personnelles"
+                                                            step={stepIndex(
+                                                                'identity',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
+                                                            <Recap
+                                                                label="Nom"
+                                                                value={
+                                                                    data.last_name
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Prénom"
+                                                                value={
+                                                                    data.first_name
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Sexe"
+                                                                value={
+                                                                    genderLabel
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Nationalité"
+                                                                value={
+                                                                    data.nationality
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Date de naissance"
+                                                                value={
+                                                                    data.birth_date
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Lieu de naissance"
+                                                                value={
+                                                                    data.birth_place
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Téléphone"
+                                                                value={
+                                                                    data.phone
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Adresse e-mail"
+                                                                value={
+                                                                    data.email
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Situation matrimoniale"
+                                                                value={
+                                                                    maritalLabel
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Religion"
+                                                                value={
+                                                                    religionLabel
+                                                                }
+                                                            />
+                                                        </RecapBlock>
+                                                    )}
+
+                                                    {shows('cin') && (
+                                                        <RecapBlock
+                                                            title="Carte d’identité nationale"
+                                                            step={stepIndex(
+                                                                'cin',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
+                                                            <Recap
+                                                                label="Numéro de CIN"
+                                                                value={
+                                                                    data.cin_number
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Fait à"
+                                                                value={
+                                                                    data.cin_issued_place
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Date de délivrance"
+                                                                value={
+                                                                    data.cin_issued_at
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Date du duplicata"
+                                                                value={
+                                                                    data.cin_duplicate_at
+                                                                }
+                                                            />
+                                                            {isMarried && (
+                                                                <Recap
+                                                                    label="CIN du conjoint"
+                                                                    value={
+                                                                        data.spouse_cin_number
+                                                                    }
+                                                                />
+                                                            )}
+                                                        </RecapBlock>
+                                                    )}
+
+                                                    {shows('bac') && (
+                                                        <RecapBlock
+                                                            title="Baccalauréat"
+                                                            step={stepIndex(
+                                                                'bac',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
+                                                            <Recap
+                                                                label="Année d’obtention"
+                                                                value={
+                                                                    data.bac_year
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Série"
+                                                                value={
+                                                                    data.bac_series
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Numéro"
+                                                                value={
+                                                                    data.bac_number
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Mention"
+                                                                value={
+                                                                    bacMentionLabel
+                                                                }
+                                                            />
+                                                        </RecapBlock>
+                                                    )}
+
+                                                    {shows('enrolment') && (
+                                                        <RecapBlock
+                                                            title="Inscription demandée"
+                                                            step={stepIndex(
+                                                                'enrolment',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
+                                                            <Recap
+                                                                label="Niveau"
+                                                                value={
+                                                                    data.level
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Mention"
+                                                                value={
+                                                                    mentionName
+                                                                }
+                                                            />
+                                                        </RecapBlock>
+                                                    )}
+
+                                                    {shows('parents') && (
+                                                        <RecapBlock
+                                                            title="Parents"
+                                                            step={stepIndex(
+                                                                'parents',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
+                                                            <Recap
+                                                                label="Parent 1"
+                                                                value={
+                                                                    data.parent1_name
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Téléphone 1"
+                                                                value={
+                                                                    data.parent1_phone
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Parent 2"
+                                                                value={
+                                                                    data.parent2_name
+                                                                }
+                                                            />
+                                                            <Recap
+                                                                label="Téléphone 2"
+                                                                value={
+                                                                    data.parent2_phone
+                                                                }
+                                                            />
+                                                        </RecapBlock>
+                                                    )}
 
                                                     <RecapBlock
                                                         title="Documents joints"
-                                                        step={5}
+                                                        step={stepIndex(
+                                                            'documents',
+                                                        )}
                                                         onEdit={goTo}
                                                     >
                                                         {chosenDocuments.length ===
@@ -1338,7 +1753,7 @@ export default function ApplicationCreate({ options, cms }: Props) {
                                             </button>
 
                                             <div className="sm:ml-auto">
-                                                {step < RECAP_STEP ? (
+                                                {step < recapStep ? (
                                                     <button
                                                         type="button"
                                                         onClick={next}

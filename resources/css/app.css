@@ -1646,3 +1646,55 @@ input:-webkit-autofill {
     -webkit-box-shadow: 0 0 0 30px var(--background) inset !important;
     -webkit-text-fill-color: var(--foreground) !important;
 }
+
+/* ------------------------------------------------------------------------
+   Impression du récépissé de candidature
+
+   « Imprimer » sortait la page entière — bandeau sombre, navigation, pied de
+   page, appels à l'action —, soit plusieurs feuilles à l'encre pour un
+   numéro de dossier. Seul le récépissé part maintenant à l'imprimante : un
+   ticket qui tient sur une demi-page, à présenter au bureau de la scolarité.
+   ------------------------------------------------------------------------ */
+
+.print-ticket {
+    display: none;
+}
+
+@media print {
+    @page {
+        margin: 14mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+    }
+
+    /* Le récépissé est un enfant direct de `body` (portail React, voir
+       `Confirmation.tsx`) : effacer ses frères suffit à ne laisser que lui.
+       La première version masquait le site avec `visibility: hidden`, qui
+       cache sans retirer du flux — l'imprimante sortait le ticket, puis
+       quatre feuilles blanches à la taille de la page. `display: none`, lui,
+       reprend la place. */
+    body > *:not(.print-ticket) {
+        display: none !important;
+    }
+
+    .print-ticket {
+        display: block !important;
+        /* L'encre du site est claire sur fond sombre : sur papier, on repart
+           du noir sur blanc, sans quoi le ticket sortirait illisible. */
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    /* Un récépissé ne se coupe pas en deux. */
+    .print-ticket > * {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .print-ticket .print-rule {
+        border-color: #000 !important;
+    }
+}

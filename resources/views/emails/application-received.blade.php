@@ -8,6 +8,29 @@
 --}}
 @php
     $documents = $application->documents->pluck('label')->all();
+
+    /* Le récapitulatif ne montre que ce que le candidat a déclaré : une
+       réinscription ne donne ni état civil, ni niveau, ni mention — ces lignes
+       disparaissent au lieu de rester vides. */
+    $recap = array_filter([
+        'Candidat' => $application->full_name,
+        'Numéro matricule' => $application->student_number,
+        'Type de demande' => $application->type_label,
+        'Niveau demandé' => $application->level,
+        'Mention' => $application->mention_name,
+        'Adresse e-mail' => $application->email,
+        'Statut' => $application->status_label,
+    ], fn ($value) => filled($value));
+
+    $fees = App\Models\Application::feesFor($application->type);
+    $account = App\Models\Application::BANK_ACCOUNT;
+
+    /* Ce qui est déjà versé — le bordereau joint en fait preuve — et ce qui
+       ne le sera qu'une fois le dossier validé. */
+    $dueAfter = App\Models\Application::feeDue(
+        $application->type,
+        App\Models\Application::FEE_AFTER_VALIDATION,
+    );
 @endphp
 <!DOCTYPE html>
 <html lang="fr">
@@ -37,7 +60,7 @@
                 <tr>
                     <td style="padding:32px;">
                         <p style="margin:0 0 16px;font-size:15px;line-height:1.6;">
-                            Bonjour {{ $application->first_name }} {{ $application->last_name }},
+                            Bonjour{{ $application->full_name ? ' ' . $application->full_name : '' }},
                         </p>
 
                         <p style="margin:0 0 20px;font-size:15px;line-height:1.6;">
@@ -67,14 +90,7 @@
                         </h2>
 
                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;font-size:14px;">
-                            @foreach ([
-                                'Candidat' => $application->first_name . ' ' . $application->last_name,
-                                'Type de demande' => $application->type_label,
-                                'Niveau demandé' => $application->level,
-                                'Mention' => $application->mention_name,
-                                'Adresse e-mail' => $application->email,
-                                'Statut' => $application->status_label,
-                            ] as $label => $value)
+                            @foreach ($recap as $label => $value)
                                 <tr>
                                     <td style="padding:9px 0;border-bottom:1px solid #f4f4f5;color:#71717a;width:45%;">{{ $label }}</td>
                                     <td style="padding:9px 0;border-bottom:1px solid #f4f4f5;font-weight:bold;">{{ $value }}</td>
@@ -91,6 +107,48 @@
                                     <li>{{ $document }}</li>
                                 @endforeach
                             </ul>
+                        @endif
+
+                        @if ($fees)
+                            <h2 style="margin:0 0 10px;font-size:13px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:#71717a;">
+                                Frais
+                            </h2>
+
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;font-size:14px;">
+                                @foreach ($fees as $fee)
+                                    <tr>
+                                        <td style="padding:9px 0;border-bottom:1px solid #f4f4f5;width:60%;">
+                                            {{ $fee['label'] }}<br>
+                                            <span style="font-size:12.5px;color:#71717a;">{{ $fee['moment'] }}</span>
+                                        </td>
+                                        <td style="padding:9px 0;border-bottom:1px solid #f4f4f5;font-weight:bold;text-align:right;vertical-align:top;">
+                                            {{ $fee['formatted'] }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </table>
+
+                            {{-- Le compte : la seule information dont le candidat
+                                 a besoin pour verser. --}}
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                                   style="border:1px solid #e4e4e7;background-color:#fafafa;margin:0 0 24px;">
+                                <tr>
+                                    <td style="padding:14px 20px;">
+                                        <p style="margin:0;font-size:11px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;color:#71717a;">
+                                            Compte de versement
+                                        </p>
+                                        <p style="margin:5px 0 0;font-size:16px;font-weight:bold;color:#111111;">
+                                            {{ $account['bank'] }} {{ $account['holder'] }} — {{ $account['number'] }}
+                                        </p>
+                                        @if ($dueAfter)
+                                            <p style="margin:8px 0 0;font-size:13px;line-height:1.6;color:#52525b;">
+                                                Les <strong>{{ $dueAfter }}</strong> de frais généraux ne sont à verser
+                                                qu'une fois votre dossier validé&nbsp;: n'anticipez pas ce versement.
+                                            </p>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </table>
                         @endif
 
                         {{-- La finalisation : le point que le candidat doit lire --}}

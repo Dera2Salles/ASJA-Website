@@ -413,12 +413,24 @@ export default function DepartmentShow({ department, cms }: Props) {
                                     </p>
 
                                     <div className="mx-auto mt-8 flex w-full max-w-[420px] flex-col gap-3 sm:mt-9 sm:max-w-none sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3.5">
+                                        {/* La mention voyage dans l'adresse :
+                                            le candidat arrive sur le formulaire
+                                            avec celle-ci déjà choisie, plutôt
+                                            que de devoir la retrouver dans une
+                                            liste après avoir lu toute sa page. */}
                                         <Link
-                                            href="/#contact"
+                                            href={`/candidature?mention=${department.slug}`}
                                             className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-[#000000] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#000000] sm:w-auto sm:px-[34px]"
                                         >
-                                            Nous contacter
+                                            Déposer ma demande
                                             <ArrowRight className="h-4 w-4" />
+                                        </Link>
+
+                                        <Link
+                                            href="/#contact"
+                                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full border border-[#000000]/35 px-8 text-[15px] font-semibold text-[#000000] hover:bg-[#000000]/10 sm:w-auto sm:px-[32px]"
+                                        >
+                                            Nous contacter
                                         </Link>
 
                                         <Link

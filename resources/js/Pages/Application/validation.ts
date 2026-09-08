@@ -1,4 +1,11 @@
-import { REINSCRIPTION, type ApplicationForm, type FormOptions } from './types';
+import {
+    MARRIED,
+    REINSCRIPTION,
+    RELIGION_OTHER,
+    type ApplicationForm,
+    type DocumentSpec,
+    type FormOptions,
+} from './types';
 
 /**
  * Validation dans le navigateur.
@@ -12,25 +19,103 @@ import { REINSCRIPTION, type ApplicationForm, type FormOptions } from './types';
 
 export type Errors = Record<string, string>;
 
-/** Champs contrôlés à chaque étape, dans l'ordre du formulaire. */
-export const STEP_FIELDS: string[][] = [
-    ['type'],
-    [
+/**
+ * Les étapes sont désignées par un nom, jamais par leur rang.
+ *
+ * Elles l'ont d'abord été par un indice, et insérer la carte d'identité entre
+ * l'état civil et le baccalauréat décalait silencieusement toutes les règles
+ * qui suivaient. Le nom, lui, survit à un déplacement.
+ */
+export type StepKey =
+    | 'type'
+    | 'identity'
+    | 'student'
+    | 'cin'
+    | 'bac'
+    | 'enrolment'
+    | 'parents'
+    | 'documents'
+    | 'summary';
+
+/** Parcours d'une première inscription : le dossier complet. */
+const PREMIERE_STEPS: StepKey[] = [
+    'type',
+    'identity',
+    'cin',
+    'bac',
+    'enrolment',
+    'parents',
+    'documents',
+    'summary',
+];
+
+/**
+ * Parcours d'une réinscription.
+ *
+ * L'étudiant est déjà au dossier : son état civil, sa CIN, son baccalauréat et
+ * ses parents y sont depuis sa première inscription. Il ne reste qu'à le
+ * retrouver — son matricule —, à savoir où lui répondre — son adresse e-mail —
+ * et à recevoir les pièces de l'année. Reflet de `Application::FIELDS`, qui
+ * refuse serveur tout ce qui n'est pas dans cette liste.
+ */
+const REINSCRIPTION_STEPS: StepKey[] = [
+    'type',
+    'student',
+    'documents',
+    'summary',
+];
+
+/**
+ * Étapes du type de demande choisi.
+ *
+ * Tant qu'aucun type n'est retenu, le parcours le plus large est affiché :
+ * le candidat voit ce qui l'attend avant de choisir.
+ */
+export function stepKeysFor(type: string): StepKey[] {
+    return type === REINSCRIPTION ? REINSCRIPTION_STEPS : PREMIERE_STEPS;
+}
+
+/**
+ * Champs réellement demandés pour ce type de demande.
+ *
+ * Le formulaire n'envoie que ceux-là : un champ resté en mémoire d'un autre
+ * parcours — la nationalité, préremplie, ou la mention venue de l'adresse —
+ * serait refusé par le serveur, qui ne l'a pas demandé.
+ */
+export function fieldsFor(type: string): string[] {
+    return stepKeysFor(type).flatMap((step) => STEP_FIELDS[step]);
+}
+
+/** Champs portés par chaque étape : sert à y renvoyer sur erreur du serveur. */
+export const STEP_FIELDS: Record<StepKey, string[]> = {
+    type: ['type'],
+    identity: [
         'last_name',
         'first_name',
         'gender',
         'nationality',
         'birth_date',
         'birth_place',
+        'marital_status',
+        'religion',
+        'religion_other',
         'phone',
         'email',
     ],
-    ['bac_year', 'bac_series', 'bac_number', 'bac_mention'],
-    ['level', 'mention', 'student_number'],
-    ['parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone'],
-    ['documents'],
-    [],
-];
+    student: ['student_number', 'email'],
+    cin: [
+        'cin_number',
+        'cin_issued_place',
+        'cin_issued_at',
+        'cin_duplicate_at',
+        'spouse_cin_number',
+    ],
+    bac: ['bac_year', 'bac_series', 'bac_number', 'bac_mention'],
+    enrolment: ['level', 'mention'],
+    parents: ['parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone'],
+    documents: ['documents'],
+    summary: [],
+};
 
 const PHONE = /^[0-9+\s().-]{8,}$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -50,23 +135,44 @@ const required = (value: string, label: string) =>
 const requiredName = (value: string, label: string, message: string) =>
     required(value, label) ?? (NAME.test(value.trim()) ? undefined : message);
 
+/**
+ * L'adresse de l'accusé de réception, demandée dans les deux parcours : à
+ * l'état civil en première inscription, à l'identification en réinscription.
+ */
+const emailError = (value: string): string | undefined => {
+    if (!value.trim()) return 'Le champ « adresse e-mail » est obligatoire.';
+
+    return EMAIL.test(value.trim())
+        ? undefined
+        : 'Indiquez une adresse e-mail valide : l’accusé de réception y sera envoyé.';
+};
+
+/** Un numéro de CIN : exactement le nombre de chiffres attendu. */
+const cinPattern = (length: number) => new RegExp(`^\\d{${length}}$`);
+
+/** Date du jour au format d'un champ `date`, pour borner les saisies. */
+export const today = (): string => new Date().toISOString().slice(0, 10);
+
 /** Extension d'un nom de fichier, en minuscules et sans le point. */
 export const extensionOf = (name: string): string =>
     name.slice(((name.lastIndexOf('.') - 1) >>> 0) + 2).toLowerCase();
 
 /**
  * Contrôle d'une pièce au moment où elle est choisie : format et poids, les
- * deux seules choses vérifiables sans quitter le navigateur. Le serveur
- * revérifie l'un et l'autre, et lit en plus le contenu réel du fichier.
+ * deux seules choses vérifiables sans quitter le navigateur. Les formats sont
+ * ceux de la pièce, pas une liste globale — une photo d'identité n'accepte pas
+ * le PDF. Le serveur revérifie l'un et l'autre, et lit en plus le contenu réel
+ * du fichier.
  */
 export function validateFile(
     file: File,
+    spec: DocumentSpec,
     options: FormOptions,
 ): string | undefined {
     const extension = extensionOf(file.name);
 
-    if (!options.acceptedExtensions.includes(extension)) {
-        return `Format non accepté. Formats autorisés : ${options.acceptedExtensions
+    if (!spec.extensions.includes(extension)) {
+        return `Format non accepté. Formats autorisés : ${spec.extensions
             .join(', ')
             .toUpperCase()}.`;
     }
@@ -87,6 +193,16 @@ export function formatSize(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
+/** Pièces demandées pour ce type de demande, obligatoires ou non. */
+export function documentsFor(
+    options: FormOptions,
+    type: string,
+): DocumentSpec[] {
+    return options.documents.filter((document) =>
+        document.appliesTo.includes(type),
+    );
+}
+
 /** Pièces obligatoires pour le type de demande choisi. */
 export function requiredDocuments(
     options: FormOptions,
@@ -99,7 +215,7 @@ export function requiredDocuments(
 
 /** Erreurs de l'étape demandée, vides si elle est complète. */
 export function validateStep(
-    step: number,
+    step: StepKey,
     data: ApplicationForm,
     options: FormOptions,
 ): Errors {
@@ -109,11 +225,11 @@ export function validateStep(
     };
 
     switch (step) {
-        case 0:
+        case 'type':
             set('type', required(data.type, 'type de demande'));
             break;
 
-        case 1: {
+        case 'identity': {
             set(
                 'last_name',
                 requiredName(
@@ -133,6 +249,21 @@ export function validateStep(
             set('gender', required(data.gender, 'sexe'));
             set('nationality', required(data.nationality, 'nationalité'));
             set('birth_place', required(data.birth_place, 'lieu de naissance'));
+            set(
+                'marital_status',
+                required(data.marital_status, 'situation matrimoniale'),
+            );
+            set('religion', required(data.religion, 'religion'));
+
+            // « Autre » sans précision ne dit rien : le champ devient exigé.
+            if (data.religion === RELIGION_OTHER) {
+                set(
+                    'religion_other',
+                    data.religion_other.trim() === ''
+                        ? 'Précisez votre religion.'
+                        : undefined,
+                );
+            }
 
             if (!data.birth_date) {
                 set(
@@ -158,18 +289,88 @@ export function validateStep(
                 );
             }
 
-            if (!data.email.trim()) {
-                set('email', 'Le champ « adresse e-mail » est obligatoire.');
-            } else if (!EMAIL.test(data.email.trim())) {
+            set('email', emailError(data.email));
+            break;
+        }
+
+        /* Réinscription : le matricule retrouve l'étudiant au dossier,
+           l'adresse dit où lui envoyer l'accusé de réception. */
+        case 'student':
+            set(
+                'student_number',
+                data.student_number.trim() === ''
+                    ? 'Le numéro matricule est obligatoire pour une réinscription.'
+                    : undefined,
+            );
+            set('email', emailError(data.email));
+            break;
+
+        case 'cin': {
+            const cin = cinPattern(options.cinLength);
+            const digits = `Le numéro de CIN doit comporter exactement ${options.cinLength} chiffres.`;
+
+            if (!data.cin_number.trim()) {
                 set(
-                    'email',
-                    'Indiquez une adresse e-mail valide : l’accusé de réception y sera envoyé.',
+                    'cin_number',
+                    'Le champ « numéro de CIN » est obligatoire.',
                 );
+            } else if (!cin.test(data.cin_number.trim())) {
+                set('cin_number', digits);
+            }
+
+            set(
+                'cin_issued_place',
+                required(data.cin_issued_place, 'lieu de délivrance'),
+            );
+
+            if (!data.cin_issued_at) {
+                set(
+                    'cin_issued_at',
+                    'Le champ « date de délivrance » est obligatoire.',
+                );
+            } else if (data.cin_issued_at > today()) {
+                set(
+                    'cin_issued_at',
+                    'La date de délivrance ne peut pas être dans le futur.',
+                );
+            }
+
+            // Le duplicata est facultatif, mais il vient forcément après la
+            // délivrance et jamais après aujourd'hui.
+            if (data.cin_duplicate_at) {
+                if (data.cin_duplicate_at > today()) {
+                    set(
+                        'cin_duplicate_at',
+                        'La date du duplicata ne peut pas être dans le futur.',
+                    );
+                } else if (
+                    data.cin_issued_at &&
+                    data.cin_duplicate_at < data.cin_issued_at
+                ) {
+                    set(
+                        'cin_duplicate_at',
+                        'Le duplicata ne peut pas précéder la délivrance de la CIN.',
+                    );
+                }
+            }
+
+            if (data.marital_status === MARRIED) {
+                if (!data.spouse_cin_number.trim()) {
+                    set(
+                        'spouse_cin_number',
+                        'Le numéro de CIN du conjoint est obligatoire pour un candidat marié.',
+                    );
+                } else if (!cin.test(data.spouse_cin_number.trim())) {
+                    set(
+                        'spouse_cin_number',
+                        `Le numéro de CIN du conjoint doit comporter exactement ${options.cinLength} chiffres.`,
+                    );
+                }
             }
             break;
         }
 
-        case 2: {
+        case 'bac': {
             const year = Number(data.bac_year);
             const max = new Date().getFullYear() + 1;
 
@@ -186,6 +387,7 @@ export function validateStep(
             }
 
             set('bac_series', required(data.bac_series, 'série'));
+
             if (!data.bac_number.trim()) {
                 set(
                     'bac_number',
@@ -197,25 +399,17 @@ export function validateStep(
                     'Le numéro du baccalauréat ne doit contenir que des chiffres.',
                 );
             }
+
             set('bac_mention', required(data.bac_mention, 'mention'));
             break;
         }
 
-        case 3:
+        case 'enrolment':
             set('level', required(data.level, 'niveau'));
             set('mention', required(data.mention, 'mention'));
-
-            if (data.type === REINSCRIPTION) {
-                set(
-                    'student_number',
-                    data.student_number.trim() === ''
-                        ? 'Le numéro matricule est obligatoire pour une réinscription.'
-                        : undefined,
-                );
-            }
             break;
 
-        case 4: {
+        case 'parents': {
             set(
                 'parent1_name',
                 requiredName(
@@ -255,7 +449,7 @@ export function validateStep(
             break;
         }
 
-        case 5:
+        case 'documents':
             requiredDocuments(options, data.type).forEach((type) => {
                 if (!data.documents[type]) {
                     const spec = options.documents.find((d) => d.type === type);
@@ -274,16 +468,25 @@ export function validateStep(
     return errors;
 }
 
-/** Première étape en défaut, ou `null` si le dossier est complet. */
+/** Rang de la première étape en défaut, ou `null` si le dossier est complet. */
 export function firstInvalidStep(
     data: ApplicationForm,
     options: FormOptions,
 ): number | null {
-    for (let step = 0; step < STEP_FIELDS.length; step++) {
-        if (Object.keys(validateStep(step, data, options)).length > 0) {
-            return step;
-        }
-    }
+    const index = stepKeysFor(data.type).findIndex(
+        (step) => Object.keys(validateStep(step, data, options)).length > 0,
+    );
 
-    return null;
+    return index >= 0 ? index : null;
+}
+
+/** Rang de la première étape qui porte l'un des champs nommés. */
+export function stepOfFields(fields: string[], type: string): number {
+    return stepKeysFor(type).findIndex((step) =>
+        STEP_FIELDS[step].some((field) =>
+            fields.some(
+                (name) => name === field || name.startsWith(`${field}.`),
+            ),
+        ),
+    );
 }

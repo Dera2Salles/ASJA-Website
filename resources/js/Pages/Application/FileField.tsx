@@ -51,14 +51,15 @@ export const FileField = ({
     const [localError, setLocalError] = useState<string | undefined>();
     const [dragging, setDragging] = useState(false);
 
-    const accept = options.acceptedExtensions
+    // Les formats sont ceux de la pièce : une photo d'identité n'est pas un PDF.
+    const accept = spec.extensions
         .map((extension) => `.${extension}`)
         .join(',');
 
     const select = (chosen: File | undefined) => {
         if (!chosen) return;
 
-        const message = validateFile(chosen, options);
+        const message = validateFile(chosen, spec, options);
 
         setLocalError(message);
         // Un fichier refusé ne remplace pas celui déjà choisi : le candidat
@@ -103,9 +104,8 @@ export const FileField = ({
             </div>
 
             <p className="text-muted-foreground mt-3 text-[12px]">
-                Formats acceptés :{' '}
-                {options.acceptedExtensions.join(', ').toUpperCase()} — taille
-                maximale : {Math.round(options.maxFileSizeKb / 1024)} Mo.
+                Formats acceptés : {spec.extensions.join(', ').toUpperCase()} —
+                taille maximale : {Math.round(options.maxFileSizeKb / 1024)} Mo.
             </p>
 
             <input

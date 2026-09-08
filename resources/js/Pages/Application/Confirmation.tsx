@@ -8,6 +8,7 @@ import {
     Mail,
     Printer,
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
@@ -15,10 +16,14 @@ import { ThemeProvider } from '../../page/theme/useThemeProvider';
 interface Props {
     application: {
         reference: string;
-        full_name: string;
+        /** Le nom, ou le matricule quand la réinscription n'a pas déclaré de nom. */
+        display_name: string;
         type_label: string;
-        level: string;
-        mention_name: string;
+        /* Nuls pour une réinscription : elle ne redéclare ni niveau ni
+           mention, l'un et l'autre étant déjà au dossier de l'étudiant. */
+        level: string | null;
+        mention_name: string | null;
+        student_number: string | null;
         email: string;
         status_label: string;
         receipt_sent: boolean;
@@ -47,10 +52,146 @@ const Row = ({ label, value }: { label: string; value: string }) => (
  * n'est pas laissé sans son numéro.
  */
 export default function ApplicationConfirmation({ application, cms }: Props) {
+    /**
+     * Récépissé.
+     *
+     * Invisible à l'écran, c'est la seule chose qui part à l'imprimante. Il est
+     * déposé en enfant direct de `body` (voir le portail plus bas) : la règle
+     * d'impression n'a plus alors qu'à effacer ses frères. Laissé au milieu de
+     * la page, il fallait masquer ses ancêtres un par un — et le site sortait
+     * sur cinq feuilles de bandeaux pour un numéro de dossier.
+     */
+    const ticket = (
+        <div className="print-ticket">
+            <div
+                className="print-rule"
+                style={{
+                    border: '1px solid #000',
+                    padding: '16px 20px',
+                    fontFamily: 'Helvetica, Arial, sans-serif',
+                }}
+            >
+                <p
+                    style={{
+                        margin: 0,
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '1.4px',
+                        textTransform: 'uppercase',
+                    }}
+                >
+                    ASJA — Service de la scolarité
+                </p>
+                <p
+                    style={{
+                        margin: '2px 0 12px',
+                        fontSize: '15px',
+                        fontWeight: 700,
+                    }}
+                >
+                    Récépissé de dépôt de dossier
+                </p>
+
+                <p
+                    className="print-rule"
+                    style={{
+                        margin: 0,
+                        borderTop: '1px solid #000',
+                        borderBottom: '1px solid #000',
+                        padding: '10px 0',
+                        fontSize: '22px',
+                        fontWeight: 700,
+                        letterSpacing: '1px',
+                        textAlign: 'center',
+                    }}
+                >
+                    {application.reference}
+                </p>
+
+                <table
+                    style={{
+                        width: '100%',
+                        marginTop: '12px',
+                        fontSize: '12px',
+                        borderCollapse: 'collapse',
+                    }}
+                >
+                    <tbody>
+                        {(
+                            [
+                                ['Candidat', application.display_name],
+                                ['Type de demande', application.type_label],
+                                [
+                                    'Numéro matricule',
+                                    application.student_number,
+                                ],
+                                ['Niveau', application.level],
+                                ['Mention', application.mention_name],
+                                ['Adresse e-mail', application.email],
+                                [
+                                    'Déposé le',
+                                    new Date().toLocaleDateString('fr-FR'),
+                                ],
+                            ] as [string, string | null][]
+                        )
+                            // Une réinscription ne déclare ni niveau ni
+                            // mention : la ligne disparaît plutôt que
+                            // de rester vide sur le récépissé.
+                            .filter(([, value]) => value)
+                            .map(([label, value]) => (
+                                <tr key={label}>
+                                    <td
+                                        style={{
+                                            padding: '3px 0',
+                                            width: '38%',
+                                        }}
+                                    >
+                                        {label}
+                                    </td>
+                                    <td
+                                        style={{
+                                            padding: '3px 0',
+                                            fontWeight: 700,
+                                        }}
+                                    >
+                                        {value}
+                                    </td>
+                                </tr>
+                            ))}
+                    </tbody>
+                </table>
+
+                <p
+                    style={{
+                        margin: '12px 0 0',
+                        fontSize: '11px',
+                        lineHeight: 1.5,
+                    }}
+                >
+                    <strong>
+                        Ce récépissé ne vaut pas inscription définitive.
+                    </strong>{' '}
+                    Présentez-vous au bureau de la scolarité avec les documents
+                    originaux et deux photos d’identité identiques au format
+                    4×4, en buste. Ouvert de 8h à 12h et de 13h30 à 15h, à
+                    Antsaha.
+                </p>
+            </div>
+        </div>
+    );
+
     return (
         <CmsProvider content={cms}>
             <ThemeProvider>
                 <Head title={`Demande ${application.reference}`} />
+
+                {/* Le récépissé vit hors de la page, en enfant direct de
+                    `body` : à l'impression, tout le reste disparaît d'un coup
+                    et il ne sort qu'une feuille. Le site n'ayant pas de rendu
+                    serveur, `document` est toujours là au premier rendu ; la
+                    garde ne coûte rien et dit pourquoi. */}
+                {typeof document !== 'undefined' &&
+                    createPortal(ticket, document.body)}
 
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />
@@ -112,20 +253,34 @@ export default function ApplicationConfirmation({ application, cms }: Props) {
                                         <dl className="mt-8">
                                             <Row
                                                 label="Candidat"
-                                                value={application.full_name}
+                                                value={application.display_name}
                                             />
                                             <Row
                                                 label="Type de demande"
                                                 value={application.type_label}
                                             />
-                                            <Row
-                                                label="Niveau"
-                                                value={application.level}
-                                            />
-                                            <Row
-                                                label="Mention"
-                                                value={application.mention_name}
-                                            />
+                                            {application.student_number && (
+                                                <Row
+                                                    label="Numéro matricule"
+                                                    value={
+                                                        application.student_number
+                                                    }
+                                                />
+                                            )}
+                                            {application.level && (
+                                                <Row
+                                                    label="Niveau"
+                                                    value={application.level}
+                                                />
+                                            )}
+                                            {application.mention_name && (
+                                                <Row
+                                                    label="Mention"
+                                                    value={
+                                                        application.mention_name
+                                                    }
+                                                />
+                                            )}
                                             <Row
                                                 label="Adresse e-mail"
                                                 value={application.email}
@@ -274,7 +429,7 @@ export default function ApplicationConfirmation({ application, cms }: Props) {
                                                 className="border-border text-foreground hover:border-primary hover:text-primary inline-flex min-h-[48px] items-center gap-2 border px-5 text-[14px] font-semibold"
                                             >
                                                 <Printer size={15} />
-                                                Imprimer cette page
+                                                Imprimer le récépissé
                                             </button>
 
                                             <Link

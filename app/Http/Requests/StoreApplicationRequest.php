@@ -35,8 +35,6 @@ class StoreApplicationRequest extends FormRequest
 
     public function rules(): array
     {
-        $isReinscription = $this->input('type') === Application::TYPE_REINSCRIPTION;
-
         return [
             'type' => ['required', Rule::in(array_keys(Application::TYPES))],
 
@@ -44,6 +42,34 @@ class StoreApplicationRequest extends FormRequest
                il rend le dépôt rejouable sans créer de doublon. */
             'idempotency_key' => ['required', 'string', 'size:36'],
 
+            ...$this->declaredRules(),
+            ...$this->documentRules(),
+        ];
+    }
+
+    /**
+     * Une règle par champ déclaré, filtrée par le type de demande.
+     *
+     * Les règles sont écrites une fois, pour la demande la plus large — la
+     * première inscription. `Application::FIELDS` dit ensuite lesquelles ont
+     * cours : une réinscription ne déclare que son matricule et son adresse
+     * e-mail, et tout le reste y est **refusé** plutôt qu'ignoré. Écrire
+     * `prohibited` là où le formulaire ne demande rien ferme la porte à la
+     * requête forgée qui réécrirait l'état civil d'un étudiant déjà au
+     * dossier.
+     *
+     * `prohibited` laisse passer une valeur vide : le formulaire n'envoie que
+     * les champs de son type, mais un navigateur qui posterait une chaîne vide
+     * n'est pas fautif pour autant.
+     */
+    private function declaredRules(): array
+    {
+        $isReinscription = $this->input('type') === Application::TYPE_REINSCRIPTION;
+        $isMarried = $this->input('marital_status') === Application::MARITAL_MARRIED;
+        $isOtherReligion = $this->input('religion') === Application::RELIGION_OTHER;
+        $cin = 'regex:/^\d{' . Application::CIN_LENGTH . '}$/';
+
+        $rules = [
             // — Informations personnelles —
             'last_name' => ['required', 'string', 'max:255', 'regex:' . self::NAME_PATTERN],
             'first_name' => ['required', 'string', 'max:255', 'regex:' . self::NAME_PATTERN],
@@ -53,7 +79,22 @@ class StoreApplicationRequest extends FormRequest
             'birth_place' => ['required', 'string', 'max:255'],
             'phone' => ['required', 'string', 'max:50', 'regex:/^[0-9+\s().-]{8,}$/'],
             'email' => ['required', 'string', 'email:rfc', 'max:255'],
-            'religion' => ['nullable', 'string', 'max:120'],
+            'marital_status' => ['required', Rule::in(array_keys(Application::MARITAL_STATUSES))],
+            'religion' => ['required', Rule::in(array_keys(Application::RELIGIONS))],
+            'religion_other' => [$isOtherReligion ? 'required' : 'nullable', 'string', 'max:120'],
+
+            // — Carte d'identité nationale —
+            'cin_number' => ['required', 'string', $cin],
+            'cin_issued_place' => ['required', 'string', 'max:255'],
+            'cin_issued_at' => ['required', 'date', 'before_or_equal:today', 'after:1900-01-01'],
+            'cin_duplicate_at' => ['nullable', 'date', 'before_or_equal:today', 'after_or_equal:cin_issued_at'],
+
+            /* La CIN du conjoint n'a de sens que pour un candidat marié : elle
+               est exigée dans ce cas, et refusée hors de ce cas plutôt que
+               conservée en base sans raison. */
+            'spouse_cin_number' => $isMarried
+                ? ['required', 'string', $cin]
+                : ['nullable', 'prohibited'],
 
             // — Baccalauréat —
             'bac_year' => ['required', 'integer', 'min:1960', 'max:' . (now()->year + 1)],
@@ -68,7 +109,8 @@ class StoreApplicationRequest extends FormRequest
             'level' => ['required', Rule::in(StudentFile::LEVELS)],
             'mention' => ['required', 'string', Rule::exists(Department::class, 'slug')->where('is_visible', true)],
 
-            // Propres à la réinscription : exigés seulement dans ce cas.
+            // Propre à la réinscription : seule pièce d'identification qu'elle
+            // demande, et la seule à y être obligatoire.
             'student_number' => [$isReinscription ? 'required' : 'nullable', 'string', 'max:60'],
             'previous_level' => ['nullable', Rule::in(StudentFile::LEVELS)],
 
@@ -77,30 +119,49 @@ class StoreApplicationRequest extends FormRequest
             'parent1_phone' => ['required', 'string', 'max:50', 'regex:/^[0-9+\s().-]{8,}$/'],
             'parent2_name' => ['nullable', 'string', 'max:255', 'regex:' . self::NAME_PATTERN],
             'parent2_phone' => ['nullable', 'string', 'max:50', 'regex:/^[0-9+\s().-]{8,}$/'],
-
-            // — Pièces justificatives —
-            ...$this->documentRules(),
         ];
+
+        foreach ($rules as $field => $rule) {
+            if (! Application::fieldApplies($field, $this->input('type'))) {
+                $rules[$field] = ['nullable', 'prohibited'];
+            }
+        }
+
+        return $rules;
     }
 
     /**
-     * Une règle par pièce attendue, obligatoire ou non selon le type de
-     * demande. Le contrôle porte sur l'extension **et** sur le type MIME
-     * déduit du contenu (`mimes` s'appuie sur le fichier, pas sur l'en-tête
-     * annoncé par le client) : un exécutable renommé en `.pdf` est refusé.
+     * Une règle par pièce.
+     *
+     * Trois cas : exigée, proposée, ou hors sujet pour ce type de demande —
+     * auquel cas elle est refusée plutôt qu'enregistrée. Une réinscription n'a
+     * pas à déposer un relevé de baccalauréat déjà archivé, et le formulaire ne
+     * le lui propose pas ; une requête forgée ne doit pas contourner cela.
+     *
+     * Le contrôle porte sur l'extension **et** sur le type MIME déduit du
+     * contenu (`mimes` s'appuie sur le fichier, pas sur l'en-tête annoncé par
+     * le client) : un exécutable renommé en `.pdf` est refusé.
      */
     private function documentRules(): array
     {
         $rules = [];
         $type = $this->input('type');
 
-        foreach (Application::DOCUMENTS as $name => $document) {
-            $required = in_array($type, $document['required'], true);
+        foreach (array_keys(Application::DOCUMENTS) as $name) {
+            $key = 'documents.' . $name;
 
-            $rules['documents.' . $name] = [
+            if (! Application::documentApplies($name, $type)) {
+                $rules[$key] = ['nullable', 'prohibited'];
+
+                continue;
+            }
+
+            $required = in_array($name, Application::requiredDocuments($type), true);
+
+            $rules[$key] = [
                 $required ? 'required' : 'nullable',
                 'file',
-                'mimes:' . implode(',', Application::DOCUMENT_EXTENSIONS),
+                'mimes:' . implode(',', Application::documentExtensions($name)),
                 'max:' . Application::DOCUMENT_MAX_KB,
             ];
         }
@@ -153,6 +214,13 @@ class StoreApplicationRequest extends FormRequest
             'phone' => 'numéro de téléphone',
             'email' => 'adresse e-mail',
             'religion' => 'religion',
+            'religion_other' => 'précision sur la religion',
+            'marital_status' => 'situation matrimoniale',
+            'cin_number' => 'numéro de CIN',
+            'cin_issued_place' => 'lieu de délivrance de la CIN',
+            'cin_issued_at' => 'date de délivrance de la CIN',
+            'cin_duplicate_at' => 'date du duplicata de la CIN',
+            'spouse_cin_number' => 'numéro de CIN du conjoint',
             'bac_year' => 'année d\'obtention du baccalauréat',
             'bac_series' => 'série du baccalauréat',
             'bac_number' => 'numéro du baccalauréat',
@@ -167,6 +235,8 @@ class StoreApplicationRequest extends FormRequest
             'parent2_phone' => 'téléphone du second parent',
             'documents.bac_transcript' => 'relevé de notes du baccalauréat',
             'documents.cin' => 'photocopie de la CIN',
+            'documents.report_card' => 'photocopie du bulletin de notes',
+            'documents.photo' => 'photo d\'identité en buste',
             'documents.payment_receipt' => 'bordereau de versement',
         ];
     }
@@ -182,6 +252,7 @@ class StoreApplicationRequest extends FormRequest
 
         return [
             'required' => 'Le champ « :attribute » est obligatoire.',
+            'prohibited' => 'Le champ « :attribute » n\'est pas demandé pour ce type de demande.',
             'email.email' => 'Indiquez une adresse e-mail valide : l\'accusé de réception y sera envoyé.',
             'phone.regex' => 'Indiquez un numéro de téléphone valide (au moins 8 chiffres).',
             'parent1_phone.regex' => 'Indiquez un numéro de téléphone valide pour le premier parent.',
@@ -192,9 +263,20 @@ class StoreApplicationRequest extends FormRequest
             'parent1_name.regex' => 'Le nom du premier parent ne doit contenir que des lettres, sans chiffre ni caractère spécial.',
             'parent2_name.regex' => 'Le nom du second parent ne doit contenir que des lettres, sans chiffre ni caractère spécial.',
             'bac_number.regex' => 'Le numéro du baccalauréat ne doit contenir que des chiffres.',
+            'cin_number.regex' => 'Le numéro de CIN doit comporter exactement ' . Application::CIN_LENGTH . ' chiffres.',
+            'spouse_cin_number.regex' => 'Le numéro de CIN du conjoint doit comporter exactement ' . Application::CIN_LENGTH . ' chiffres.',
+            'spouse_cin_number.required' => 'Le numéro de CIN du conjoint est obligatoire pour un candidat marié.',
+            'spouse_cin_number.prohibited' => 'Le numéro de CIN du conjoint ne se renseigne que pour un candidat marié.',
+            'cin_issued_at.before_or_equal' => 'La date de délivrance de la CIN ne peut pas être dans le futur.',
+            'cin_duplicate_at.before_or_equal' => 'La date du duplicata ne peut pas être dans le futur.',
+            'cin_duplicate_at.after_or_equal' => 'Le duplicata ne peut pas précéder la délivrance de la CIN.',
+            'religion_other.required' => 'Précisez votre religion.',
             'mention.exists' => 'Choisissez une mention proposée par l\'établissement.',
             'student_number.required' => 'Le numéro matricule est obligatoire pour une réinscription.',
             'documents.*.mimes' => 'Formats acceptés : ' . $extensions . '.',
+            'documents.photo.mimes' => 'La photo doit être une image : '
+                . strtoupper(implode(', ', Application::documentExtensions('photo'))) . '.',
+            'documents.*.prohibited' => 'Cette pièce n\'est pas demandée pour ce type de demande.',
             'documents.*.max' => 'Le fichier dépasse la taille maximale de ' . $maxMb . ' Mo.',
             'documents.*.file' => 'Le fichier n\'a pas pu être lu. Réessayez avec un autre fichier.',
             'documents.*.required' => 'La pièce « :attribute » est obligatoire.',

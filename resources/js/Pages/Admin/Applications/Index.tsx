@@ -55,11 +55,13 @@ interface ApplicationRow {
     type_label: string;
     status: string;
     status_label: string;
-    full_name: string;
+    /** Le nom, ou le matricule d'une réinscription, qui n'en déclare pas. */
+    display_name: string;
     email: string;
-    phone: string;
-    level: string;
-    mention_name: string;
+    phone: string | null;
+    /* Nuls pour une réinscription : niveau et mention restent ceux du dossier. */
+    level: string | null;
+    mention_name: string | null;
     documents_count: number;
     receipt_sent_at: string | null;
     created_at: string;
@@ -320,7 +322,7 @@ export default function ApplicationsIndex({
 
                                             <TableCell>
                                                 <p className="text-foreground text-sm font-medium">
-                                                    {application.full_name}
+                                                    {application.display_name}
                                                 </p>
                                                 <p className="admin-meta">
                                                     {application.email}
@@ -332,8 +334,12 @@ export default function ApplicationsIndex({
                                             </TableCell>
 
                                             <TableCell>
+                                                {/* Une réinscription ne redonne
+                                                    ni niveau ni mention : la
+                                                    colonne reste vide plutôt
+                                                    que d'inventer. */}
                                                 <p className="text-foreground text-sm">
-                                                    {application.level}
+                                                    {application.level ?? '—'}
                                                 </p>
                                                 <p className="admin-meta">
                                                     {application.mention_name}

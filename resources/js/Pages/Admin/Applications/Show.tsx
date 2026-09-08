@@ -29,25 +29,40 @@ interface Document {
 interface Application {
     id: number;
     reference: string;
+    type: string;
     type_label: string;
     status: string;
     status_label: string;
     full_name: string;
-    last_name: string;
-    first_name: string;
-    gender: string;
-    nationality: string;
-    birth_date: string;
-    birth_place: string;
-    phone: string;
+    /** Le nom, ou le matricule d'une réinscription, qui n'en déclare pas. */
+    display_name: string;
+
+    /* Tout ce qui suit n'est déclaré qu'en première inscription : une
+       réinscription ne redonne ni état civil, ni CIN, ni baccalauréat, ni
+       parents — ils figurent déjà au dossier de l'étudiant. */
+    last_name: string | null;
+    first_name: string | null;
+    gender: string | null;
+    nationality: string | null;
+    birth_date: string | null;
+    birth_place: string | null;
+    phone: string | null;
     email: string;
+    marital_status: string | null;
+    marital_status_label: string | null;
     religion: string | null;
-    bac_year: number;
-    bac_series: string;
-    bac_number: string;
-    bac_mention: string;
-    level: string;
-    mention_name: string;
+    religion_label: string | null;
+    cin_number: string | null;
+    cin_issued_place: string | null;
+    cin_issued_at: string | null;
+    cin_duplicate_at: string | null;
+    spouse_cin_number: string | null;
+    bac_year: number | null;
+    bac_series: string | null;
+    bac_number: string | null;
+    bac_mention: string | null;
+    level: string | null;
+    mention_name: string | null;
     student_number: string | null;
     previous_level: string | null;
     parent1_name: string | null;
@@ -66,6 +81,9 @@ interface Props {
     options: { statuses: { value: string; label: string }[] };
 }
 
+/** Miroir de `Application::TYPE_REINSCRIPTION`. */
+const REINSCRIPTION = 'reinscription';
+
 const GENDERS: Record<string, string> = { M: 'Masculin', F: 'Féminin' };
 
 const BAC_MENTIONS: Record<string, string> = {
@@ -80,7 +98,7 @@ const formatSize = (bytes: number) =>
         ? `${Math.round(bytes / 1024)} Ko`
         : `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 
-const formatDate = (value: string | null) =>
+const formatDate = (value: string | null | undefined) =>
     value
         ? new Date(value).toLocaleDateString('fr-FR', {
               day: '2-digit',
@@ -124,6 +142,8 @@ const Block = ({ title, children }: { title: string; children: ReactNode }) => (
  * d'administration, qui lit le disque privé après contrôle des droits.
  */
 export default function ApplicationShow({ application, options }: Props) {
+    const isReinscription = application.type === REINSCRIPTION;
+
     const { data, setData, put, processing } = useForm({
         status: application.status,
         admin_note: application.admin_note ?? '',
@@ -174,7 +194,7 @@ export default function ApplicationShow({ application, options }: Props) {
             <Head title={`Demande ${application.reference}`} />
 
             <PageTitle
-                title={application.full_name}
+                title={application.display_name}
                 description={`${application.reference} — ${application.type_label}`}
                 actions={
                     <StatusBadge
@@ -208,84 +228,173 @@ export default function ApplicationShow({ application, options }: Props) {
 
             <div className="grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
                 <div className="space-y-5">
-                    <Block title="Informations personnelles">
-                        <Row label="Nom" value={application.last_name} />
-                        <Row label="Prénom" value={application.first_name} />
-                        <Row
-                            label="Sexe"
-                            value={
-                                GENDERS[application.gender] ??
-                                application.gender
-                            }
-                        />
-                        <Row
-                            label="Nationalité"
-                            value={application.nationality}
-                        />
-                        <Row
-                            label="Date de naissance"
-                            value={formatDate(application.birth_date)}
-                        />
-                        <Row
-                            label="Lieu de naissance"
-                            value={application.birth_place}
-                        />
-                        <Row label="Téléphone" value={application.phone} />
-                        <Row label="Adresse e-mail" value={application.email} />
-                        <Row label="Religion" value={application.religion} />
-                    </Block>
+                    {/* Une réinscription ne déclare que son matricule et son
+                        adresse : afficher quatre blocs de tirets ferait croire
+                        à un dossier incomplet. */}
+                    {isReinscription ? (
+                        <Card className="py-0">
+                            <CardContent className="p-5">
+                                <h2 className="admin-section-title">
+                                    Identification
+                                </h2>
+                                <dl className="mt-3">
+                                    <Row
+                                        label="Numéro matricule"
+                                        value={application.student_number}
+                                    />
+                                    <Row
+                                        label="Adresse e-mail"
+                                        value={application.email}
+                                    />
+                                </dl>
+                                <p className="text-muted-foreground mt-3 text-xs leading-relaxed">
+                                    État civil, carte d’identité, baccalauréat
+                                    et parents figurent au dossier de première
+                                    inscription de l’étudiant : la réinscription
+                                    ne les redemande pas.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <>
+                            <Block title="Informations personnelles">
+                                <Row
+                                    label="Nom"
+                                    value={application.last_name}
+                                />
+                                <Row
+                                    label="Prénom"
+                                    value={application.first_name}
+                                />
+                                <Row
+                                    label="Sexe"
+                                    value={
+                                        application.gender
+                                            ? (GENDERS[application.gender] ??
+                                              application.gender)
+                                            : null
+                                    }
+                                />
+                                <Row
+                                    label="Nationalité"
+                                    value={application.nationality}
+                                />
+                                <Row
+                                    label="Date de naissance"
+                                    value={formatDate(application.birth_date)}
+                                />
+                                <Row
+                                    label="Lieu de naissance"
+                                    value={application.birth_place}
+                                />
+                                <Row
+                                    label="Téléphone"
+                                    value={application.phone}
+                                />
+                                <Row
+                                    label="Adresse e-mail"
+                                    value={application.email}
+                                />
+                                <Row
+                                    label="Situation matrimoniale"
+                                    value={application.marital_status_label}
+                                />
+                                {/* `religion_label` porte déjà la précision saisie
+                            quand « Autre » a été retenu. */}
+                                <Row
+                                    label="Religion"
+                                    value={application.religion_label}
+                                />
+                            </Block>
 
-                    <Block title="Baccalauréat">
-                        <Row
-                            label="Année d’obtention"
-                            value={application.bac_year}
-                        />
-                        <Row label="Série" value={application.bac_series} />
-                        <Row label="Numéro" value={application.bac_number} />
-                        <Row
-                            label="Mention"
-                            value={
-                                BAC_MENTIONS[application.bac_mention] ??
-                                application.bac_mention
-                            }
-                        />
-                    </Block>
+                            <Block title="Carte d’identité nationale">
+                                <Row
+                                    label="Numéro de CIN"
+                                    value={application.cin_number}
+                                />
+                                <Row
+                                    label="Fait à"
+                                    value={application.cin_issued_place}
+                                />
+                                <Row
+                                    label="Date de délivrance"
+                                    value={formatDate(
+                                        application.cin_issued_at,
+                                    )}
+                                />
+                                <Row
+                                    label="Date du duplicata"
+                                    value={
+                                        application.cin_duplicate_at
+                                            ? formatDate(
+                                                  application.cin_duplicate_at,
+                                              )
+                                            : null
+                                    }
+                                />
+                                <Row
+                                    label="CIN du conjoint"
+                                    value={application.spouse_cin_number}
+                                />
+                            </Block>
 
-                    <Block title="Inscription demandée">
-                        <Row
-                            label="Type de demande"
-                            value={application.type_label}
-                        />
-                        <Row label="Niveau" value={application.level} />
-                        <Row label="Mention" value={application.mention_name} />
-                        <Row
-                            label="Numéro matricule"
-                            value={application.student_number}
-                        />
-                        <Row
-                            label="Niveau précédent"
-                            value={application.previous_level}
-                        />
-                    </Block>
+                            <Block title="Baccalauréat">
+                                <Row
+                                    label="Année d’obtention"
+                                    value={application.bac_year}
+                                />
+                                <Row
+                                    label="Série"
+                                    value={application.bac_series}
+                                />
+                                <Row
+                                    label="Numéro"
+                                    value={application.bac_number}
+                                />
+                                <Row
+                                    label="Mention"
+                                    value={
+                                        application.bac_mention
+                                            ? (BAC_MENTIONS[
+                                                  application.bac_mention
+                                              ] ?? application.bac_mention)
+                                            : null
+                                    }
+                                />
+                            </Block>
 
-                    <Block title="Parents">
-                        <Row
-                            label="Parent 1"
-                            value={application.parent1_name}
-                        />
-                        <Row
-                            label="Téléphone 1"
-                            value={application.parent1_phone}
-                        />
-                        <Row
-                            label="Parent 2"
-                            value={application.parent2_name}
-                        />
-                        <Row
-                            label="Téléphone 2"
-                            value={application.parent2_phone}
-                        />
-                    </Block>
+                            <Block title="Inscription demandée">
+                                <Row
+                                    label="Type de demande"
+                                    value={application.type_label}
+                                />
+                                <Row label="Niveau" value={application.level} />
+                                <Row
+                                    label="Mention"
+                                    value={application.mention_name}
+                                />
+                            </Block>
+
+                            <Block title="Parents">
+                                <Row
+                                    label="Parent 1"
+                                    value={application.parent1_name}
+                                />
+                                <Row
+                                    label="Téléphone 1"
+                                    value={application.parent1_phone}
+                                />
+                                <Row
+                                    label="Parent 2"
+                                    value={application.parent2_name}
+                                />
+                                <Row
+                                    label="Téléphone 2"
+                                    value={application.parent2_phone}
+                                />
+                            </Block>
+                        </>
+                    )}
                 </div>
 
                 <div className="space-y-5">
