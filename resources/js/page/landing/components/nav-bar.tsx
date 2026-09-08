@@ -107,9 +107,9 @@ export const Navbar = () => {
             <AnnonceSection />
 
             <nav
-                className="border-border sticky top-0 z-50 border-b"
+                className="border-border band-light sticky top-0 z-50 border-b"
                 style={{
-                    background: 'rgba(0, 0, 0, 0.86)',
+                    background: 'rgba(255, 255, 255, 0.94)',
                     backdropFilter: 'blur(14px)',
                     WebkitBackdropFilter: 'blur(14px)',
                 }}
@@ -160,7 +160,7 @@ export const Navbar = () => {
                             maintenant au dépôt de dossier, ouvert sans compte. */}
                         <InertiaLink
                             href={user ? spaceHref(user) : '/candidature'}
-                            className="bg-primary text-primary-foreground hidden rounded-full px-5 py-2.5 text-[13.5px] font-bold hover:bg-white hover:text-black sm:inline-flex"
+                            className="bg-primary text-primary-foreground hidden rounded-full px-5 py-2.5 text-[13.5px] font-bold hover:bg-[#08542c] hover:text-white sm:inline-flex"
                         >
                             {user ? 'Ma fiche' : "S'inscrire"}
                         </InertiaLink>
@@ -471,7 +471,7 @@ const MobileNav = ({
                     <InertiaLink
                         href={user ? spaceHref(user) : '/candidature'}
                         onClick={close}
-                        className={`bg-primary text-primary-foreground shrink-0 px-5 hover:bg-white hover:text-black min-[480px]:flex-none ${drawerCtaClass}`}
+                        className={`bg-primary text-primary-foreground shrink-0 px-5 hover:bg-[#08542c] hover:text-white min-[480px]:flex-none ${drawerCtaClass}`}
                     >
                         {user ? 'Ma fiche' : "S'inscrire"}
                     </InertiaLink>

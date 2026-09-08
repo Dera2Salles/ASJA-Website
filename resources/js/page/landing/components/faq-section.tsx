@@ -81,7 +81,7 @@ export const FaqSection = () => {
     const openKey = openQuestion ?? filtered[0]?.question ?? null;
 
     return (
-        <section id="FAQ" className="band-dark section-rhythm">
+        <section id="FAQ" className="band-light section-rhythm">
             <div className="section-shell">
                 {/* Header */}
                 <div className="mb-10 text-center sm:mb-12">

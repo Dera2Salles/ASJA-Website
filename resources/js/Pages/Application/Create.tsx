@@ -502,7 +502,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
 
                     <main className="flex-1">
                         {/* Bandeau d'entrée, dans la continuité des pages du site. */}
-                        <section className="band-dark pt-14 pb-12 sm:pt-16 sm:pb-14">
+                        <section className="band-light pt-14 pb-12 sm:pt-16 sm:pb-14">
                             <div className="section-shell">
                                 <motion.p
                                     initial={{ opacity: 0, y: 12 }}
@@ -1757,7 +1757,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                     <button
                                                         type="button"
                                                         onClick={next}
-                                                        className="bg-primary text-primary-foreground inline-flex min-h-[48px] w-full items-center justify-center gap-2 px-7 text-[14px] font-bold hover:bg-white hover:text-black sm:w-auto"
+                                                        className="bg-primary text-primary-foreground inline-flex min-h-[48px] w-full items-center justify-center gap-2 px-7 text-[14px] font-bold hover:bg-[#08542c] hover:text-white sm:w-auto"
                                                     >
                                                         Suivant
                                                         <ArrowRight size={15} />
@@ -1766,7 +1766,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                     <button
                                                         type="submit"
                                                         disabled={processing}
-                                                        className="bg-primary text-primary-foreground inline-flex min-h-[48px] w-full items-center justify-center gap-2 px-7 text-[14px] font-bold hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                                                        className="bg-primary text-primary-foreground inline-flex min-h-[48px] w-full items-center justify-center gap-2 px-7 text-[14px] font-bold hover:bg-[#08542c] hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                                                     >
                                                         {processing ? (
                                                             <>

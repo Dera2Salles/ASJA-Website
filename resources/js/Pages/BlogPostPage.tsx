@@ -332,7 +332,7 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
 
             <main className="flex-1">
                 <article>
-                    <div className="band-dark">
+                    <div className="band-light">
                         <header className="border-border border-b py-14 md:py-20">
                             <div className="mx-auto w-full max-w-3xl px-5 sm:px-8">
                                 <Link

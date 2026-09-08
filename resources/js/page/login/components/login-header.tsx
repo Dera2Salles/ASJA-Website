@@ -1,10 +1,7 @@
 import Logo from '@/assets/Logo/asja-logo.png';
 import { useLangue } from '@/page/lang/useLang';
-import { useTheme } from '@/page/theme/useTheme';
-import { Moon, Sun } from 'lucide-react';
 
 export const LoginHeader = () => {
-    const { toggleTheme, isDark } = useTheme();
     const { translate, toggleLang, isEn } = useLangue();
     return (
         <div className="fixed top-3 z-20 flex w-full justify-between px-2 md:px-5">
@@ -25,12 +22,6 @@ export const LoginHeader = () => {
                     onClick={toggleLang}
                 >
                     {isEn ? 'FR' : 'EN'}
-                </button>
-                <button
-                    className="cursor-pointer px-5 text-white drop-shadow-md"
-                    onClick={toggleTheme}
-                >
-                    {isDark ? <Sun /> : <Moon />}
                 </button>
             </div>
         </div>

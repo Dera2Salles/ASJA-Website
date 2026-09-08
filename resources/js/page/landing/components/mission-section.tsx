@@ -77,7 +77,7 @@ export const MissionSection = () => {
     const items = cmsItems.length > 0 ? cmsItems : fallbackItems;
 
     return (
-        <section id="mission" className="band-dark section-rhythm">
+        <section id="mission" className="band-light section-rhythm">
             <div className="section-shell">
                 {/* En-tête split, identique à celui des autres bandes sombres :
                     titre à gauche, chapô à droite, et empilés tant que la

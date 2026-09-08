@@ -82,7 +82,7 @@ export default function StudentSpace({ mentions, levels, cms }: Props) {
                     <main className="flex-1">
                         {/* En-tête sombre, dans la continuité des bannières du
                         site : le nom de l'étudiant tient le rôle du titre. */}
-                        <section className="band-dark pt-14 pb-12 sm:pt-16 sm:pb-14">
+                        <section className="band-light pt-14 pb-12 sm:pt-16 sm:pb-14">
                             <div className="section-shell">
                                 <motion.p
                                     initial={{ opacity: 0, y: 12 }}

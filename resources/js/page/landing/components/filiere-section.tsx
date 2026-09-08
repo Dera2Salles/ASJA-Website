@@ -220,7 +220,7 @@ export const FiliereSection = () => {
         'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border bg-transparent text-foreground sm:h-11 sm:w-11 disabled:pointer-events-none disabled:opacity-30 hover:bg-primary hover:border-primary hover:text-primary-foreground';
 
     return (
-        <section id="filiere" className="band-dark section-rhythm">
+        <section id="filiere" className="band-light section-rhythm">
             <div className="section-shell" ref={sectionRef}>
                 {/* ── Header ── */}
                 <div className="mb-9 flex flex-col gap-4 sm:mb-11 sm:flex-row sm:items-end sm:justify-between sm:gap-12">

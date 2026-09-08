@@ -27,9 +27,10 @@ const LOGOS: Record<string, { light: string; dark: string }> = {
 
 export function departmentLogo(
     slug: string,
-    isDark: boolean,
+    _isDark: boolean = false,
 ): string | undefined {
     const entry = LOGOS[slug];
     if (!entry) return undefined;
-    return isDark ? entry.dark : entry.light;
+    // Full light mode : toujours le logo clair.
+    return entry.light;
 }

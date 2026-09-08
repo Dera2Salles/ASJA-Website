@@ -197,7 +197,7 @@ export default function ApplicationConfirmation({ application, cms }: Props) {
                     <Navbar />
 
                     <main className="flex-1">
-                        <section className="band-dark pt-14 pb-12 sm:pt-16 sm:pb-14">
+                        <section className="band-light pt-14 pb-12 sm:pt-16 sm:pb-14">
                             <div className="section-shell">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.9 }}
@@ -434,7 +434,7 @@ export default function ApplicationConfirmation({ application, cms }: Props) {
 
                                             <Link
                                                 href={route('home')}
-                                                className="bg-primary text-primary-foreground inline-flex min-h-[48px] items-center px-6 text-[14px] font-bold hover:bg-white hover:text-black"
+                                                className="bg-primary text-primary-foreground inline-flex min-h-[48px] items-center px-6 text-[14px] font-bold hover:bg-[#08542c] hover:text-white"
                                             >
                                                 Retour à l’accueil
                                             </Link>

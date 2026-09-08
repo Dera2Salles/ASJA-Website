@@ -183,7 +183,7 @@ const Values = () => {
     if (values.length === 0) return null;
 
     return (
-        <section className="band-dark section-rhythm">
+        <section className="band-light section-rhythm">
             <div className="section-shell">
                 <h2 className="font-display text-foreground mb-9 max-w-[640px] text-[clamp(30px,7.4vw,64px)] leading-[0.98] font-black tracking-tight uppercase sm:mb-11">
                     {String(about.values_title ?? 'Ce qui nous tient')}
@@ -250,7 +250,7 @@ const Gallery = () => {
     const photos = stored.length > 0 ? stored : fallbackGallery;
 
     return (
-        <section className="band-dark pb-14 sm:pb-16 lg:pb-20">
+        <section className="band-light pb-14 sm:pb-16 lg:pb-20">
             <div className="section-shell">
                 <h2 className="font-display text-foreground mb-8 text-[clamp(26px,5.4vw,40px)] leading-[1] font-black tracking-tight uppercase sm:mb-10">
                     {String(about.gallery_title ?? 'Le campus en images')}

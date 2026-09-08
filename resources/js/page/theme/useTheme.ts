@@ -1,18 +1,19 @@
-import Cookies from 'js-cookie';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
+/**
+ * Thème unique full light : le site n'a plus de mode sombre, ce hook
+ * garantit seulement que la classe `dark` ne traîne jamais sur `<html>`.
+ * `toggleTheme` est conservé comme no-op pour ne pas casser les appelants.
+ */
 export const useTheme = () => {
-    const [isDark, setIsDark] = useState(true);
-
     useEffect(() => {
-        // Toujours en mode sombre par défaut
-        setIsDark(true);
-        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
     }, []);
 
     const toggleTheme = () => {
-        // Le site est uniquement sombre, pas de bascule possible
+        document.documentElement.classList.remove('dark');
     };
 
-    return { isDark: true, toggleTheme };
+    return { isDark: false as const, toggleTheme };
 };

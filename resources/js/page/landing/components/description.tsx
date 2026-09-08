@@ -1,11 +1,9 @@
 import asjaDark from '@/assets/Lieu_espace/Devant_asja.jpg';
 import { cmsImage, useSection } from '@/lib/cms';
-import { useThemeContext } from '@/page/theme/useThemeContext';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 
 export const Description = () => {
-    const { isDark } = useThemeContext();
     const hero = useSection('hero');
 
     const scrollToFiliere = () => {
@@ -14,7 +12,7 @@ export const Description = () => {
             ?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    // Force dark version since the site is strictly in dark mode
+    // Photo du hero, identique en light mode (pas de variante sombre).
     const background = cmsImage(hero.background_image, asjaDark);
 
     const badgeText = String(

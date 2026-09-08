@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 export const AppelCandidaterSection = () => {
     return (
-        <section className="band-dark pb-16 sm:pb-20 lg:pb-[104px]">
+        <section className="band-light pb-16 sm:pb-20 lg:pb-[104px]">
             <div className="section-shell">
                 <div className="rounded-[28px] bg-[#35cf7f] px-6 py-12 text-center text-[#000000] sm:px-10 sm:py-16 lg:px-[56px] lg:py-[72px]">
                     <motion.h2
@@ -40,7 +40,7 @@ export const AppelCandidaterSection = () => {
                             et leur taille maximale. */}
                         <a
                             href="/candidature"
-                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#000000] px-8 text-[15px] font-bold text-white transition-colors hover:bg-white hover:text-[#000000] sm:w-auto sm:px-[34px]"
+                            className="inline-flex min-h-[52px] w-full items-center justify-center rounded-full bg-[#000000] px-8 text-[15px] font-bold text-white transition-colors hover:bg-[#08542c] hover:text-white sm:w-auto sm:px-[34px]"
                         >
                             Déposer ma demande en ligne
                         </a>

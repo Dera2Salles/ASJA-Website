@@ -47,7 +47,7 @@ const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
                     className="absolute inset-0 h-full w-full object-cover"
                 />
             ) : (
-                <div className="absolute inset-0 bg-[#121212]" />
+                <div className="absolute inset-0 bg-[#e5e5e5]" />
             )}
 
             {/* Gradient overlay noir pour assombrir le bas de la photo */}

@@ -8,6 +8,6 @@ export const ThemeContext = createContext<ReturnType<typeof useTheme> | null>(
 export const useThemeContext = () => {
     const context = useContext(ThemeContext);
     if (!context)
-        throw new Error('useLandingDashboardContext must be initialized');
+        throw new Error('useThemeContext must be used within ThemeProvider');
     return context;
 };

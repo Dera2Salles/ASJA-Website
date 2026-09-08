@@ -86,7 +86,7 @@ export const SystemePedagogiqueSection = () => {
         <section
             id="systeme"
             ref={observerRef}
-            className="band-dark section-rhythm"
+            className="band-light section-rhythm"
         >
             <div className="section-shell">
                 {/* En-tête split — le chapô descend sous le titre tant que la

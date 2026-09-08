@@ -80,7 +80,7 @@ export const Footer = () => {
     return (
         <footer
             id="contact"
-            className="band-dark"
+            className="band-light"
             style={{ borderTop: '1px solid var(--border)' }}
         >
             <div className="section-shell pt-12 pb-10 sm:pt-16">
