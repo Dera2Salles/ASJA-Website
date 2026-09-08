@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { useLangue } from '@/page/lang/useLang';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link as InertiaLink, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { FormEventHandler } from 'react';
@@ -170,12 +170,12 @@ export default function Login({
 
                 <p className="text-muted-foreground pt-2 text-center text-[13.5px] font-medium">
                     {translate('loginPage.question')}{' '}
-                    <Link
-                        href={route('register')}
+                    <InertiaLink
+                        href="/candidature"
                         className="text-primary font-bold underline underline-offset-4"
                     >
                         {translate('loginPage.inscription')}
-                    </Link>
+                    </InertiaLink>
                 </p>
             </motion.form>
         </GuestLayout>

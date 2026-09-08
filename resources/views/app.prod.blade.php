@@ -33,7 +33,7 @@
         @routes
 
         <!-- JS du build : les pages sont chargées à la demande par Inertia. -->
-        <script type="module" src="{{ asset('build/assets/app-BMkU3pRJ.js') }}"></script>
+        <script type="module" src="{{ asset('build/assets/app-Bkf0eDjT.js') }}"></script>
 
         @inertiaHead
     </head>
