@@ -74,24 +74,121 @@ class ApplicationController extends Controller
                     fn (string $type) => Application::DOCUMENTS[$type]['label'],
                     $application->missingDocuments()
                 ),
+
+                /* Le bordereau des frais généraux n'est pas une pièce du dépôt :
+                   il arrive après validation, par le parcours de suivi. L'écran
+                   d'instruction dit donc s'il est attendu, et non s'il manque. */
+                'awaits_fees_receipt' => $application->awaitsFeesReceipt(),
+                'fees_receipt_type' => $application->feesDocumentType(),
             ],
             'options' => [
                 'statuses' => $this->labelled(Application::STATUSES),
+
+                /* Ce qu'un dossier « à compléter » peut rouvrir : les pièces du
+                   dépôt et les champs déclarés, tous filtrés par le type de
+                   demande. Une réinscription n'a ni CIN ni baccalauréat à
+                   corriger — les proposer serait promettre au candidat un
+                   formulaire que le serveur refuserait. */
+                'requestableDocuments' => collect(Application::documentSpecs())
+                    ->filter(fn (array $document) => in_array($application->type, $document['appliesTo'], true))
+                    ->map(fn (array $document) => [
+                        'value' => $document['type'],
+                        'label' => $document['label'],
+                    ])
+                    ->values()
+                    ->all(),
+
+                'requestableFields' => collect(Application::fieldSpecsFor(
+                    Application::FIELDS[$application->type] ?? []
+                ))
+                    ->map(fn (array $field) => [
+                        'value' => $field['name'],
+                        'label' => $field['label'],
+                    ])
+                    ->all(),
+
+                'incompleteStatus' => Application::STATUS_INCOMPLETE,
             ],
         ]);
     }
 
-    /** Changement de statut, avec la note d'instruction qui l'accompagne. */
+    /**
+     * Changement de statut, et ce que le candidat en verra.
+     *
+     * Le statut ne fait pas que classer : il ouvre ou ferme le parcours de
+     * suivi. « À compléter » rouvre au candidat les seules pièces et les seuls
+     * champs désignés ici — tout autre statut referme le formulaire en vidant
+     * ces listes, faute de quoi un dossier repassé en instruction resterait
+     * indéfiniment modifiable par son candidat.
+     */
     public function updateStatus(Request $request, Application $application): RedirectResponse
     {
+        $documents = collect(Application::documentSpecs())
+            ->filter(fn (array $document) => in_array($application->type, $document['appliesTo'], true))
+            ->pluck('type')
+            ->all();
+
+        $fields = Application::FIELDS[$application->type] ?? [];
+
         $validated = $request->validate([
             'status' => ['required', Rule::in(array_keys(Application::STATUSES))],
             'admin_note' => ['nullable', 'string', 'max:2000'],
+
+            /* Message adressé au candidat, à ne pas confondre avec la note
+               interne : c'est la seule chose qui lui dise quoi corriger. */
+            'completion_message' => ['nullable', 'string', 'max:2000'],
+
+            'requested_documents' => ['array'],
+            'requested_documents.*' => [Rule::in($documents)],
+            'requested_fields' => ['array'],
+            'requested_fields.*' => [Rule::in($fields)],
+        ], [
+            'requested_documents.*.in' => 'Cette pièce n\'est pas demandée pour ce type de demande.',
+            'requested_fields.*.in' => 'Ce champ n\'est pas déclaré pour ce type de demande.',
         ]);
 
-        $application->update($validated);
+        $incomplete = $validated['status'] === Application::STATUS_INCOMPLETE;
 
-        return back()->with('success', 'Statut mis à jour.');
+        $requestedDocuments = $validated['requested_documents'] ?? [];
+        $requestedFields = $validated['requested_fields'] ?? [];
+
+        /* Un dossier déclaré « à compléter » sans rien à compléter laisserait le
+           candidat devant un écran qui lui demande d'agir sans dire sur quoi. */
+        if ($incomplete && ! $requestedDocuments && ! $requestedFields && ! trim((string) ($validated['completion_message'] ?? ''))) {
+            return back()->withErrors([
+                'requested_documents' => 'Indiquez au moins une pièce, un champ à corriger, ou un message expliquant ce qui manque.',
+            ]);
+        }
+
+        $before = $application->status;
+
+        $application->forceFill([
+            'status' => $validated['status'],
+            'admin_note' => $validated['admin_note'] ?? null,
+            'completion_message' => $incomplete ? ($validated['completion_message'] ?? null) : $application->completion_message,
+
+            // Les listes n'ont cours que le temps où le dossier est à compléter.
+            'requested_documents' => $incomplete ? $requestedDocuments : null,
+            'requested_fields' => $incomplete ? $requestedFields : null,
+            'completion_requested_at' => $incomplete ? now() : $application->completion_requested_at,
+        ])->save();
+
+        /* Le candidat n'a aucun moyen de savoir qu'on l'attend : les deux
+           statuts qui lui demandent d'agir lui sont donc annoncés. L'échec du
+           courrier ne défait pas le changement de statut — il est journalisé,
+           et l'écran le dit. */
+        $notified = $before !== $application->status
+            && in_array($application->status, [Application::STATUS_INCOMPLETE, Application::STATUS_ACCEPTED], true)
+            ? PublicApplicationController::sendStatusUpdate($application)
+            : null;
+
+        if ($notified === false) {
+            return back()->with('error', 'Statut mis à jour, mais le candidat n\'a pas pu être prévenu par e-mail.');
+        }
+
+        return back()->with('success', $notified
+            ? 'Statut mis à jour, et le candidat a été prévenu par e-mail.'
+            : 'Statut mis à jour.');
     }
 
     /**

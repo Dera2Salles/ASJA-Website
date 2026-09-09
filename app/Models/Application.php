@@ -44,15 +44,43 @@ class Application extends Model
 
     public const STATUS_FINALIZED = 'finalized';
 
+    /**
+     * Bordereau des frais généraux reçu, en attente de vérification.
+     *
+     * Il s'intercale entre « Acceptée » et « Finalisée » : sans lui, le dossier
+     * dont le versement vient d'arriver serait indiscernable de celui qui n'a
+     * rien envoyé, et le candidat pourrait redéposer son bordereau indéfiniment.
+     */
+    public const STATUS_FEES_SUBMITTED = 'fees_submitted';
+
     /** Statuts dans l'ordre du parcours d'instruction. */
     public const STATUSES = [
         self::STATUS_PENDING => 'En attente',
         self::STATUS_PROCESSING => 'En cours de traitement',
         self::STATUS_INCOMPLETE => 'À compléter',
         self::STATUS_ACCEPTED => 'Acceptée',
+        self::STATUS_FEES_SUBMITTED => 'Bordereau reçu',
         self::STATUS_REJECTED => 'Refusée',
         self::STATUS_FINALIZED => 'Finalisée',
     ];
+
+    /**
+     * Statuts qui ouvrent le parcours de complétion au candidat.
+     *
+     * Un seul aujourd'hui, mais la liste dit l'intention : c'est le statut, et
+     * lui seul, qui autorise un dépôt supplémentaire. Le contrôleur ne consulte
+     * jamais autre chose.
+     */
+    public const COMPLETABLE_STATUSES = [self::STATUS_INCOMPLETE];
+
+    /**
+     * Statuts qui ouvrent le dépôt du bordereau des frais généraux.
+     *
+     * Le dossier est validé, les frais généraux sont dus : c'est le moment, et
+     * le seul. Avant, le candidat verserait pour un dossier qui peut être
+     * refusé ; après, le bordereau est déjà au dossier.
+     */
+    public const FEES_STATUSES = [self::STATUS_ACCEPTED];
 
     /* --- Référentiels du formulaire ------------------------------------- */
 
@@ -122,6 +150,59 @@ class Application extends Model
     ];
 
     /**
+     * De quoi réafficher un champ hors du formulaire de dépôt.
+     *
+     * Le grand formulaire dessine chaque champ à la main, ce qui lui va : il
+     * les connaît tous, et chacun a sa place dans son étape. Le parcours de
+     * complétion, lui, n'apprend qu'à l'exécution lesquels sont rouverts — il
+     * lui faut donc, pour un nom de champ, de quoi le dessiner : son intitulé,
+     * la nature de sa saisie, et le référentiel qui la contraint quand elle est
+     * un choix. `options` nomme une clé de `formOptions()`, jamais une liste
+     * écrite ici : les mentions viennent de la base, et doivent le rester.
+     */
+    public const FIELD_SPECS = [
+        'last_name' => ['label' => 'Nom', 'input' => 'text'],
+        'first_name' => ['label' => 'Prénom', 'input' => 'text'],
+        'gender' => ['label' => 'Sexe', 'input' => 'select', 'options' => 'genders'],
+        'nationality' => ['label' => 'Nationalité', 'input' => 'text'],
+        'birth_date' => ['label' => 'Date de naissance', 'input' => 'date'],
+        'birth_place' => ['label' => 'Lieu de naissance', 'input' => 'text'],
+        'phone' => ['label' => 'Numéro de téléphone', 'input' => 'tel'],
+        'email' => ['label' => 'Adresse e-mail', 'input' => 'email'],
+        'marital_status' => ['label' => 'Situation matrimoniale', 'input' => 'select', 'options' => 'maritalStatuses'],
+        'religion' => ['label' => 'Religion', 'input' => 'select', 'options' => 'religions'],
+        'religion_other' => ['label' => 'Précision sur la religion', 'input' => 'text'],
+        'cin_number' => ['label' => 'Numéro de CIN', 'input' => 'text'],
+        'cin_issued_place' => ['label' => 'Lieu de délivrance de la CIN', 'input' => 'text'],
+        'cin_issued_at' => ['label' => 'Date de délivrance de la CIN', 'input' => 'date'],
+        'cin_duplicate_at' => ['label' => 'Date du duplicata de la CIN', 'input' => 'date'],
+        'spouse_cin_number' => ['label' => 'Numéro de CIN du conjoint', 'input' => 'text'],
+        'bac_year' => ['label' => 'Année d\'obtention du baccalauréat', 'input' => 'number'],
+        'bac_series' => ['label' => 'Série du baccalauréat', 'input' => 'select', 'options' => 'bacSeries'],
+        'bac_number' => ['label' => 'Numéro du baccalauréat', 'input' => 'text'],
+        'bac_mention' => ['label' => 'Mention du baccalauréat', 'input' => 'select', 'options' => 'bacMentions'],
+        'level' => ['label' => 'Niveau', 'input' => 'select', 'options' => 'levels'],
+        'mention' => ['label' => 'Mention', 'input' => 'select', 'options' => 'mentions'],
+        'student_number' => ['label' => 'Numéro matricule', 'input' => 'text'],
+        'previous_level' => ['label' => 'Niveau précédent', 'input' => 'select', 'options' => 'levels'],
+        'parent1_name' => ['label' => 'Nom et prénom du père', 'input' => 'text'],
+        'parent1_phone' => ['label' => 'Téléphone du père', 'input' => 'tel'],
+        'parent2_name' => ['label' => 'Nom et prénom de la mère', 'input' => 'text'],
+        'parent2_phone' => ['label' => 'Téléphone de la mère', 'input' => 'tel'],
+    ];
+
+    /**
+     * Moment où une pièce est attendue.
+     *
+     * Ce sont les moments des frais, et pour cause : la pièce attendue après
+     * validation est le bordereau du versement qui, lui aussi, n'est dû qu'à ce
+     * moment-là. Les deux listes se lisent donc avec la même clé.
+     */
+    public const STAGE_AT_SUBMISSION = self::FEE_AT_SUBMISSION;
+
+    public const STAGE_AFTER_VALIDATION = self::FEE_AFTER_VALIDATION;
+
+    /**
      * Pièces justificatives.
      *
      * `for` dit à quels types de demande la pièce s'applique, `required` si
@@ -167,6 +248,28 @@ class Application extends Model
             'hint' => 'Preuve du versement effectué sur le compte de l\'établissement.',
             'for' => [self::TYPE_PREMIERE, self::TYPE_REINSCRIPTION],
             'required' => [self::TYPE_PREMIERE, self::TYPE_REINSCRIPTION],
+        ],
+
+        /*
+         * Bordereau des frais généraux — attendu après validation du dossier,
+         * jamais au dépôt.
+         *
+         * Une réinscription n'en a pas : elle verse ses frais généraux
+         * d'emblée, et son bordereau est celui du dessus. Une première
+         * inscription, elle, ne verse d'abord que les frais de dossier ; les
+         * 210 000 Ar ne sont dus qu'une fois la candidature retenue, et c'est
+         * ce versement-là que cette pièce prouve.
+         *
+         * L'étape est ce qui l'exclut du formulaire de dépôt : `stage` la
+         * range après validation, et `StoreApplicationRequest` refuse tout ce
+         * qui n'est pas de l'étape du dépôt.
+         */
+        'general_fees_receipt' => [
+            'label' => 'Bordereau de versement des frais généraux',
+            'hint' => 'Preuve du versement des frais généraux, effectué après la validation de votre dossier.',
+            'for' => [self::TYPE_PREMIERE],
+            'required' => [self::TYPE_PREMIERE],
+            'stage' => self::STAGE_AFTER_VALIDATION,
         ],
     ];
 
@@ -249,6 +352,8 @@ class Application extends Model
         'student_number', 'previous_level',
         'parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone',
         'admin_note', 'submitted_at', 'receipt_sent_at',
+        'requested_documents', 'requested_fields', 'completion_message',
+        'completion_requested_at', 'completed_at', 'fees_receipt_at',
     ];
 
     protected $casts = [
@@ -258,6 +363,11 @@ class Application extends Model
         'bac_year' => 'integer',
         'submitted_at' => 'datetime',
         'receipt_sent_at' => 'datetime',
+        'requested_documents' => 'array',
+        'requested_fields' => 'array',
+        'completion_requested_at' => 'datetime',
+        'completed_at' => 'datetime',
+        'fees_receipt_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -372,6 +482,184 @@ class Application extends Model
         return array_values(array_diff(static::requiredDocuments($this->type), $present));
     }
 
+    /* --- Suivi du dossier ------------------------------------------------ */
+
+    /** La pièce d'une nature donnée, si elle est au dossier. */
+    public function document(string $type): ?ApplicationDocument
+    {
+        return $this->documents->firstWhere('type', $type);
+    }
+
+    /**
+     * Nature du bordereau des frais généraux pour ce dossier, s'il en attend un.
+     *
+     * Nulle pour une réinscription : elle verse tout au dépôt, et son bordereau
+     * est déjà au dossier. La liste des pièces fait foi — c'est elle qui dit
+     * quelle pièce est attendue après validation, et pour quel type.
+     */
+    public function feesDocumentType(): ?string
+    {
+        foreach (array_keys(self::DOCUMENTS) as $type) {
+            if (static::documentApplies($type, $this->type, self::STAGE_AFTER_VALIDATION)) {
+                return $type;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Pièces réellement réclamées au candidat.
+     *
+     * La colonne est relue à travers la liste des pièces : une nature retirée
+     * du référentiel, ou qui ne concerne pas ce type de demande, ne doit pas
+     * rouvrir un dépôt au motif qu'elle traîne en base depuis une ancienne
+     * instruction.
+     *
+     * @return array<int, string>
+     */
+    public function requestedDocumentTypes(): array
+    {
+        return array_values(array_filter(
+            $this->requested_documents ?? [],
+            fn ($type) => is_string($type) && static::documentApplies($type, $this->type)
+        ));
+    }
+
+    /**
+     * Champs réellement rouverts à la correction, filtrés de la même façon.
+     *
+     * @return array<int, string>
+     */
+    public function requestedFieldNames(): array
+    {
+        return array_values(array_filter(
+            $this->requested_fields ?? [],
+            fn ($field) => is_string($field) && static::fieldApplies($field, $this->type)
+        ));
+    }
+
+    /**
+     * Le dossier attend-il un complément du candidat ?
+     *
+     * Le statut commande, et rien d'autre : c'est lui que l'administration
+     * pose, et lui seul que le contrôleur relit avant d'accepter un dépôt.
+     */
+    public function awaitsCompletion(): bool
+    {
+        return in_array($this->status, self::COMPLETABLE_STATUSES, true);
+    }
+
+    /**
+     * Le dossier attend-il le bordereau des frais généraux ?
+     *
+     * Trois conditions, toutes nécessaires : le dossier est validé, son type
+     * doit ce versement, et le bordereau n'est pas déjà arrivé. La dernière
+     * ferme le double envoi — le statut passe d'ailleurs à « Bordereau reçu »
+     * dès le premier, mais un dossier remis en « Acceptée » par erreur ne doit
+     * pas rouvrir la porte pour autant.
+     */
+    public function awaitsFeesReceipt(): bool
+    {
+        return in_array($this->status, self::FEES_STATUSES, true)
+            && $this->feesDocumentType() !== null
+            && $this->fees_receipt_at === null;
+    }
+
+    /**
+     * Seule action ouverte au candidat sur ce dossier : `complete`, `fees`, ou
+     * rien. Le front s'y règle, mais ne décide de rien — il lit ce que le
+     * serveur a conclu.
+     */
+    public function openAction(): ?string
+    {
+        if ($this->awaitsCompletion()) {
+            return 'complete';
+        }
+
+        return $this->awaitsFeesReceipt() ? 'fees' : null;
+    }
+
+    /**
+     * Le demandeur se reconnaît-il par cette adresse ?
+     *
+     * Le numéro de demande ne suffit pas à ouvrir un dossier : il est
+     * séquentiel, donc devinable. L'adresse e-mail déclarée au dépôt fait le
+     * second facteur — comparée sans égard à la casse, comme elle est
+     * normalisée à l'entrée.
+     */
+    public function belongsToApplicant(string $email): bool
+    {
+        return mb_strtolower(trim($email)) === mb_strtolower((string) $this->email);
+    }
+
+    /**
+     * Le parcours du dossier, tel qu'il est montré au candidat.
+     *
+     * Un dossier refusé s'arrête où il a été refusé : afficher les étapes
+     * suivantes en « à venir » laisserait croire qu'elles arriveront. Les
+     * frais généraux ne figurent que pour les types qui les doivent après
+     * validation — une réinscription les a déjà versés au dépôt.
+     *
+     * @return array<int, array{key: string, label: string, description: string, state: string}>
+     */
+    public function timeline(): array
+    {
+        $rank = [
+            self::STATUS_PENDING => 1,
+            self::STATUS_PROCESSING => 2,
+            self::STATUS_INCOMPLETE => 2,
+            self::STATUS_ACCEPTED => 3,
+            self::STATUS_FEES_SUBMITTED => 4,
+            self::STATUS_FINALIZED => 5,
+            self::STATUS_REJECTED => 3,
+        ];
+
+        $reached = $rank[$this->status] ?? 1;
+        $rejected = $this->status === self::STATUS_REJECTED;
+
+        $steps = [
+            ['key' => 'submitted', 'rank' => 1,
+                'label' => 'Dossier déposé',
+                'description' => 'Votre demande est enregistrée et son numéro vous a été communiqué.'],
+            ['key' => 'review', 'rank' => 2,
+                'label' => 'Examen du dossier',
+                'description' => 'Le service de la scolarité vérifie vos informations et vos pièces.'],
+            ['key' => 'decision', 'rank' => 3,
+                'label' => $rejected ? 'Dossier refusé' : 'Dossier validé',
+                'description' => $rejected
+                    ? 'La demande n\'a pas été retenue. Le bureau de la scolarité peut vous en dire les motifs.'
+                    : 'Votre dossier est complet et retenu par l\'établissement.'],
+        ];
+
+        if ($this->feesDocumentType() !== null) {
+            $steps[] = ['key' => 'fees', 'rank' => 4,
+                'label' => 'Frais généraux',
+                'description' => 'Versement des frais généraux et transmission du bordereau.'];
+        }
+
+        $steps[] = ['key' => 'finalized', 'rank' => 5,
+            'label' => 'Inscription finalisée',
+            'description' => 'Votre inscription est enregistrée par le bureau de la scolarité.'];
+
+        return array_map(function (array $step) use ($reached, $rejected) {
+            $state = match (true) {
+                $rejected && $step['rank'] > 3 => 'blocked',
+                $rejected && $step['rank'] === 3 => 'rejected',
+                $step['rank'] < $reached => 'done',
+                $step['rank'] === $reached => 'current',
+                default => 'todo',
+            };
+
+            return [
+                'key' => $step['key'],
+                'label' => $step['label'],
+                'description' => $step['description'],
+                'state' => $state,
+            ];
+        }, $steps);
+    }
+
     /* --- Numéro de demande ---------------------------------------------- */
 
     /**
@@ -425,12 +713,22 @@ class Application extends Model
     /**
      * Pièces mises à plat pour le front : chacune dit à quels types de demande
      * elle s'applique, où elle est exigée, et les formats qu'elle accepte.
+     *
+     * L'étape filtre : le formulaire de dépôt ne doit connaître que les pièces
+     * du dépôt, sans quoi il proposerait le bordereau des frais généraux à un
+     * candidat dont le dossier n'est pas encore instruit. `null` rend la liste
+     * entière, ce dont l'administration a besoin pour nommer une pièce quelle
+     * que soit son étape.
      */
-    public static function documentSpecs(): array
+    public static function documentSpecs(?string $stage = self::STAGE_AT_SUBMISSION): array
     {
         $specs = [];
 
         foreach (self::DOCUMENTS as $type => $document) {
+            if ($stage !== null && static::documentStage($type) !== $stage) {
+                continue;
+            }
+
             $specs[] = [
                 'type' => $type,
                 'label' => $document['label'],
@@ -438,10 +736,64 @@ class Application extends Model
                 'appliesTo' => $document['for'],
                 'requiredFor' => $document['required'],
                 'extensions' => static::documentExtensions($type),
+                'stage' => static::documentStage($type),
             ];
         }
 
         return $specs;
+    }
+
+    /**
+     * De quoi dessiner une poignée de champs rouverts à la correction.
+     *
+     * Les référentiels sont ramenés à une seule forme — `value` / `label` —
+     * pour que le front n'ait qu'un cas à traiter : les mentions arrivent en
+     * `slug`/`name` de la base, les niveaux et les séries en simples chaînes,
+     * et rien de tout cela ne regarde l'écran qui les affiche.
+     *
+     * @param  array<int, string>  $fields
+     * @return array<int, array{name: string, label: string, input: string, options: array<int, array{value: string, label: string}>|null}>
+     */
+    public static function fieldSpecsFor(array $fields): array
+    {
+        $referentials = [
+            'genders' => static::labelled(self::GENDERS),
+            'maritalStatuses' => static::labelled(self::MARITAL_STATUSES),
+            'religions' => static::labelled(self::RELIGIONS),
+            'bacMentions' => static::labelled(self::BAC_MENTIONS),
+            'bacSeries' => static::plainOptions(self::BAC_SERIES),
+            'levels' => static::plainOptions(StudentFile::LEVELS),
+            'mentions' => collect(StudentFile::mentions())
+                ->map(fn (array $mention) => [
+                    'value' => $mention['slug'],
+                    'label' => $mention['name'],
+                ])
+                ->all(),
+        ];
+
+        return collect($fields)
+            ->filter(fn (string $field) => isset(self::FIELD_SPECS[$field]))
+            ->map(fn (string $field) => [
+                'name' => $field,
+                'label' => self::FIELD_SPECS[$field]['label'],
+                'input' => self::FIELD_SPECS[$field]['input'],
+                'options' => isset(self::FIELD_SPECS[$field]['options'])
+                    ? $referentials[self::FIELD_SPECS[$field]['options']]
+                    : null,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Étape à laquelle une pièce est attendue.
+     *
+     * Le dépôt est le cas de loin le plus courant : il est donc le défaut, et
+     * seules les pièces d'un autre moment portent la clé.
+     */
+    public static function documentStage(string $type): string
+    {
+        return self::DOCUMENTS[$type]['stage'] ?? self::STAGE_AT_SUBMISSION;
     }
 
     /**
@@ -520,22 +872,40 @@ class Application extends Model
         );
     }
 
-    /** La pièce est-elle demandée pour ce type de demande ? */
-    public static function documentApplies(string $type, ?string $applicationType): bool
-    {
+    /**
+     * La pièce est-elle demandée pour ce type de demande, à cette étape ?
+     *
+     * Le type dit *si* la pièce existe pour ce dossier, l'étape dit *quand*
+     * elle est recevable. Les deux comptent : le bordereau des frais généraux
+     * concerne bien une première inscription, mais le déposer au moment du
+     * dossier n'aurait aucun sens — le versement n'est pas encore dû.
+     */
+    public static function documentApplies(
+        string $type,
+        ?string $applicationType,
+        ?string $stage = self::STAGE_AT_SUBMISSION
+    ): bool {
+        if ($stage !== null && static::documentStage($type) !== $stage) {
+            return false;
+        }
+
         return in_array($applicationType, self::DOCUMENTS[$type]['for'] ?? [], true);
     }
 
     /**
-     * Pièces obligatoires pour un type de demande.
+     * Pièces obligatoires pour un type de demande, à une étape donnée.
      *
      * @return array<int, string>
      */
-    public static function requiredDocuments(?string $applicationType): array
-    {
+    public static function requiredDocuments(
+        ?string $applicationType,
+        ?string $stage = self::STAGE_AT_SUBMISSION
+    ): array {
         return array_keys(array_filter(
             self::DOCUMENTS,
-            fn (array $document) => in_array($applicationType, $document['required'], true)
+            fn (array $document, string $type) => static::documentApplies($type, $applicationType, $stage)
+                && in_array($applicationType, $document['required'], true),
+            ARRAY_FILTER_USE_BOTH
         ));
     }
 
@@ -546,6 +916,21 @@ class Application extends Model
             ->map(fn (string $label, string $value) => ['value' => $value, 'label' => $label])
             ->values()
             ->all();
+    }
+
+    /**
+     * Une liste de valeurs nues — les niveaux, les séries — ramenée à la forme
+     * commune, où la valeur est aussi son propre intitulé.
+     *
+     * @param  array<int, string>  $values
+     * @return array<int, array{value: string, label: string}>
+     */
+    private static function plainOptions(array $values): array
+    {
+        return array_map(
+            fn (string $value) => ['value' => $value, 'label' => $value],
+            $values
+        );
     }
 
     /**

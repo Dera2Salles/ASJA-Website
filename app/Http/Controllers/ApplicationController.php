@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreApplicationRequest;
 use App\Mail\ApplicationReceived;
+use App\Mail\ApplicationStatusUpdated;
 use App\Models\Application;
 use App\Models\Department;
+use App\Support\ApplicationFiles;
 use App\Support\Cms;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -92,7 +91,7 @@ class ApplicationController extends Controller
                     'user_id' => $request->user()?->id,
                 ]);
 
-                $this->storeDocuments($application, $request->file('documents', []));
+                ApplicationFiles::attachMany($application, $request->file('documents', []));
 
                 return $application;
             });
@@ -149,47 +148,17 @@ class ApplicationController extends Controller
                 ])->all(),
             ],
 
+            /* Où revenir quand l'administration demandera un complément ou le
+               bordereau des frais généraux. Le lien est signé et daté, comme
+               celui-ci : la page de confirmation est le premier endroit où le
+               candidat le trouve, avant même le courrier. */
+            'followUpUrl' => ApplicationFollowUpController::followUpUrl($application),
+
             'departments' => Department::where('is_visible', true)
                 ->orderBy('sort_order')
                 ->get(['id', 'slug', 'name', 'logo']),
             'cms' => Cms::all(),
         ]);
-    }
-
-    /**
-     * Écrit les pièces sur le disque privé.
-     *
-     * Le nom fourni par le client n'est jamais réutilisé sur le disque : il est
-     * remplacé par un identifiant engendré, ce qui ferme d'un coup la
-     * traversée de chemin, la collision de noms et le fichier à double
-     * extension. Le nom d'origine est conservé en base, pour l'affichage seul.
-     *
-     * @param  array<string, UploadedFile>  $files
-     */
-    private function storeDocuments(Application $application, array $files): void
-    {
-        foreach ($files as $type => $file) {
-            if (! isset(Application::DOCUMENTS[$type]) || ! $file instanceof UploadedFile) {
-                continue;
-            }
-
-            $extension = strtolower($file->extension() ?: $file->getClientOriginalExtension());
-
-            $path = Storage::disk(Application::DISK)->putFileAs(
-                'applications/' . $application->reference,
-                $file,
-                $type . '-' . Str::uuid() . ($extension ? '.' . $extension : '')
-            );
-
-            $application->documents()->create([
-                'type' => $type,
-                'path' => $path,
-                // Nettoyé : il n'est qu'affiché, mais il vient du client.
-                'original_name' => Str::limit(basename($file->getClientOriginalName()), 180, ''),
-                'mime_type' => $file->getMimeType() ?: 'application/octet-stream',
-                'size' => $file->getSize() ?: 0,
-            ]);
-        }
     }
 
     /**
@@ -210,6 +179,30 @@ class ApplicationController extends Controller
         } catch (\Throwable $e) {
             Log::error('Accusé de réception non envoyé', [
                 'reference' => $application->reference,
+                'exception' => $e,
+            ]);
+
+            return false;
+        }
+    }
+
+    /**
+     * Prévient le candidat que son dossier attend une action de sa part.
+     *
+     * Même principe que l'accusé de réception : l'échec du courrier ne défait
+     * rien. Le statut est déjà posé, le dossier déjà consultable en ligne, et
+     * l'appelant décide quoi dire à l'écran de l'envoi manqué.
+     */
+    public static function sendStatusUpdate(Application $application): bool
+    {
+        try {
+            Mail::send(new ApplicationStatusUpdated($application));
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Avis de changement de statut non envoyé', [
+                'reference' => $application->reference,
+                'status' => $application->status,
                 'exception' => $e,
             ]);
 

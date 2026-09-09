@@ -1,12 +1,13 @@
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import type { PageProps } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import {
     AlertCircle,
     ArrowLeft,
     ArrowRight,
     Check,
+    FileSearch,
     Loader2,
     Save,
     Send,
@@ -97,7 +98,7 @@ const STEP_DEFS: Record<StepKey, Step> = {
         title: 'Informations des parents',
         short: 'Parents',
         description:
-            'Les personnes à contacter au sujet de votre scolarité. Le second parent est facultatif.',
+            'Les personnes à contacter au sujet de votre scolarité. Les informations de la mère sont facultatives.',
     },
     documents: {
         title: 'Documents justificatifs',
@@ -109,7 +110,7 @@ const STEP_DEFS: Record<StepKey, Step> = {
         title: 'Récapitulatif',
         short: 'Récapitulatif',
         description:
-            'Relisez votre dossier. Vous pouvez encore revenir sur chaque étape avant de l’envoyer.',
+            'Rien n’est encore envoyé. Relisez votre dossier autant de temps qu’il vous faut, revenez sur les étapes à corriger, puis confirmez l’envoi en bas de page.',
     },
 };
 
@@ -273,6 +274,14 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
     const [progress, setProgress] = useState(0);
     const [draftSaved, setDraftSaved] = useState(false);
 
+    /* Confirmation explicite du récapitulatif.
+       Arriver sur la dernière étape n'envoie rien : ni les champs, ni les
+       pièces. C'est ce seul geste qui déclenche le téléversement, et il est
+       remis à zéro dès que le candidat repart corriger quelque chose — une
+       case cochée avant un aller-retour dans le formulaire ne confirmerait
+       plus le dossier qu'elle a servi à relire. */
+    const [confirmed, setConfirmed] = useState(false);
+
     const topRef = useRef<HTMLDivElement>(null);
     const restored = useRef(false);
 
@@ -392,6 +401,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
     const goTo = (next: number) => {
         setStep(next);
         setStepErrors({});
+        setConfirmed(false);
         topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
@@ -416,6 +426,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
         setData('type', value);
         setFurthest(0);
         setStepErrors({});
+        setConfirmed(false);
     };
 
     const saveDraft = () => {
@@ -430,6 +441,13 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
         // Double garde : le bouton est déjà désactivé pendant l'envoi, mais un
         // « Entrée » répété dans un champ passerait à travers.
         if (processing) return;
+
+        /* Le formulaire enveloppe les sept étapes : sans ces deux gardes, une
+           touche « Entrée » dans un champ de la deuxième déclencherait l'envoi
+           du dossier entier. Rien ne part hors du récapitulatif, et rien ne
+           part sans la confirmation cochée — c'est la règle que la consigne
+           « aucun envoi automatique » demande de tenir jusqu'au bout. */
+        if (step !== recapStep || !confirmed) return;
 
         const invalid = firstInvalidStep(data, options);
 
@@ -537,6 +555,37 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                     finalisation se fait ensuite au bureau de la
                                     scolarité.
                                 </motion.p>
+
+                                {/* Le candidat qui a déjà déposé n'a rien à
+                                    refaire ici : sa place est au suivi.
+
+                                    Un vrai bouton, et non un lien noyé dans une
+                                    phrase : celui qui revient déposer une pièce
+                                    manquante cherche une porte, pas une note de
+                                    bas de page. Contour plutôt qu'aplat, pour
+                                    qu'il ne dispute pas la place à l'action
+                                    principale de la page — remplir le
+                                    formulaire. */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 16 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.6, delay: 0.22 }}
+                                    className="mt-7"
+                                >
+                                    <Link
+                                        href={route('candidature.suivi.create')}
+                                        className="border-primary text-primary hover:bg-primary hover:text-primary-foreground inline-flex min-h-[52px] items-center justify-center gap-2.5 border-2 px-7 text-[14px] font-bold tracking-[0.04em] uppercase transition-colors"
+                                    >
+                                        <FileSearch size={17} />
+                                        Suivre ou compléter une demande
+                                    </Link>
+
+                                    <p className="text-muted-foreground mt-3 text-[13.5px] leading-relaxed">
+                                        Vous avez déjà déposé un dossier ?
+                                        Retrouvez-le avec votre numéro de
+                                        demande, sans rien ressaisir.
+                                    </p>
+                                </motion.div>
                             </div>
                         </section>
 
@@ -1202,7 +1251,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                 <>
                                                     <fieldset className="border-border border p-5">
                                                         <legend className="text-foreground px-2 text-[13px] font-bold tracking-[0.12em] uppercase">
-                                                            Parent 1
+                                                            Père
                                                         </legend>
                                                         <div className="grid gap-6 sm:grid-cols-2">
                                                             <TextField
@@ -1251,8 +1300,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
 
                                                     <fieldset className="border-border border p-5">
                                                         <legend className="text-muted-foreground px-2 text-[13px] font-bold tracking-[0.12em] uppercase">
-                                                            Parent 2 —
-                                                            facultatif
+                                                            Mère — facultatif
                                                         </legend>
                                                         <div className="grid gap-6 sm:grid-cols-2">
                                                             <TextField
@@ -1391,6 +1439,28 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                             {/* ── 8. Récapitulatif ── */}
                                             {stepKey === 'summary' && (
                                                 <div className="space-y-4">
+                                                    {/* Dit d'emblée ce que la
+                                                        page ne fait pas : arriver
+                                                        ici n'envoie rien, et le
+                                                        candidat a tout son temps. */}
+                                                    <p className="border-border bg-muted/40 text-muted-foreground border p-4 text-[13.5px] leading-relaxed">
+                                                        <strong className="text-foreground">
+                                                            Aucun envoi n’a
+                                                            encore eu lieu.
+                                                        </strong>{' '}
+                                                        Vos informations et vos
+                                                        pièces sont restées dans
+                                                        votre navigateur. Prenez
+                                                        le temps de tout relire
+                                                        : chaque bloc ci-dessous
+                                                        ramène à son étape par
+                                                        le lien « Modifier ».
+                                                        Votre dossier ne partira
+                                                        qu’au moment où vous
+                                                        confirmerez l’envoi, en
+                                                        bas de cette page.
+                                                    </p>
+
                                                     <RecapBlock
                                                         title="Type de demande"
                                                         step={stepIndex('type')}
@@ -1606,25 +1676,25 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                             onEdit={goTo}
                                                         >
                                                             <Recap
-                                                                label="Parent 1"
+                                                                label="Père"
                                                                 value={
                                                                     data.parent1_name
                                                                 }
                                                             />
                                                             <Recap
-                                                                label="Téléphone 1"
+                                                                label="Téléphone du père"
                                                                 value={
                                                                     data.parent1_phone
                                                                 }
                                                             />
                                                             <Recap
-                                                                label="Parent 2"
+                                                                label="Mère"
                                                                 value={
                                                                     data.parent2_name
                                                                 }
                                                             />
                                                             <Recap
-                                                                label="Téléphone 2"
+                                                                label="Téléphone de la mère"
                                                                 value={
                                                                     data.parent2_phone
                                                                 }
@@ -1691,6 +1761,54 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                         d’identité identiques au
                                                         format 4×4, en buste.
                                                     </p>
+
+                                                    {/* Le geste qui déclenche
+                                                        tout : sans lui, le bouton
+                                                        d'envoi reste inerte. */}
+                                                    <label
+                                                        htmlFor="confirm-submission"
+                                                        className={`flex cursor-pointer items-start gap-3 border p-4 transition-colors ${
+                                                            confirmed
+                                                                ? 'border-primary bg-primary/5'
+                                                                : 'border-border bg-card hover:border-primary/60'
+                                                        }`}
+                                                    >
+                                                        <input
+                                                            id="confirm-submission"
+                                                            type="checkbox"
+                                                            checked={confirmed}
+                                                            disabled={
+                                                                processing
+                                                            }
+                                                            onChange={(event) =>
+                                                                setConfirmed(
+                                                                    event.target
+                                                                        .checked,
+                                                                )
+                                                            }
+                                                            className="accent-primary mt-0.5 size-4 shrink-0"
+                                                        />
+                                                        <span className="text-foreground text-[14px] leading-relaxed font-semibold">
+                                                            J’ai relu
+                                                            l’intégralité de mon
+                                                            récapitulatif et je
+                                                            certifie que les
+                                                            informations et les
+                                                            pièces qui y
+                                                            figurent sont
+                                                            exactes.
+                                                            <span className="text-muted-foreground mt-1 block text-[13px] font-normal">
+                                                                Une fois envoyé,
+                                                                le dossier n’est
+                                                                plus modifiable
+                                                                : seul le
+                                                                service de la
+                                                                scolarité peut
+                                                                vous rouvrir une
+                                                                correction.
+                                                            </span>
+                                                        </span>
+                                                    </label>
                                                 </div>
                                             )}
                                         </div>
@@ -1765,7 +1883,15 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                 ) : (
                                                     <button
                                                         type="submit"
-                                                        disabled={processing}
+                                                        disabled={
+                                                            processing ||
+                                                            !confirmed
+                                                        }
+                                                        title={
+                                                            confirmed
+                                                                ? undefined
+                                                                : 'Cochez la case de confirmation ci-dessus pour envoyer votre dossier.'
+                                                        }
                                                         className="bg-primary text-primary-foreground inline-flex min-h-[48px] w-full items-center justify-center gap-2 px-7 text-[14px] font-bold hover:bg-[#08542c] hover:text-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                                                     >
                                                         {processing ? (
@@ -1781,14 +1907,32 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                                 <Send
                                                                     size={15}
                                                                 />
-                                                                Soumettre la
-                                                                demande
+                                                                Confirmer et
+                                                                envoyer ma
+                                                                candidature
                                                             </>
                                                         )}
                                                     </button>
                                                 )}
                                             </div>
                                         </div>
+
+                                        {/* Un bouton grisé sans explication
+                                            laisse le candidat bloqué : la
+                                            raison est dite juste dessous. */}
+                                        {step === recapStep &&
+                                            !confirmed &&
+                                            !processing && (
+                                                <p
+                                                    role="status"
+                                                    className="text-muted-foreground mt-4 text-[13px] leading-relaxed"
+                                                >
+                                                    Cochez la case de
+                                                    confirmation ci-dessus pour
+                                                    activer l’envoi de votre
+                                                    candidature.
+                                                </p>
+                                            )}
 
                                         <p className="text-muted-foreground mt-4 text-[12.5px] leading-relaxed">
                                             Vos données et vos pièces

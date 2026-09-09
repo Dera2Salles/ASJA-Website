@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\PostController as AdminPostController;
 use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\TestimonyController;
 use App\Http\Controllers\ApplicationController;
+use App\Http\Controllers\ApplicationFollowUpController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LandingPageController;
@@ -48,6 +49,33 @@ Route::post('/candidature', [ApplicationController::class, 'store'])->name('cand
 Route::get('/candidature/confirmation/{application:reference}', [ApplicationController::class, 'confirmation'])
     ->middleware('signed')
     ->name('candidature.confirmation');
+
+/*
+ * Suivi d'un dossier déjà déposé : état de l'instruction, complément réclamé,
+ * bordereau des frais généraux.
+ *
+ * La recherche est bornée en cadence — le numéro de demande est séquentiel,
+ * donc devinable, et seule l'adresse e-mail déclarée au dépôt le complète. Le
+ * dossier lui-même s'ouvre par lien signé, comme la confirmation ; les envois
+ * qui suivent exigent en plus le droit obtenu en session, pour qu'un numéro
+ * connu ne suffise jamais à joindre une pièce au dossier d'un autre.
+ */
+Route::get('/candidature/suivi', [ApplicationFollowUpController::class, 'create'])->name('candidature.suivi.create');
+Route::post('/candidature/suivi', [ApplicationFollowUpController::class, 'find'])
+    ->middleware('throttle:8,1')
+    ->name('candidature.suivi.find');
+
+Route::get('/candidature/suivi/{application:reference}', [ApplicationFollowUpController::class, 'show'])
+    ->middleware('signed')
+    ->name('candidature.suivi.show');
+
+Route::post('/candidature/suivi/{application:reference}/completer', [ApplicationFollowUpController::class, 'complete'])
+    ->middleware('throttle:20,1')
+    ->name('candidature.suivi.complete');
+
+Route::post('/candidature/suivi/{application:reference}/bordereau', [ApplicationFollowUpController::class, 'fees'])
+    ->middleware('throttle:20,1')
+    ->name('candidature.suivi.fees');
 
 /*
  * Fichiers téléversés.

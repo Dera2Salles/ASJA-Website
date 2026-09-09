@@ -12,6 +12,7 @@ export const STATUS_TONE: Record<string, StatusTone> = {
     processing: 'neutral',
     incomplete: 'warning',
     accepted: 'success',
+    fees_submitted: 'success',
     rejected: 'danger',
     finalized: 'success',
 };

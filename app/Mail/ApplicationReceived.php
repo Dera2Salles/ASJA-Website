@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Http\Controllers\ApplicationFollowUpController;
 use App\Models\Application;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -35,7 +36,14 @@ class ApplicationReceived extends Mailable
     {
         return new Content(
             view: 'emails.application-received',
-            with: ['application' => $this->application],
+            with: [
+                'application' => $this->application,
+
+                /* Où suivre le dossier, et où revenir si l'administration
+                   demande un complément : le candidat n'a alors ni numéro ni
+                   adresse à ressaisir. */
+                'followUpUrl' => ApplicationFollowUpController::followUpUrl($this->application),
+            ],
         );
     }
 }
