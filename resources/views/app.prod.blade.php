@@ -20,20 +20,20 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'ASJA') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=archivo:500,600,700,800,900|inter:400,500,600,700,800|jetbrains-mono:400,500,600,700&display=swap" rel="stylesheet" />
 
         <!-- CSS du build -->
-        <link rel="stylesheet" href="{{ asset('build/assets/app-BjTcUrs6.css') }}">
+        <link rel="stylesheet" href="{{ asset('build/assets/app-BBoOcY1g.css') }}">
 
         <!-- Scripts -->
         @routes
 
         <!-- JS du build : les pages sont chargées à la demande par Inertia. -->
-        <script type="module" src="{{ asset('build/assets/app-CM9GIlcZ.js') }}"></script>
+        <script type="module" src="{{ asset('build/assets/app-B7Y7ixoU.js') }}"></script>
 
         @inertiaHead
     </head>

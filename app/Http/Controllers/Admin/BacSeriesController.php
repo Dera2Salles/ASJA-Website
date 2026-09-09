@@ -110,18 +110,20 @@ class BacSeriesController extends Controller
     private function validated(Request $request, ?BacSeries $current = null): array
     {
         $validated = $request->validate([
-            /* Majuscules, chiffres et tiret : le code est un symbole imprimé
-               sur un relevé, pas une phrase. La longueur suit la colonne
-               `applications.bac_series`, où il finit. */
+            /* Majuscules, chiffres, espaces et tirets : le code est ce qui
+               est imprimé sur le relevé, et certaines séries s'y écrivent en
+               toutes lettres. Sa longueur n'est plus bornée en deçà de la
+               colonne qui l'accueille — les 255 caractères sont ceux du
+               schéma, pas une idée que nous nous faisons des séries. */
             'code' => [
-                'required', 'string', 'max:10', 'regex:/^[A-Z0-9-]+$/',
+                'required', 'string', 'max:255', 'regex:/^[A-Z0-9][A-Z0-9 -]*$/',
                 Rule::unique(BacSeries::class, 'code')->ignore($current),
             ],
             'label' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:999'],
         ], [
-            'code.regex' => 'Le code d\'une série s\'écrit en majuscules, chiffres ou tirets (A1, C, OSE…).',
+            'code.regex' => 'Le code d\'une série s\'écrit en majuscules, chiffres, espaces ou tirets (A1, C, OSE, TECHNIQUE INDUSTRIEL…).',
         ], [
             'code' => 'code de la série',
             'label' => 'intitulé',

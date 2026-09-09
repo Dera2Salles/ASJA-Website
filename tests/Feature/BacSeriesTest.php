@@ -96,14 +96,15 @@ class BacSeriesTest extends TestCase
 
         $this->assertDatabaseHas('bac_series', ['code' => 'TI', 'is_active' => true]);
 
-        // Proposée : le formulaire public la reçoit, intitulé compris.
+        /* Proposée : le formulaire public la reçoit sous son intitulé, le code
+           n'étant que la valeur enregistrée derrière. */
         $this->get(route('candidature.create'))
             ->assertInertia(
                 fn (AssertableInertia $page) => $page
                     ->has('options.bacSeries', 8)
                     ->where('options.bacSeries.7', [
                         'value' => 'TI',
-                        'label' => 'TI — Technologies industrielles',
+                        'label' => 'Technologies industrielles',
                     ])
             );
 
@@ -132,7 +133,24 @@ class BacSeriesTest extends TestCase
         $this->assertSame(1, BacSeries::where('code', 'D')->count());
     }
 
-    public function test_un_code_en_toutes_lettres_est_refuse(): void
+    public function test_un_code_long_est_accepte_jusque_sur_le_dossier(): void
+    {
+        $long = 'TECHNIQUE INDUSTRIEL OPTION GENIE CIVIL';
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.bac-series.store'), ['code' => $long, 'is_active' => true])
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('bac_series', ['code' => $long]);
+
+        // La colonne du dossier suit : le code ne doit pas y être tronqué.
+        $this->post(route('candidature.store'), $this->payload(['bac_series' => $long]))
+            ->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('applications', ['bac_series' => $long]);
+    }
+
+    public function test_un_code_en_minuscules_ou_accentue_est_refuse(): void
     {
         $this->actingAs($this->admin())
             ->post(route('admin.bac-series.store'), ['code' => 'série d'])

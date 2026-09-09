@@ -243,7 +243,10 @@ export default function BacSeriesIndex({ series }: { series: Series[] }) {
                                 <TableBody>
                                     {series.map((item) => (
                                         <TableRow key={item.id}>
-                                            <TableCell className="admin-mono font-medium">
+                                            {/* Un code peut s'écrire en toutes
+                                                lettres : il s'enroule plutôt
+                                                que d'étirer le tableau. */}
+                                            <TableCell className="admin-mono max-w-xs font-medium whitespace-normal">
                                                 {item.code}
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">
@@ -321,7 +324,8 @@ export default function BacSeriesIndex({ series }: { series: Series[] }) {
                         </DialogTitle>
                         <DialogDescription>
                             Le code est la valeur enregistrée sur le dossier du
-                            candidat. L’intitulé n’est qu’une aide à la lecture.
+                            candidat. C’est l’intitulé, lui, que le candidat
+                            voit dans le formulaire.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -337,8 +341,8 @@ export default function BacSeriesIndex({ series }: { series: Series[] }) {
                                         event.target.value.toUpperCase(),
                                     )
                                 }
-                                placeholder="A1, C, D, OSE…"
-                                maxLength={10}
+                                placeholder="A1, C, D, OSE, TECHNIQUE INDUSTRIEL…"
+                                maxLength={255}
                                 required
                             />
                             <FieldError>{errors.code}</FieldError>
@@ -368,6 +372,10 @@ export default function BacSeriesIndex({ series }: { series: Series[] }) {
                                 maxLength={255}
                             />
                             <FieldError>{errors.label}</FieldError>
+                            <p className="text-muted-foreground text-xs">
+                                Affiché au candidat à la place du code. Sans
+                                intitulé, c’est le code qui apparaît.
+                            </p>
                         </div>
 
                         <div className="space-y-2">

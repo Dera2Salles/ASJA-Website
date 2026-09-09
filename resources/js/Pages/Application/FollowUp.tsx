@@ -525,7 +525,7 @@ export default function ApplicationFollowUp({ application, cms }: Props) {
     return (
         <CmsProvider content={cms}>
             <ThemeProvider>
-                <Head title={`Dossier ${application.reference} — ASJA`} />
+                <Head title={`Dossier ${application.reference}`} />
 
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />

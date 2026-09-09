@@ -37,7 +37,7 @@ export default function ApplicationTrack({ cms }: Props) {
     return (
         <CmsProvider content={cms}>
             <ThemeProvider>
-                <Head title="Compléter mon dossier — ASJA" />
+                <Head title="Compléter mon dossier" />
 
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />

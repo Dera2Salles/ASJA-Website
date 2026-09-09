@@ -503,6 +503,12 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
             (mention) => mention.value === data.bac_mention,
         )?.label ?? '';
 
+    /* Le récapitulatif rend au candidat ce qu'il a choisi, donc l'intitulé de
+       la série et non son code : le code est une valeur de base de données. */
+    const bacSeriesLabel =
+        options.bacSeries.find((serie) => serie.value === data.bac_series)
+            ?.label ?? data.bac_series;
+
     const typeLabel =
         options.types.find((type) => type.value === data.type)?.label ?? '';
 
@@ -1623,7 +1629,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                             <Recap
                                                                 label="Série"
                                                                 value={
-                                                                    data.bac_series
+                                                                    bacSeriesLabel
                                                                 }
                                                             />
                                                             <Recap

@@ -68,13 +68,17 @@ class BacSeries extends Model
     }
 
     /**
-     * Intitulé affiché : le code seul quand il se suffit, le code suivi de son
-     * explicitation sinon. Le code reste en tête dans les deux cas — c'est lui
-     * que le candidat lit sur son relevé.
+     * Ce que lit le candidat : l'intitulé quand il existe, le code sinon.
+     *
+     * Le code est une valeur de base de données, pas une phrase — d'autant
+     * moins depuis qu'il peut s'écrire en toutes lettres et en majuscules.
+     * C'est donc l'intitulé, quand la scolarité en a donné un, qui s'affiche
+     * au public ; le code, lui, reste ce qui est enregistré sur le dossier et
+     * ce que l'administration manipule.
      */
     public function optionLabel(): string
     {
-        return $this->label ? $this->code . ' — ' . $this->label : $this->code;
+        return $this->label ?: $this->code;
     }
 
     /** Nombre de dossiers déposés sous cette série : ce qui interdit sa suppression. */
