@@ -414,29 +414,29 @@ export function validateStep(
                 'parent1_name',
                 requiredName(
                     data.parent1_name,
-                    'nom et prénom du parent 1',
-                    'Le nom du premier parent ne doit contenir que des lettres, sans chiffre ni caractère spécial.',
+                    'nom et prénom du père',
+                    'Le nom du père ne doit contenir que des lettres, sans chiffre ni caractère spécial.',
                 ),
             );
 
             if (!data.parent1_phone.trim()) {
                 set(
                     'parent1_phone',
-                    'Le champ « téléphone du parent 1 » est obligatoire.',
+                    'Le champ « téléphone du père » est obligatoire.',
                 );
             } else if (!PHONE.test(data.parent1_phone.trim())) {
                 set('parent1_phone', 'Indiquez un numéro de téléphone valide.');
             }
 
-            // Le second parent est facultatif — mais s'il est renseigné, son
-            // nom et son numéro suivent les règles du premier.
+            // La mère est facultative — mais si elle est renseignée, son
+            // nom et son numéro suivent les règles du père.
             if (
                 data.parent2_name.trim() &&
                 !NAME.test(data.parent2_name.trim())
             ) {
                 set(
                     'parent2_name',
-                    'Le nom du second parent ne doit contenir que des lettres, sans chiffre ni caractère spécial.',
+                    'Le nom de la mère ne doit contenir que des lettres, sans chiffre ni caractère spécial.',
                 );
             }
 

@@ -9,6 +9,7 @@ import {
     ArrowLeft,
     ExternalLink,
     FileText,
+    Hourglass,
     Loader2,
     Mail,
     MailWarning,
@@ -74,11 +75,38 @@ interface Application {
     receipt_sent_at: string | null;
     documents: Document[];
     missing_documents: string[];
+
+    /* Suivi du dossier : ce que l'administration a réclamé au candidat, et ce
+       qu'il a renvoyé depuis. */
+    requested_documents: string[] | null;
+    requested_fields: string[] | null;
+    completion_message: string | null;
+    completion_requested_at: string | null;
+    completed_at: string | null;
+    fees_receipt_at: string | null;
+
+    /** Le bordereau des frais généraux est-il attendu à cette étape ? */
+    awaits_fees_receipt: boolean;
+    /** Nature de ce bordereau, ou `null` pour un type qui n'en doit pas. */
+    fees_receipt_type: string | null;
+}
+
+interface Choice {
+    value: string;
+    label: string;
 }
 
 interface Props {
     application: Application;
-    options: { statuses: { value: string; label: string }[] };
+    options: {
+        statuses: Choice[];
+        /** Pièces du dépôt qu'un dossier « à compléter » peut faire redéposer. */
+        requestableDocuments: Choice[];
+        /** Champs déclarés que ce même dossier peut rouvrir à la correction. */
+        requestableFields: Choice[];
+        /** Valeur du statut « à compléter », pour ne pas l'écrire en dur ici. */
+        incompleteStatus: string;
+    };
 }
 
 /** Miroir de `Application::TYPE_REINSCRIPTION`. */
@@ -124,6 +152,55 @@ const Row = ({
     </div>
 );
 
+/**
+ * Liste à cocher de ce qui est réclamé au candidat.
+ *
+ * Les entrées viennent du serveur, filtrées par le type de demande : proposer
+ * ici une pièce qu'une réinscription ne dépose pas ferait promettre au candidat
+ * un formulaire que la validation refuserait.
+ */
+const CheckList = ({
+    legend,
+    empty,
+    choices,
+    selected,
+    disabled,
+    onToggle,
+}: {
+    legend: string;
+    empty: string;
+    choices: Choice[];
+    selected: string[];
+    disabled: boolean;
+    onToggle: (value: string) => void;
+}) => (
+    <fieldset>
+        <legend className="admin-label">{legend}</legend>
+
+        {choices.length === 0 ? (
+            <p className="admin-meta mt-1.5">{empty}</p>
+        ) : (
+            <div className="mt-1.5 space-y-1.5">
+                {choices.map((choice) => (
+                    <label
+                        key={choice.value}
+                        className="text-foreground flex cursor-pointer items-start gap-2 text-sm"
+                    >
+                        <input
+                            type="checkbox"
+                            checked={selected.includes(choice.value)}
+                            disabled={disabled}
+                            onChange={() => onToggle(choice.value)}
+                            className="accent-primary mt-0.5 size-4 shrink-0"
+                        />
+                        <span>{choice.label}</span>
+                    </label>
+                ))}
+            </div>
+        )}
+    </fieldset>
+);
+
 const Block = ({ title, children }: { title: string; children: ReactNode }) => (
     <Card className="py-0">
         <CardContent className="p-5">
@@ -144,10 +221,58 @@ const Block = ({ title, children }: { title: string; children: ReactNode }) => (
 export default function ApplicationShow({ application, options }: Props) {
     const isReinscription = application.type === REINSCRIPTION;
 
-    const { data, setData, put, processing } = useForm({
+    const { data, setData, put, processing, errors } = useForm({
         status: application.status,
         admin_note: application.admin_note ?? '',
+        completion_message: application.completion_message ?? '',
+        requested_documents: application.requested_documents ?? [],
+        requested_fields: application.requested_fields ?? [],
     });
+
+    /* Le statut « à compléter » est le seul qui ouvre quelque chose au
+       candidat : c'est donc le seul où l'écran demande *quoi* lui rouvrir. */
+    const requesting = data.status === options.incompleteStatus;
+
+    /** Coche ou décoche un élément réclamé, sans toucher au reste de la liste. */
+    const toggle = (
+        field: 'requested_documents' | 'requested_fields',
+        value: string,
+    ) =>
+        setData(
+            field,
+            data[field].includes(value)
+                ? data[field].filter((entry) => entry !== value)
+                : [...data[field], value],
+        );
+
+    /* Une réclamation est en cours tant que le dossier est « à compléter » et
+       que quelque chose y est effectivement demandé. */
+    const requestedDocuments = application.requested_documents ?? [];
+    const requestedFields = application.requested_fields ?? [];
+
+    const pendingRequest =
+        application.status === options.incompleteStatus &&
+        (requestedDocuments.length > 0 || requestedFields.length > 0);
+
+    const labelsOf = (values: string[], choices: Choice[]) =>
+        values
+            .map(
+                (value) =>
+                    choices.find((choice) => choice.value === value)?.label ??
+                    value,
+            )
+            .join(', ');
+
+    const requestedSummary = [
+        requestedDocuments.length > 0
+            ? `Pièces : ${labelsOf(requestedDocuments, options.requestableDocuments)}.`
+            : null,
+        requestedFields.length > 0
+            ? `Informations : ${labelsOf(requestedFields, options.requestableFields)}.`
+            : null,
+    ]
+        .filter(Boolean)
+        .join(' ');
 
     const save = (event: React.FormEvent) => {
         event.preventDefault();
@@ -220,6 +345,31 @@ export default function ApplicationShow({ application, options }: Props) {
                             <p className="text-muted-foreground mt-1 text-sm">
                                 Pièces manquantes :{' '}
                                 {application.missing_documents.join(', ')}.
+                            </p>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Ce que le dossier attend du candidat, en une ligne : c'est la
+                question que se pose l'instructeur avant toute autre. */}
+            {(pendingRequest || application.awaits_fees_receipt) && (
+                <Card className="border-primary/50 py-0">
+                    <CardContent className="flex items-start gap-3 p-4">
+                        <Hourglass
+                            className="text-primary mt-0.5 size-4 shrink-0"
+                            aria-hidden="true"
+                        />
+                        <div className="min-w-0">
+                            <p className="text-foreground text-sm font-medium">
+                                {pendingRequest
+                                    ? 'En attente du complément du candidat'
+                                    : 'En attente du bordereau des frais généraux'}
+                            </p>
+                            <p className="text-muted-foreground mt-1 text-sm">
+                                {pendingRequest
+                                    ? `Réclamé le ${formatDate(application.completion_requested_at)}. ${requestedSummary}`
+                                    : 'Le dossier est validé : le candidat peut déposer son bordereau depuis la page de suivi.'}
                             </p>
                         </div>
                     </CardContent>
@@ -375,21 +525,25 @@ export default function ApplicationShow({ application, options }: Props) {
                                 />
                             </Block>
 
+                            {/* Les colonnes restent `parent1_*`/`parent2_*` —
+                                elles portent des dossiers déjà déposés — mais
+                                le premier parent est le père, le second la
+                                mère. */}
                             <Block title="Parents">
                                 <Row
-                                    label="Parent 1"
+                                    label="Père"
                                     value={application.parent1_name}
                                 />
                                 <Row
-                                    label="Téléphone 1"
+                                    label="Téléphone du père"
                                     value={application.parent1_phone}
                                 />
                                 <Row
-                                    label="Parent 2"
+                                    label="Mère"
                                     value={application.parent2_name}
                                 />
                                 <Row
-                                    label="Téléphone 2"
+                                    label="Téléphone de la mère"
                                     value={application.parent2_phone}
                                 />
                             </Block>
@@ -434,6 +588,86 @@ export default function ApplicationShow({ application, options }: Props) {
                                         ))}
                                     </select>
                                 </div>
+
+                                {/* Ce que le candidat pourra rouvrir. Visible
+                                    au seul statut qui lui ouvre quelque chose :
+                                    ailleurs, ces listes sont vidées à
+                                    l'enregistrement. */}
+                                {requesting && (
+                                    <div className="border-border space-y-4 border-l-2 py-1 pl-4">
+                                        <p className="admin-meta">
+                                            Le candidat ne reverra que ce qui
+                                            est coché ici, et recevra un e-mail
+                                            avec le lien vers son dossier.
+                                        </p>
+
+                                        <CheckList
+                                            legend="Pièces à fournir de nouveau"
+                                            empty="Aucune pièce n’est déposée pour ce type de demande."
+                                            choices={
+                                                options.requestableDocuments
+                                            }
+                                            selected={data.requested_documents}
+                                            disabled={processing}
+                                            onToggle={(value) =>
+                                                toggle(
+                                                    'requested_documents',
+                                                    value,
+                                                )
+                                            }
+                                        />
+
+                                        <CheckList
+                                            legend="Informations à corriger"
+                                            empty="Aucun champ n’est déclaré pour ce type de demande."
+                                            choices={options.requestableFields}
+                                            selected={data.requested_fields}
+                                            disabled={processing}
+                                            onToggle={(value) =>
+                                                toggle(
+                                                    'requested_fields',
+                                                    value,
+                                                )
+                                            }
+                                        />
+
+                                        <div>
+                                            <label
+                                                htmlFor="completion_message"
+                                                className="admin-label"
+                                            >
+                                                Message au candidat
+                                            </label>
+                                            <Textarea
+                                                id="completion_message"
+                                                rows={4}
+                                                value={data.completion_message}
+                                                placeholder="Votre photocopie de CIN est illisible : merci d’en redéposer une version nette, recto et verso."
+                                                onChange={(event) =>
+                                                    setData(
+                                                        'completion_message',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                className="mt-1.5"
+                                            />
+                                            <p className="admin-meta mt-1.5">
+                                                Repris tel quel dans l’e-mail et
+                                                sur la page de suivi :
+                                                écrivez-le pour le candidat.
+                                            </p>
+                                        </div>
+
+                                        {errors.requested_documents && (
+                                            <p
+                                                role="alert"
+                                                className="text-destructive text-sm font-medium"
+                                            >
+                                                {errors.requested_documents}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                                 <div>
                                     <label
@@ -596,6 +830,34 @@ export default function ApplicationShow({ application, options }: Props) {
                                     label="Déposée le"
                                     value={formatDate(application.submitted_at)}
                                 />
+
+                                {/* Les dates du suivi n'apparaissent que si
+                                    l'étape a eu lieu : une ligne « — » ne dirait
+                                    rien de plus que son absence. */}
+                                {application.completion_requested_at && (
+                                    <Row
+                                        label="Complément réclamé le"
+                                        value={formatDate(
+                                            application.completion_requested_at,
+                                        )}
+                                    />
+                                )}
+                                {application.completed_at && (
+                                    <Row
+                                        label="Complété par le candidat le"
+                                        value={formatDate(
+                                            application.completed_at,
+                                        )}
+                                    />
+                                )}
+                                {application.fees_receipt_at && (
+                                    <Row
+                                        label="Bordereau des frais généraux reçu le"
+                                        value={formatDate(
+                                            application.fees_receipt_at,
+                                        )}
+                                    />
+                                )}
                             </dl>
                         </CardContent>
                     </Card>

@@ -29,6 +29,8 @@ interface Props {
         receipt_sent: boolean;
         documents: { label: string; original_name: string }[];
     };
+    /** Lien signé vers le suivi du dossier : où revenir, et par où compléter. */
+    followUpUrl: string;
     cms: CmsContent;
 }
 
@@ -51,7 +53,11 @@ const Row = ({ label, value }: { label: string; value: string }) => (
  * l'accusé de réception dit par e-mail — le candidat qui n'aurait rien reçu
  * n'est pas laissé sans son numéro.
  */
-export default function ApplicationConfirmation({ application, cms }: Props) {
+export default function ApplicationConfirmation({
+    application,
+    followUpUrl,
+    cms,
+}: Props) {
     /**
      * Récépissé.
      *
@@ -370,6 +376,45 @@ export default function ApplicationConfirmation({ application, cms }: Props) {
                                                 </span>
                                             </p>
                                         )}
+
+                                        {/* Suivi du dossier : le candidat saura
+                                            où revenir si la scolarité lui
+                                            réclame une pièce, ou quand les
+                                            frais généraux seront dus. */}
+                                        <div className="border-border bg-card mt-6 border p-6">
+                                            <h2 className="font-display text-foreground text-[clamp(20px,3.4vw,26px)] leading-tight font-black uppercase">
+                                                Suivre votre dossier
+                                            </h2>
+
+                                            <p className="text-muted-foreground mt-3 text-[14.5px] leading-relaxed">
+                                                L’avancement de votre demande
+                                                est consultable en ligne. C’est
+                                                aussi par là que vous déposerez
+                                                les pièces manquantes si le
+                                                service de la scolarité vous en
+                                                réclame, et votre bordereau de
+                                                frais généraux une fois votre
+                                                dossier validé — sans jamais
+                                                avoir à refaire votre
+                                                candidature.
+                                            </p>
+
+                                            <a
+                                                href={followUpUrl}
+                                                className="bg-primary text-primary-foreground mt-5 inline-flex min-h-[46px] items-center justify-center gap-2 px-6 text-[14px] font-bold hover:bg-[#08542c] hover:text-white"
+                                            >
+                                                Ouvrir le suivi de ma demande
+                                            </a>
+
+                                            <p className="text-muted-foreground mt-3 text-[12.5px] leading-relaxed">
+                                                Ce lien expire au bout de 30
+                                                jours. Ensuite, retrouvez votre
+                                                dossier depuis la page «
+                                                Compléter mon dossier », avec
+                                                votre numéro de demande et votre
+                                                adresse e-mail.
+                                            </p>
+                                        </div>
 
                                         <div className="border-border bg-card mt-6 border p-6">
                                             <h2 className="font-display text-foreground text-[clamp(20px,3.4vw,26px)] leading-tight font-black uppercase">
