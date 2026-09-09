@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Concerns;
 
 use App\Models\Application;
+use App\Models\BacSeries;
 use App\Models\Department;
 use App\Support\StudentFile;
 use Illuminate\Validation\Rule;
@@ -82,7 +83,9 @@ trait ValidatesApplicationFields
 
             // — Baccalauréat —
             'bac_year' => ['required', 'integer', 'min:1960', 'max:' . (now()->year + 1)],
-            'bac_series' => ['required', Rule::in(Application::BAC_SERIES)],
+            // Les séries sont administrables : seules celles restées actives
+            // sont proposées, et donc seules elles sont acceptées.
+            'bac_series' => ['required', Rule::in(BacSeries::activeCodes())],
             // Le numéro du baccalauréat est une suite de chiffres : « string »
             // conservé pour que les zéros de tête survivent, la forme étant
             // imposée par l'expression régulière.

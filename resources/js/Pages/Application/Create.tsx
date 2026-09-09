@@ -1126,12 +1126,9 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                                     value,
                                                                 )
                                                             }
-                                                            options={options.bacSeries.map(
-                                                                (serie) => ({
-                                                                    value: serie,
-                                                                    label: serie,
-                                                                }),
-                                                            )}
+                                                            options={
+                                                                options.bacSeries
+                                                            }
                                                         />
                                                     </div>
 

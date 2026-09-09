@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
+use App\Http\Controllers\Admin\BacSeriesController;
 use App\Http\Controllers\Admin\ComponentDataController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
@@ -153,6 +154,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/candidatures/{application}/accuse-reception', [AdminApplicationController::class, 'resendReceipt'])->name('applications.receipt');
     Route::get('/candidatures/{application}/pieces/{document}', [AdminApplicationController::class, 'document'])->name('applications.document');
     Route::delete('/candidatures/{application}', [AdminApplicationController::class, 'destroy'])->name('applications.destroy');
+
+    /* Séries du baccalauréat : le référentiel du formulaire de candidature.
+       Sur son propre chemin, et non sous `/candidatures/…`, où « series »
+       serait d'abord lu comme l'identifiant d'un dossier. */
+    Route::get('/series-bac', [BacSeriesController::class, 'index'])->name('bac-series.index');
+    Route::post('/series-bac', [BacSeriesController::class, 'store'])->name('bac-series.store');
+    Route::put('/series-bac/{series}', [BacSeriesController::class, 'update'])->name('bac-series.update');
+    Route::delete('/series-bac/{series}', [BacSeriesController::class, 'destroy'])->name('bac-series.destroy');
 
     // Mentions
     Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('departments.index');

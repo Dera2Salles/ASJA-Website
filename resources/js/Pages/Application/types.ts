@@ -69,7 +69,8 @@ export interface FormOptions {
     religions: Option[];
     /** Longueur exacte attendue pour un numéro de CIN. */
     cinLength: number;
-    bacSeries: string[];
+    /** Référentiel administrable : seules les séries actives arrivent ici. */
+    bacSeries: Option[];
     bacMentions: Option[];
     levels: string[];
     mentions: Mention[];
