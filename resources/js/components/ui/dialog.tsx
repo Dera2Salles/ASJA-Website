@@ -38,7 +38,10 @@ function DialogOverlay({
         <DialogPrimitive.Overlay
             data-slot="dialog-overlay"
             className={cn(
-                'fixed inset-0 z-50 bg-black',
+                /* Voile translucide et flou, comme celui d'`alert-dialog` :
+                   `bg-black` opaque masquait entièrement la page et la boîte
+                   semblait s'ouvrir sur du vide. */
+                'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50 backdrop-blur-sm',
                 className,
             )}
             {...props}
@@ -69,7 +72,7 @@ function DialogContent({
                 {showCloseButton && (
                     <DialogPrimitive.Close
                         data-slot="dialog-close"
-                        className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground absolute top-4 right-4 border border-border p-1 hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+                        className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground border-border hover:bg-accent hover:text-accent-foreground absolute top-4 right-4 border p-1 focus:outline-none disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
                     >
                         <XIcon />
                         <span className="sr-only">Close</span>

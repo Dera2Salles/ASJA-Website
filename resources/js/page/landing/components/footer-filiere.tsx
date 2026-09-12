@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { mapMarkerIcon } from '@/lib/map-marker';
 import 'leaflet/dist/leaflet.css';
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
@@ -56,9 +56,10 @@ export const FooterFiliereSection = () => {
             <div className="container mx-auto px-4 py-16">
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
                     <div className="flex flex-col items-center text-center md:items-start md:text-left">
-                        <img
+                        <Img
                             className="mb-4 h-24 w-24"
-                            src={Logo}
+                            source="Logo/asja-logo"
+                            sizes="96px"
                             alt="Logo de l'université ASJA"
                         />
                         <h2 className="text-xl font-bold text-gray-900 transition-all duration-500 dark:text-white">

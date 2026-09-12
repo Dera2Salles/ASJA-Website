@@ -5,10 +5,16 @@ import '../css/app.css';
 import './bootstrap';
 import './i18n';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+/* Suffixe de l'onglet du navigateur. Il double celui que le serveur compose
+   dans la vue racine (App\Support\Seo) : les deux doivent dire la même chose,
+   sans quoi le titre changerait au montage de React. Voir `config/seo.php`,
+   clé `site_name`. */
+const appName = 'Université ASJA';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    /* Une page sans titre propre garde celui posé par la vue racine : la
+       rejoindre par « — ASJA » afficherait « — ASJA » tout court. */
+    title: (title) => (title ? `${title} — ${appName}` : appName),
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.tsx`,

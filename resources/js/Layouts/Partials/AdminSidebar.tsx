@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Collapsible,
@@ -40,6 +40,7 @@ import {
     ClipboardList,
     ExternalLink,
     FileText,
+    GraduationCap,
     LayoutDashboard,
     LogOut,
     MessageSquare,
@@ -112,6 +113,11 @@ export const MENU_GROUPS: MenuGroup[] = [
                 title: 'Candidatures',
                 icon: ClipboardList,
                 route: 'admin.applications.index',
+            },
+            {
+                title: 'Séries du bac',
+                icon: GraduationCap,
+                route: 'admin.bac-series.index',
             },
             { title: 'Étudiants', icon: Users, route: 'admin.students.index' },
         ],
@@ -213,8 +219,8 @@ export function AdminSidebar({
                         >
                             <Link href={route('admin.dashboard')}>
                                 <div className="border-sidebar-border bg-card flex aspect-square size-9 shrink-0 items-center justify-center border">
-                                    <img
-                                        src={Logo}
+                                    <Img
+                                        source="Logo/asja-logo"
                                         alt=""
                                         className="size-6 object-contain"
                                     />

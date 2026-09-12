@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { motion } from 'framer-motion';
 import { LogOut } from 'lucide-react';
 import type { Dispatch, SetStateAction } from 'react';
@@ -31,7 +31,7 @@ export const NavBar = ({
             >
                 <div className="flex h-16 w-full items-center justify-between rounded-full bg-white px-4 shadow-md">
                     <a href="/" className="flex items-center gap-3">
-                        <img src={Logo} className="h-10 w-10" alt="ASJA Logo" />
+                        <Img source="Logo/asja-logo" className="h-10 w-10" alt="ASJA Logo" />
                         <h1 className="hidden text-lg font-bold text-gray-800 md:block">
                             Université ASJA
                         </h1>

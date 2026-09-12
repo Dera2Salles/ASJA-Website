@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\DB;
 /**
  * Une demande d'inscription ou de réinscription déposée en ligne.
  *
- * Le modèle porte aussi les référentiels du formulaire (types, séries du
- * baccalauréat, mentions, statuts, pièces attendues) : le formulaire public, la
+ * Le modèle porte aussi les référentiels du formulaire (types, mentions du
+ * baccalauréat, statuts, pièces attendues) : le formulaire public, la
  * validation serveur, l'accusé de réception et l'administration lisent tous la
- * même liste. Écrite en double, elle aurait divergé au premier ajout.
+ * même liste. Écrite en double, elle aurait divergé au premier ajout. Les
+ * séries du baccalauréat font exception : administrables, elles vivent en base
+ * dans `BacSeries`, et `formOptions()` va les y chercher.
  */
 class Application extends Model
 {
@@ -111,7 +113,13 @@ class Application extends Model
     /** Longueur exacte du numéro de CIN malgache. */
     public const CIN_LENGTH = 12;
 
-    public const BAC_SERIES = ['A1', 'A2', 'C', 'D', 'S', 'L', 'OSE'];
+    /**
+     * Les séries du baccalauréat ne sont plus une constante : elles vivent en
+     * base, administrables comme les mentions (`App\Models\BacSeries`).
+     * `formOptions()` et la validation lisent la table, jamais une liste
+     * écrite ici — une série ajoutée depuis l'administration doit être
+     * proposée et acceptée le jour même.
+     */
 
     public const BAC_MENTIONS = [
         'passable' => 'Passable',
@@ -698,7 +706,7 @@ class Application extends Model
             'maritalStatuses' => static::labelled(self::MARITAL_STATUSES),
             'religions' => static::labelled(self::RELIGIONS),
             'cinLength' => self::CIN_LENGTH,
-            'bacSeries' => self::BAC_SERIES,
+            'bacSeries' => BacSeries::options(),
             'bacMentions' => static::labelled(self::BAC_MENTIONS),
             'levels' => StudentFile::LEVELS,
             'mentions' => StudentFile::mentions(),
@@ -747,9 +755,9 @@ class Application extends Model
      * De quoi dessiner une poignée de champs rouverts à la correction.
      *
      * Les référentiels sont ramenés à une seule forme — `value` / `label` —
-     * pour que le front n'ait qu'un cas à traiter : les mentions arrivent en
-     * `slug`/`name` de la base, les niveaux et les séries en simples chaînes,
-     * et rien de tout cela ne regarde l'écran qui les affiche.
+     * pour que le front n'ait qu'un cas à traiter : les mentions et les séries
+     * arrivent de la base, les niveaux en simples chaînes, et rien de tout cela
+     * ne regarde l'écran qui les affiche.
      *
      * @param  array<int, string>  $fields
      * @return array<int, array{name: string, label: string, input: string, options: array<int, array{value: string, label: string}>|null}>
@@ -761,7 +769,7 @@ class Application extends Model
             'maritalStatuses' => static::labelled(self::MARITAL_STATUSES),
             'religions' => static::labelled(self::RELIGIONS),
             'bacMentions' => static::labelled(self::BAC_MENTIONS),
-            'bacSeries' => static::plainOptions(self::BAC_SERIES),
+            'bacSeries' => BacSeries::options(),
             'levels' => static::plainOptions(StudentFile::LEVELS),
             'mentions' => collect(StudentFile::mentions())
                 ->map(fn (array $mention) => [

@@ -34,6 +34,7 @@ import {
     ChevronRight,
     Eye,
     FileWarning,
+    GraduationCap,
     Inbox,
     MailCheck,
     Search,
@@ -97,6 +98,32 @@ const shortDate = (value: string) =>
         month: 'short',
         year: 'numeric',
     });
+
+/**
+ * Ouverture du dossier depuis n'importe où sur la ligne.
+ *
+ * Le menu « … » reste, mais il n'a plus à être le seul chemin : une ligne de
+ * liste qui mène à une fiche se clique. Trois cas s'en excluent — un clic sur
+ * un élément qui a déjà son propre comportement (le lien du numéro, le menu
+ * d'actions), un clic qui termine une sélection de texte, et un clic
+ * accompagné de Ctrl ou Cmd, qui veut un nouvel onglet.
+ */
+const openOnRowClick = (id: number) => (event: React.MouseEvent) => {
+    if ((event.target as HTMLElement).closest('a, button, [role="menuitem"]')) {
+        return;
+    }
+
+    if (window.getSelection()?.toString()) return;
+
+    const url = route('admin.applications.show', id);
+
+    if (event.metaKey || event.ctrlKey) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+    }
+
+    router.visit(url);
+};
 
 /**
  * Liste des demandes d'inscription et de réinscription.
@@ -166,6 +193,17 @@ export default function ApplicationsIndex({
             <PageTitle
                 title="Candidatures"
                 description="Demandes d’inscription et de réinscription déposées en ligne."
+                actions={
+                    /* Le référentiel des séries du baccalauréat se règle
+                       depuis ici : c'est en lisant les dossiers qu'on
+                       s'aperçoit qu'une série manque. */
+                    <Button asChild variant="outline" size="sm">
+                        <Link href={route('admin.bac-series.index')}>
+                            <GraduationCap className="size-4" />
+                            Séries du bac
+                        </Link>
+                    </Button>
+                }
             />
 
             <KpiRow>
@@ -307,7 +345,13 @@ export default function ApplicationsIndex({
 
                                 <TableBody>
                                     {applications.data.map((application) => (
-                                        <TableRow key={application.id}>
+                                        <TableRow
+                                            key={application.id}
+                                            onClick={openOnRowClick(
+                                                application.id,
+                                            )}
+                                            className="cursor-pointer"
+                                        >
                                             <TableCell>
                                                 <Link
                                                     href={route(

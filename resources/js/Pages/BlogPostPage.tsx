@@ -1,3 +1,6 @@
+import { Breadcrumbs } from '@/Components/Breadcrumbs';
+import { Img } from '@/Components/Img';
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import {
     formatDate,
@@ -102,7 +105,7 @@ const GalleryViewer = ({ images }: { images: string[] }) => {
     if (images.length === 0) return null;
 
     return (
-        <div className="mt-12 space-y-4 border-t border-border pt-10">
+        <div className="border-border mt-12 space-y-4 border-t pt-10">
             <div className="flex items-center justify-between">
                 <h3 className="font-display text-foreground flex items-center gap-2 text-xl font-bold uppercase">
                     <Images className="text-primary h-5 w-5" />
@@ -142,11 +145,12 @@ const GalleryViewer = ({ images }: { images: string[] }) => {
                             <button
                                 type="button"
                                 onClick={() => setLightboxIndex(idx)}
-                                className="group relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-[16px] border border-border bg-muted transition-transform"
+                                className="group border-border bg-muted relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-[16px] border transition-transform"
                             >
-                                <img
+                                <Img
                                     src={url}
-                                    alt={`Photo ${idx + 1}`}
+                                    alt={`Photo ${idx + 1} de la galerie, cliquer pour agrandir`}
+                                    sizes="(min-width: 768px) 33vw, (min-width: 640px) 50vw, 85vw"
                                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                             </button>
@@ -193,7 +197,7 @@ const GalleryViewer = ({ images }: { images: string[] }) => {
                         type="button"
                         onClick={() => setLightboxIndex(null)}
                         aria-label="Fermer"
-                        className="text-white hover:text-primary absolute top-5 right-5 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 transition-colors"
+                        className="hover:text-primary absolute top-5 right-5 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors"
                     >
                         <X className="h-6 w-6" />
                     </button>
@@ -204,8 +208,8 @@ const GalleryViewer = ({ images }: { images: string[] }) => {
                     >
                         <img
                             src={images[lightboxIndex]}
-                            alt=""
-                            className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+                            alt={`Photo ${lightboxIndex + 1} sur ${images.length}`}
+                            className="max-h-[85vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
                         />
                         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-semibold text-white/80">
                             {lightboxIndex + 1} / {images.length}
@@ -225,7 +229,7 @@ const GalleryViewer = ({ images }: { images: string[] }) => {
                                     );
                                 }}
                                 aria-label="Précédente"
-                                className="text-white hover:text-primary absolute top-1/2 left-4 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 transition-colors"
+                                className="hover:text-primary absolute top-1/2 left-4 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors"
                             >
                                 <ChevronLeft className="h-6 w-6" />
                             </button>
@@ -234,13 +238,14 @@ const GalleryViewer = ({ images }: { images: string[] }) => {
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     setLightboxIndex((prev) =>
-                                        prev !== null && prev < images.length - 1
+                                        prev !== null &&
+                                        prev < images.length - 1
                                             ? prev + 1
                                             : 0,
                                     );
                                 }}
                                 aria-label="Suivante"
-                                className="text-white hover:text-primary absolute top-1/2 right-4 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 transition-colors"
+                                className="hover:text-primary absolute top-1/2 right-4 flex h-12 w-12 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/10 text-white transition-colors"
                             >
                                 <ChevronRight className="h-6 w-6" />
                             </button>
@@ -301,9 +306,10 @@ const RelatedCard = ({ post }: { post: Post }) => {
         >
             <div className="bg-muted aspect-[16/10] overflow-hidden">
                 {image ? (
-                    <img
+                    <Img
                         src={image}
                         alt=""
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                 ) : null}
@@ -423,6 +429,24 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
                     <BandTransition direction="dark-to-light" />
 
                     <div className="band-light">
+                        {/* Fil d'Ariane : on arrive presque toujours ici d'un
+                            lien partagé ou d'un moteur de recherche, donc sans
+                            être passé par la liste des actualités. */}
+                        <div className="border-border border-b">
+                            <div className="mx-auto w-full max-w-3xl px-5 py-3.5 sm:px-8">
+                                <Breadcrumbs
+                                    items={[
+                                        { label: 'Accueil', href: '/' },
+                                        {
+                                            label: 'Actualités',
+                                            href: '/actualites',
+                                        },
+                                        { label: post.title },
+                                    ]}
+                                />
+                            </div>
+                        </div>
+
                         {image ? (
                             <motion.figure
                                 initial={{ opacity: 0 }}
@@ -430,9 +454,13 @@ function ArticleContent({ post, related }: Omit<Props, 'cms'>) {
                                 transition={{ duration: 0.5 }}
                                 className="border-border overflow-hidden border-b"
                             >
-                                <img
+                                {/* Photo de couverture : l'élément LCP de
+                                    l'article. */}
+                                <Img
                                     src={image}
                                     alt=""
+                                    priority
+                                    sizes="100vw"
                                     className="aspect-[21/9] w-full object-cover"
                                 />
                             </motion.figure>
@@ -519,6 +547,7 @@ export default function BlogPostPage({ cms, ...props }: Props) {
     return (
         <CmsProvider content={cms}>
             <Head title={props.post.title} />
+            <Seo />
             <ThemeProvider>
                 <ArticleContent {...props} />
             </ThemeProvider>

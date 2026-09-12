@@ -1,17 +1,10 @@
+import { Img } from '@/Components/Img';
 import { cmsImage, useSection } from '@/lib/cms';
 import { Link, usePage } from '@inertiajs/react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-
-// Imports des images réelles pour les fonds de chaque filière
-import agroImg from '@/assets/Mentions/AgronomieImage/Agro.jpg';
-import droitImg from '@/assets/Mentions/Droit/student-droit-1.jpg';
-import ecoImg from '@/assets/Mentions/Economie/Eco-event-quality-5.jpg';
-import infoImg from '@/assets/Mentions/InformatiqueImage/Victoir_Hackathon2025-quality.jpg';
-import leaImg from '@/assets/Mentions/LEA/Visite_Culinaire_française-quality.jpg';
-import stImg from '@/assets/Mentions/SienceDeLaTerre/ST-VisiteSurTerain-quality.jpg';
 
 type Department = {
     id: number;
@@ -20,14 +13,23 @@ type Department = {
     card_image: string | null;
 };
 
+/* Visuel de fond livré avec le site pour chaque mention, servi tant qu'aucune
+   image n'a été téléversée. Ce sont des noms de masters, pas des imports : les
+   déclinaisons WebP sont résolues par <Img>. */
 const departmentImages: Record<string, string> = {
-    informatique: infoImg,
-    droit: droitImg,
-    economie: ecoImg,
-    agronomie: agroImg,
-    'sciences-de-la-terre': stImg,
-    'langues-etrangeres-appliquees': leaImg,
+    informatique: 'Mentions/InformatiqueImage/Victoir_Hackathon2025-quality',
+    droit: 'Mentions/Droit/student-droit-1',
+    economie: 'Mentions/Economie/Eco-event-quality-5',
+    agronomie: 'Mentions/AgronomieImage/Agro',
+    'sciences-de-la-terre':
+        'Mentions/SienceDeLaTerre/ST-VisiteSurTerain-quality',
+    'langues-etrangeres-appliquees':
+        'Mentions/LEA/Visite_Culinaire_française-quality',
 };
+
+/* Deux colonnes à partir de `sm`, une carte large sur téléphone : aucune
+   image n'occupe jamais plus de la moitié de l'écran au-delà du palier. */
+const CARD_SIZES = '(min-width: 1024px) 44vw, (min-width: 640px) 50vw, 88vw';
 
 const departmentSubtitles: Record<string, string> = {
     informatique: 'Génie logiciel · Télécom · Génie industriel',
@@ -39,8 +41,9 @@ const departmentSubtitles: Record<string, string> = {
         'Traduction · Interprétation · Communication interculturelle',
 };
 
+/** Photo téléversée pour la mention, ou rien si l'administration n'en a posé aucune. */
 function cardImage(department: Department): string | undefined {
-    return cmsImage(department.card_image, departmentImages[department.slug]);
+    return cmsImage(department.card_image);
 }
 
 function cardVariant(index: number): 'photo-first' | 'dark' | 'photo-last' {
@@ -78,13 +81,13 @@ const PhotoCard = ({
                 href={`/mention/${department.slug}`}
                 className="relative flex h-full min-h-[260px] flex-col justify-end overflow-hidden rounded-[22px] sm:min-h-[280px] lg:min-h-[300px]"
             >
-                {bgImage && (
-                    <img
-                        src={bgImage}
-                        alt=""
-                        className="absolute inset-0 h-full w-full object-cover"
-                    />
-                )}
+                <Img
+                    src={bgImage}
+                    source={departmentImages[department.slug]}
+                    alt=""
+                    sizes={CARD_SIZES}
+                    className="absolute inset-0 h-full w-full object-cover"
+                />
                 <div
                     className="absolute inset-0"
                     style={{
@@ -130,13 +133,13 @@ const DarkCard = ({
                 href={`/mention/${department.slug}`}
                 className="bg-card relative flex h-full min-h-[260px] flex-col justify-between overflow-hidden rounded-[22px] p-6 sm:min-h-[280px] sm:p-7 lg:min-h-[300px] lg:p-8"
             >
-                {bgImage && (
-                    <img
-                        src={bgImage}
-                        alt=""
-                        className="absolute inset-0 h-full w-full object-cover"
-                    />
-                )}
+                <Img
+                    src={bgImage}
+                    source={departmentImages[department.slug]}
+                    alt=""
+                    sizes={CARD_SIZES}
+                    className="absolute inset-0 h-full w-full object-cover"
+                />
                 <div
                     className="absolute inset-0"
                     style={{
@@ -302,7 +305,9 @@ export const FiliereSection = () => {
                                         type="button"
                                         onClick={() => embla?.scrollTo(index)}
                                         aria-label={`Aller à la mention ${index + 1}`}
-                                        aria-current={isActive ? 'true' : undefined}
+                                        aria-current={
+                                            isActive ? 'true' : undefined
+                                        }
                                         className="flex h-9 min-w-[26px] items-center justify-center px-1"
                                     >
                                         <span
@@ -356,4 +361,3 @@ export const FiliereSection = () => {
         </section>
     );
 };
-

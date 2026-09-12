@@ -1,3 +1,5 @@
+import { Breadcrumbs } from '@/Components/Breadcrumbs';
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import type { PageProps } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -503,6 +505,12 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
             (mention) => mention.value === data.bac_mention,
         )?.label ?? '';
 
+    /* Le récapitulatif rend au candidat ce qu'il a choisi, donc l'intitulé de
+       la série et non son code : le code est une valeur de base de données. */
+    const bacSeriesLabel =
+        options.bacSeries.find((serie) => serie.value === data.bac_series)
+            ?.label ?? data.bac_series;
+
     const typeLabel =
         options.types.find((type) => type.value === data.type)?.label ?? '';
 
@@ -514,13 +522,27 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
         <CmsProvider content={cms}>
             <ThemeProvider>
                 <Head title="Demande d'inscription" />
+                <Seo />
 
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />
 
                     <main className="flex-1">
+                        {/* Fil d'Ariane : la page se partage seule, un candidat
+                            y arrive rarement depuis l'accueil. */}
+                        <div className="band-light border-border border-b">
+                            <div className="section-shell py-3.5">
+                                <Breadcrumbs
+                                    items={[
+                                        { label: 'Accueil', href: '/' },
+                                        { label: 'Candidature' },
+                                    ]}
+                                />
+                            </div>
+                        </div>
+
                         {/* Bandeau d'entrée, dans la continuité des pages du site. */}
-                        <section className="band-light pt-14 pb-12 sm:pt-16 sm:pb-14">
+                        <section className="band-light pt-12 pb-12 sm:pt-14 sm:pb-14">
                             <div className="section-shell">
                                 <motion.p
                                     initial={{ opacity: 0, y: 12 }}
@@ -1126,12 +1148,9 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                                     value,
                                                                 )
                                                             }
-                                                            options={options.bacSeries.map(
-                                                                (serie) => ({
-                                                                    value: serie,
-                                                                    label: serie,
-                                                                }),
-                                                            )}
+                                                            options={
+                                                                options.bacSeries
+                                                            }
                                                         />
                                                     </div>
 
@@ -1626,7 +1645,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                             <Recap
                                                                 label="Série"
                                                                 value={
-                                                                    data.bac_series
+                                                                    bacSeriesLabel
                                                                 }
                                                             />
                                                             <Recap

@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { useLangue } from '@/page/lang/useLang';
 
 export const LoginHeader = () => {
@@ -10,7 +10,12 @@ export const LoginHeader = () => {
                 onClick={() => (window.location.href = '/')}
             >
                 <div className="m-2 flex items-center rounded-full">
-                    <img src={Logo} className="h-12 w-12" />
+                    <Img
+                        source="Logo/asja-logo"
+                        alt=""
+                        sizes="48px"
+                        className="h-12 w-12"
+                    />
                     <h1 className="ml-4 text-lg font-bold text-white drop-shadow-md">
                         {translate('universite')}
                     </h1>

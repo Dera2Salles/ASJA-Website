@@ -1,0 +1,1 @@
+import{j as i}from"./app-CBJ6ztvE.js";const e=({direction:r="dark-to-light",className:t=""})=>i.jsx("div",{"aria-hidden":"true",role:"presentation",className:`band-light w-full ${t}`,style:{height:"clamp(24px, 4vh, 48px)",background:"#ffffff"}});export{e as B};

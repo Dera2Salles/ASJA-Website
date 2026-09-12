@@ -1,6 +1,9 @@
-import amphiteatre from '@/assets/Lieu_espace/amphitheatre.jpg';
-import bibliotheque from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
-import terrainBasket from '@/assets/Lieu_espace/terrain-basket.jpg';
+import { Img } from '@/Components/Img';
+
+/* Une colonne sur téléphone, un tiers de la grille à partir de `md` : le
+   navigateur n'a jamais besoin d'un palier plus large que la moitié de
+   l'écran au-delà du point de bascule. */
+const CAMPUS_SIZES = '(min-width: 768px) 33vw, 100vw';
 
 export const CampusSection = () => {
     return (
@@ -51,9 +54,10 @@ export const CampusSection = () => {
                 <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
                     {/* Left: Amphitheater large card */}
                     <div className="aspect-[4/3] overflow-hidden rounded-[22px]">
-                        <img
-                            src={amphiteatre}
-                            alt="Amphithéâtre"
+                        <Img
+                            source="Lieu_espace/amphitheatre"
+                            alt="L'amphithéâtre de l'ASJA pendant un cours"
+                            sizes={CAMPUS_SIZES}
                             className="h-full w-full object-cover"
                         />
                     </div>
@@ -63,16 +67,18 @@ export const CampusSection = () => {
                         et rallongeait le défilement pour rien. */}
                     <div className="grid grid-cols-2 gap-3 sm:gap-4 md:flex md:flex-col">
                         <div className="min-h-[130px] flex-1 overflow-hidden rounded-[22px] sm:min-h-[160px]">
-                            <img
-                                src={terrainBasket}
-                                alt="Terrain de Basket"
+                            <Img
+                                source="Lieu_espace/terrain-basket"
+                                alt="Le terrain de basket du campus"
+                                sizes="(min-width: 768px) 33vw, 50vw"
                                 className="h-full w-full object-cover"
                             />
                         </div>
                         <div className="min-h-[130px] flex-1 overflow-hidden rounded-[22px] sm:min-h-[160px]">
-                            <img
-                                src={bibliotheque}
-                                alt="Bibliothèque"
+                            <Img
+                                source="Lieu_espace/Bibliotheque-quality"
+                                alt="La bibliothèque universitaire et ses rayonnages"
+                                sizes="(min-width: 768px) 33vw, 50vw"
                                 className="h-full w-full object-cover"
                             />
                         </div>

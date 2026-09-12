@@ -1,5 +1,4 @@
-import campus from '@/assets/Lieu_espace/Devant_asja.jpg';
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 import { PropsWithChildren } from 'react';
@@ -16,10 +15,13 @@ export default function Guest({ children }: PropsWithChildren) {
         <div className="app-shell square-corners grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
             {/* Volet photo : seul aplat sombre de l'écran. */}
             <aside className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between">
-                <img
-                    src={campus}
+                {/* Volet caché sous 1024 px : inutile de le faire télécharger
+                    à un téléphone, où il ne s'affiche jamais. */}
+                <Img
+                    source="Lieu_espace/Devant_asja"
                     alt=""
                     aria-hidden="true"
+                    sizes="(min-width: 1024px) 55vw, 0px"
                     className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div
@@ -37,9 +39,10 @@ export default function Guest({ children }: PropsWithChildren) {
                         className="inline-flex items-center gap-3"
                         aria-label="Retour à l'accueil"
                     >
-                        <img
-                            src={Logo}
+                        <Img
+                            source="Logo/asja-logo"
                             alt=""
+                            sizes="44px"
                             className="size-11 rounded-[10px] object-contain"
                         />
                         <span className="font-display text-[18px] font-black tracking-[-0.02em] text-white uppercase">
@@ -81,9 +84,10 @@ export default function Guest({ children }: PropsWithChildren) {
                         href="/"
                         className="mb-10 inline-flex items-center gap-3 lg:hidden"
                     >
-                        <img
-                            src={Logo}
+                        <Img
+                            source="Logo/asja-logo"
                             alt=""
+                            sizes="40px"
                             className="size-10 rounded-[10px] object-contain"
                         />
                         <span className="font-display text-foreground text-[17px] font-black tracking-[-0.02em] uppercase">

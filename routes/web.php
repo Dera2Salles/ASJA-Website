@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AboutController;
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
+use App\Http\Controllers\Admin\BacSeriesController;
 use App\Http\Controllers\Admin\ComponentDataController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StudentSpaceController;
 use App\Support\Uploads;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +38,20 @@ Route::get('/blog/{slug}', fn (string $slug) => redirect()->route('blog.show', $
 Route::get('/mention/{slug}', [DepartmentController::class, 'show'])->name('department.show');
 
 Route::get('/a-propos', [AboutController::class, 'index'])->name('about');
+
+/* Plan du site, annoncé par `public/robots.txt`. Il liste les pages
+   publiques, mentions et publications comprises — les parcours de
+   candidature en sont absents : ils sont personnels et marqués `noindex`. */
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+
+/* `robots.txt` passe par une vue et non par un fichier : la directive
+   `Sitemap:` n'est lue par les moteurs qu'écrite en adresse complète, et le
+   domaine n'est connu qu'à l'exécution. Le fichier statique d'avant a donc
+   été retiré — il aurait été servi avant d'atteindre cette route, en
+   développement comme en production, où `public/` est recopié à la racine. */
+Route::get('/robots.txt', fn () => response()
+    ->view('robots')
+    ->header('Content-Type', 'text/plain'))->name('robots');
 
 /*
  * Candidature : dépôt d'une demande d'inscription ou de réinscription.
@@ -153,6 +169,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/candidatures/{application}/accuse-reception', [AdminApplicationController::class, 'resendReceipt'])->name('applications.receipt');
     Route::get('/candidatures/{application}/pieces/{document}', [AdminApplicationController::class, 'document'])->name('applications.document');
     Route::delete('/candidatures/{application}', [AdminApplicationController::class, 'destroy'])->name('applications.destroy');
+
+    /* Séries du baccalauréat : le référentiel du formulaire de candidature.
+       Sur son propre chemin, et non sous `/candidatures/…`, où « series »
+       serait d'abord lu comme l'identifiant d'un dossier. */
+    Route::get('/series-bac', [BacSeriesController::class, 'index'])->name('bac-series.index');
+    Route::post('/series-bac', [BacSeriesController::class, 'store'])->name('bac-series.store');
+    Route::put('/series-bac/{series}', [BacSeriesController::class, 'update'])->name('bac-series.update');
+    Route::delete('/series-bac/{series}', [BacSeriesController::class, 'destroy'])->name('bac-series.destroy');
 
     // Mentions
     Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('departments.index');

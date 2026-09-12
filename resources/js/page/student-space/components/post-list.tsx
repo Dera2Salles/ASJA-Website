@@ -1,4 +1,4 @@
-import logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { Avatar } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -43,7 +43,7 @@ export const PostList = () => {
                             >
                                 <div className="flex items-center gap-3">
                                     <Avatar className="size-12 border border-green-500">
-                                        <img src={logo} alt="ASJA Logo" />
+                                        <Img source="Logo/asja-logo" alt="ASJA Logo" />
                                     </Avatar>
                                     <div>
                                         <p className="text-lg font-bold text-black drop-shadow-md dark:text-gray-200">
