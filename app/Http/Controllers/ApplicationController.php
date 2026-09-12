@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
+use App\Support\Seo;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -35,6 +36,15 @@ class ApplicationController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render('Application/Create', [
+            'seo' => Seo::make(
+                title: "Demande d'inscription",
+                description: "Déposez votre demande d'inscription ou de réinscription à l'Université ASJA : pièces à fournir, formulaire en ligne et suivi de dossier.",
+                url: route('candidature.create'),
+            )->breadcrumb([
+                'Accueil' => '/',
+                'Candidature' => null,
+            ])->toArray(),
+
             'options' => Application::formOptions(),
 
             /* Mention pré-choisie quand le candidat arrive depuis la page
@@ -129,7 +139,11 @@ class ApplicationController extends Controller
      */
     public function confirmation(Application $application): Response
     {
+        /* Écran personnel, atteint par lien signé : il n'a rien à faire dans
+           un index de moteur de recherche. */
         return Inertia::render('Application/Confirmation', [
+            'seo' => Seo::make(title: 'Demande enregistrée')->noindex()->toArray(),
+
             'application' => [
                 'reference' => $application->reference,
                 // Le nom pour une première inscription, le matricule pour une

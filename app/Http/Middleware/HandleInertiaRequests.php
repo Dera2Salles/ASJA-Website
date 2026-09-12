@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Support\Cms;
+use App\Support\Seo;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -57,6 +58,13 @@ class HandleInertiaRequests extends Middleware
             'cmsSections' => $request->user()
                 ? Cms::sections()
                 : (object) [],
+
+            /* Métadonnées de repli : titre, description, adresse canonique et
+               vignette de partage du site. Toute page en hérite sans rien
+               faire ; celles qui ont mieux à dire posent leur propre prop
+               `seo`, qui prend le dessus (les props de page l'emportent sur
+               les props partagées). */
+            'seo' => fn () => Seo::make()->toArray(),
         ];
     }
 }

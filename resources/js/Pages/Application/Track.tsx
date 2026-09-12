@@ -1,3 +1,4 @@
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
@@ -38,6 +39,7 @@ export default function ApplicationTrack({ cms }: Props) {
         <CmsProvider content={cms}>
             <ThemeProvider>
                 <Head title="Compléter mon dossier" />
+                <Seo />
 
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />

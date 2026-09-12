@@ -1,11 +1,14 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { useSection } from '@/lib/cms';
-import { mapMarkerIcon } from '@/lib/map-marker';
 import { Link as InertiaLink, usePage } from '@inertiajs/react';
-import 'leaflet/dist/leaflet.css';
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link as ScrollTo } from 'react-scroll';
+
+/* Leaflet n'arrive qu'avec la carte, et la carte qu'à son approche : le pied
+   de page est le même sur toutes les pages publiques, il ne peut pas faire
+   payer sa carte à qui ne descend jamais jusqu'à elle. */
+const CampusMap = lazy(() => import('./campus-map'));
 
 type Department = { id: number; slug: string; name: string };
 
@@ -13,6 +16,66 @@ type Department = { id: number; slug: string; name: string };
 // d'une dizaine de pixels — une cible trop fine pour un pouce.
 const linkClass =
     'text-muted-foreground hover:text-primary inline-flex w-fit cursor-pointer items-center py-1.5 text-sm transition-colors';
+
+/**
+ * Cadre de la carte. Il réserve sa hauteur dès le premier rendu — la carte
+ * arrivant plus tard ne déplace donc rien — et ne demande le module Leaflet
+ * qu'une fois le cadre proche de l'écran.
+ */
+const MapFrame = ({
+    latitude,
+    longitude,
+}: {
+    latitude: number;
+    longitude: number;
+}) => {
+    const frame = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        const node = frame.current;
+        if (!node || visible) return;
+
+        // Sans IntersectionObserver (navigateurs anciens), la carte se charge
+        // tout de suite : mieux vaut un peu de poids qu'un cadre vide.
+        if (typeof IntersectionObserver === 'undefined') {
+            setVisible(true);
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setVisible(true);
+                    observer.disconnect();
+                }
+            },
+            // 300 px d'avance : la carte a le temps d'arriver avant d'être vue.
+            { rootMargin: '300px' },
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [visible]);
+
+    return (
+        <div
+            ref={frame}
+            className="bg-muted mt-10 h-[200px] w-full overflow-hidden rounded-[16px] sm:mt-12 sm:h-[256px]"
+            style={{ border: '1px solid var(--border)' }}
+        >
+            {visible ? (
+                <Suspense fallback={null}>
+                    <CampusMap
+                        latitude={latitude}
+                        longitude={longitude}
+                        label="Université ASJA"
+                    />
+                </Suspense>
+            ) : null}
+        </div>
+    );
+};
 
 const FooterColumn = ({
     title,
@@ -90,9 +153,10 @@ export const Footer = () => {
                 <div className="grid grid-cols-1 gap-10 min-[480px]:grid-cols-2 sm:gap-12 lg:grid-cols-4">
                     {/* Colonne identité */}
                     <div>
-                        <img
-                            src={Logo}
+                        <Img
+                            source="Logo/asja-logo"
                             alt=""
+                            sizes="48px"
                             className="mb-5 h-12 w-12 rounded-xl object-contain"
                         />
                         <p className="font-display text-foreground text-[20px] font-extrabold tracking-tight uppercase sm:text-[22px]">
@@ -196,28 +260,7 @@ export const Footer = () => {
 
                 {/* Carte */}
                 {hasPosition ? (
-                    <div
-                        className="mt-10 h-[200px] w-full overflow-hidden rounded-[16px] sm:mt-12 sm:h-[256px]"
-                        style={{ border: '1px solid var(--border)' }}
-                    >
-                        <MapContainer
-                            className="z-0 h-full w-full"
-                            center={[latitude, longitude]}
-                            zoom={15}
-                            scrollWheelZoom={false}
-                        >
-                            <TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            />
-                            <Marker
-                                position={[latitude, longitude]}
-                                icon={mapMarkerIcon}
-                            >
-                                <Popup>Université ASJA</Popup>
-                            </Marker>
-                        </MapContainer>
-                    </div>
+                    <MapFrame latitude={latitude} longitude={longitude} />
                 ) : null}
             </div>
 

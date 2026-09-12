@@ -1,13 +1,4 @@
-import ainaImage from '@/assets/Aina-Arthur-quality.jpg';
-import michouImage from '@/assets/Bouchet_Michou_Diana.jpeg';
-import raoulImage from '@/assets/DADARE-Raoul.jpg';
-import faliheryImage from '@/assets/Falihery.jpg';
-import miarotianaImage from '@/assets/Mandimbiharison_Miarotiana.jpeg';
-import steffyJachiaImage from '@/assets/RAJEMISON-Steffy-Jachia.jpg';
-import jenciaImage from '@/assets/RANDRIAMANAPAKA-Manantena-Jencia.jpg';
-import suziahImage from '@/assets/Rajemson-suziah-jaida.jpg';
-import safidyImage from '@/assets/Safidy-pic.jpg';
-import sitrakaImage from '@/assets/Sitraka.jpg';
+import { Img } from '@/Components/Img';
 import { cmsImage, useSection } from '@/lib/cms';
 import { usePage } from '@inertiajs/react';
 import { SectionCarousel } from './section-carousel';
@@ -22,28 +13,32 @@ interface Testimony {
 
 /** Photos livrées avec le site, retrouvées par le nom du témoin. */
 const fallbackAvatars: Record<string, string> = {
-    'Raharijesy Safidy': safidyImage,
-    'Randiambolasoa Andriatsilavo Falihery': faliheryImage,
-    'Randriamanapaka Manantena Toditsara Jencia': jenciaImage,
-    'Bouchet Michou Diana': michouImage,
-    'Dadare Raoul': raoulImage,
-    'Razanato Nambinintsoa Sitraka': sitrakaImage,
-    'Aina Arthur': ainaImage,
-    'Mandimbiharison Miarotiana': miarotianaImage,
-    'RAJEMISON Steffy Jachia': steffyJachiaImage,
-    'RAJEMISON Suziah Jaida': suziahImage,
+    'Raharijesy Safidy': 'Safidy-pic',
+    'Randiambolasoa Andriatsilavo Falihery': 'Falihery',
+    'Randriamanapaka Manantena Toditsara Jencia':
+        'RANDRIAMANAPAKA-Manantena-Jencia',
+    'Bouchet Michou Diana': 'Bouchet_Michou_Diana',
+    'Dadare Raoul': 'DADARE-Raoul',
+    'Razanato Nambinintsoa Sitraka': 'Sitraka',
+    'Aina Arthur': 'Aina-Arthur-quality',
+    'Mandimbiharison Miarotiana': 'Mandimbiharison_Miarotiana',
+    'RAJEMISON Steffy Jachia': 'RAJEMISON-Steffy-Jachia',
+    'RAJEMISON Suziah Jaida': 'Rajemson-suziah-jaida',
 };
 
 const TestimonyCard = ({ testimony }: { testimony: Testimony }) => {
-    const avatar = cmsImage(testimony.avatar, fallbackAvatars[testimony.name]);
+    const uploaded = cmsImage(testimony.avatar);
+    const fallback = fallbackAvatars[testimony.name];
 
     return (
         <div className="relative flex h-full min-h-[360px] items-end overflow-hidden rounded-[22px] p-6 sm:min-h-[420px] sm:p-[30px]">
             {/* Photo de fond */}
-            {avatar ? (
-                <img
-                    src={avatar}
-                    alt=""
+            {uploaded || fallback ? (
+                <Img
+                    src={uploaded}
+                    source={fallback}
+                    alt={`Portrait de ${testimony.name}`}
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 82vw"
                     className="absolute inset-0 h-full w-full object-cover"
                 />
             ) : (

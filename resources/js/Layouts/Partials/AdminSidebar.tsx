@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     Collapsible,
@@ -219,8 +219,8 @@ export function AdminSidebar({
                         >
                             <Link href={route('admin.dashboard')}>
                                 <div className="border-sidebar-border bg-card flex aspect-square size-9 shrink-0 items-center justify-center border">
-                                    <img
-                                        src={Logo}
+                                    <Img
+                                        source="Logo/asja-logo"
                                         alt=""
                                         className="size-6 object-contain"
                                     />

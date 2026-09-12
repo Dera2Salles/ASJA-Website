@@ -1,5 +1,6 @@
-import asjaDark from '@/assets/Lieu_espace/Devant_asja.jpg';
+import { Img } from '@/Components/Img';
 import { cmsImage, useSection } from '@/lib/cms';
+import { HERO_IMAGE } from '@/lib/images';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 
@@ -12,8 +13,10 @@ export const Description = () => {
             ?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    // Photo du hero, identique en light mode (pas de variante sombre).
-    const background = cmsImage(hero.background_image, asjaDark);
+    /* Photo du hero, identique en light mode (pas de variante sombre).
+       Sans valeur téléversée, `background` reste vide et <Img> sert les
+       déclinaisons du visuel livré. */
+    const background = cmsImage(hero.background_image);
 
     const badgeText = String(
         hero.badge ?? 'Rentrée 2026 · Inscriptions ouvertes',
@@ -28,11 +31,17 @@ export const Description = () => {
             id="description"
             className="relative flex min-h-[78svh] w-full items-end overflow-hidden sm:min-h-[84vh] lg:min-h-[88vh]"
         >
-            {/* Background image */}
-            <img
+            {/* Photo de fond : l'élément LCP de la page d'accueil.
+                `priority` la sort de la file d'attente paresseuse, et la vue
+                racine en pose le préchargement dans le document — sans quoi le
+                navigateur ne la découvrirait qu'après l'exécution de React. */}
+            <Img
                 src={background}
+                source={HERO_IMAGE}
                 alt=""
                 aria-hidden="true"
+                priority
+                sizes="100vw"
                 className="absolute inset-0 h-full w-full object-cover"
             />
 

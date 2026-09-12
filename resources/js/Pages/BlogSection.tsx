@@ -1,3 +1,4 @@
+import { Img } from '@/Components/Img';
 import { useSection } from '@/lib/cms';
 import { formatDate, postImage, type Post } from '@/lib/posts';
 import { Link } from '@inertiajs/react';
@@ -18,9 +19,10 @@ const PostCard = ({ post }: { post: Post }) => {
                         className="relative overflow-hidden"
                         style={{ aspectRatio: '16/10' }}
                     >
-                        <img
+                        <Img
                             src={image}
                             alt=""
+                            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 82vw"
                             className="h-full w-full object-cover transition-transform duration-75 group-hover:scale-105"
                         />
                     </div>
@@ -94,4 +96,3 @@ export const BlogSection = ({ posts }: { posts: Post[] }) => {
         </section>
     );
 };
-

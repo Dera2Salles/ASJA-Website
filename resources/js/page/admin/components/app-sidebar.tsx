@@ -1,6 +1,6 @@
 'use client';
 
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     DropdownMenu,
@@ -59,8 +59,8 @@ export const AppSidebar = ({
                         >
                             <a href="/">
                                 <div className="border-border bg-card flex aspect-square size-8 items-center justify-center border">
-                                    <img
-                                        src={Logo}
+                                    <Img
+                                        source="Logo/asja-logo"
                                         alt=""
                                         className="size-5 object-contain"
                                     />

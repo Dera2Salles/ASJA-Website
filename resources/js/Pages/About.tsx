@@ -1,8 +1,6 @@
-import amphitheatre from '@/assets/Lieu_espace/Amphitheatre-interieur.jpg';
-import campus from '@/assets/Lieu_espace/Asja-devant-quality-2.jpg';
-import bibliotheque from '@/assets/Lieu_espace/Bibliotheque-quality.jpg';
-import couloir from '@/assets/Lieu_espace/asja_couloir.jpg';
-import terrain from '@/assets/Lieu_espace/terrain-basket.jpg';
+import { Breadcrumbs } from '@/Components/Breadcrumbs';
+import { Img } from '@/Components/Img';
+import { Seo } from '@/Components/Seo';
 import {
     CmsProvider,
     cmsImage,
@@ -35,19 +33,29 @@ const fallbackGallery: Photo[] = [
     { image: '', caption: 'Les couloirs' },
     { image: '', caption: 'Le terrain de sport' },
 ];
-const fallbackPhotos = [campus, bibliotheque, amphitheatre, couloir, terrain];
+const fallbackPhotos = [
+    'Lieu_espace/Asja-devant-quality-2',
+    'Lieu_espace/Bibliotheque-quality',
+    'Lieu_espace/Amphitheatre-interieur',
+    'Lieu_espace/asja_couloir',
+    'Lieu_espace/terrain-basket',
+];
 
 /* ─── Bannière ───────────────────────────────────────────────────────────── */
 const Hero = () => {
     const about = useSection('about');
-    const image = cmsImage(about.hero_image, campus);
+    const image = cmsImage(about.hero_image);
 
     return (
         <section className="relative flex min-h-[58vh] w-full items-end overflow-hidden">
-            <img
+            {/* Bannière : l'élément LCP de la page. */}
+            <Img
                 src={image}
+                source="Lieu_espace/Asja-devant-quality-2"
                 alt=""
                 aria-hidden="true"
+                priority
+                sizes="100vw"
                 className="absolute inset-0 h-full w-full object-cover"
             />
 
@@ -116,10 +124,12 @@ const Story = () => {
                         transition={{ duration: 0.55, ease: 'easeOut' }}
                         className="w-full shrink-0 overflow-hidden rounded-[22px] md:w-[46%]"
                     >
-                        <img
-                            src={cmsImage(about.story_image, bibliotheque)}
+                        <Img
+                            src={cmsImage(about.story_image)}
+                            source="Lieu_espace/Bibliotheque-quality"
                             alt=""
                             aria-hidden="true"
+                            sizes="(min-width: 768px) 46vw, 100vw"
                             className="aspect-[4/3] h-full w-full object-cover"
                         />
                     </motion.div>
@@ -208,10 +218,11 @@ const Values = () => {
                                 <div className="bg-card relative flex h-full min-h-[260px] flex-col justify-end overflow-hidden rounded-[22px] p-6 sm:p-7 lg:p-8">
                                     {image ? (
                                         <>
-                                            <img
+                                            <Img
                                                 src={image}
                                                 alt=""
                                                 aria-hidden="true"
+                                                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 82vw"
                                                 className="absolute inset-0 h-full w-full object-cover"
                                             />
                                             <div
@@ -271,14 +282,15 @@ const Gallery = () => {
                             className="m-0"
                         >
                             <div className="overflow-hidden rounded-[22px]">
-                                <img
-                                    src={cmsImage(
-                                        photo.image,
+                                <Img
+                                    src={cmsImage(photo.image)}
+                                    source={
                                         fallbackPhotos[
                                             index % fallbackPhotos.length
-                                        ],
-                                    )}
+                                        ]
+                                    }
                                     alt={photo.caption ?? ''}
+                                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 82vw"
                                     className="aspect-[4/3] w-full object-cover"
                                 />
                             </div>
@@ -307,6 +319,7 @@ export default function About({ cms }: Props) {
     return (
         <CmsProvider content={cms}>
             <Head title="À propos" />
+            <Seo />
             <ThemeProvider>
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />
@@ -315,6 +328,20 @@ export default function About({ cms }: Props) {
                         <Hero />
 
                         <BandTransition direction="dark-to-light" />
+
+                        {/* Fil d'Ariane : la page se partage et s'atteint
+                            depuis un moteur de recherche, pas seulement depuis
+                            le menu. */}
+                        <div className="band-light border-border border-b">
+                            <div className="section-shell py-3.5">
+                                <Breadcrumbs
+                                    items={[
+                                        { label: 'Accueil', href: '/' },
+                                        { label: 'À propos' },
+                                    ]}
+                                />
+                            </div>
+                        </div>
 
                         <Story />
 

@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -52,9 +52,10 @@ export const Navbar = () => {
                         className="flex cursor-pointer items-center gap-3"
                         onClick={handleLogoClick}
                     >
-                        <img
+                        <Img
                             className="h-12 w-12"
-                            src={Logo}
+                            source="Logo/asja-logo"
+                            sizes="48px"
                             alt="Logo de l'université ASJA"
                         />
                         <h1 className="hidden text-lg font-bold text-gray-900 sm:block dark:text-white">

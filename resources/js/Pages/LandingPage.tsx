@@ -1,7 +1,7 @@
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import type { Post } from '@/lib/posts';
 import { Head } from '@inertiajs/react';
-import { LandingProvider } from '../page/landing/bloc/useLandingProvider';
 import { AppelCandidaterSection } from '../page/landing/components/appel-candidater-section';
 import { CampusSection } from '../page/landing/components/campus-section';
 import { Description } from '../page/landing/components/description';
@@ -35,58 +35,57 @@ export default function LandingPage({ cms, posts }: LandingPageProps) {
     return (
         <CmsProvider content={cms}>
             <Head title="Accueil" />
+            <Seo />
             <ThemeProvider>
-                <LandingProvider>
-                    {/* `clip` et non `hidden` : `overflow-x: hidden` fait de
+                {/* `clip` et non `hidden` : `overflow-x: hidden` fait de
                         cette enveloppe un conteneur de défilement, ce qui
                         décrochait la navbar `sticky` dès le premier scroll.
                         `clip` rogne le débordement horizontal sans créer de
                         scrollport, la barre reste donc épinglée. */}
-                    <div className="square-corners band-light flex min-h-screen flex-col overflow-x-clip">
-                        <Navbar />
-                        <main className="band-light flex-1">
-                            {/* 1. Hero (photo pleine page) */}
-                            <Description />
+                <div className="square-corners band-light flex min-h-screen flex-col overflow-x-clip">
+                    <Navbar />
+                    <main className="band-light flex-1">
+                        {/* 1. Hero (photo pleine page) */}
+                        <Description />
 
-                            {/* Bandeau de transition Marquee Vert */}
-                            <MarqueeBand />
+                        {/* Bandeau de transition Marquee Vert */}
+                        <MarqueeBand />
 
-                            {/* 2. Mission & objectifs */}
-                            <MissionSection />
+                        {/* 2. Mission & objectifs */}
+                        <MissionSection />
 
-                            {/* 3. Campus */}
-                            <CampusSection />
+                        {/* 3. Campus */}
+                        <CampusSection />
 
-                            {/* 4. Mentions / Filières */}
-                            <FiliereSection />
+                        {/* 4. Mentions / Filières */}
+                        <FiliereSection />
 
-                            {/* 5. Événements */}
-                            <div className="band-light">
-                                <EvenementSection />
-                            </div>
+                        {/* 5. Événements */}
+                        <div className="band-light">
+                            <EvenementSection />
+                        </div>
 
-                            {/* 6. Méthode / Système pédagogique */}
-                            <SystemePedagogiqueSection />
+                        {/* 6. Méthode / Système pédagogique */}
+                        <SystemePedagogiqueSection />
 
-                            {/* 7. Témoignages */}
-                            <div className="band-light">
-                                <TestimonySection />
-                            </div>
+                        {/* 7. Témoignages */}
+                        <div className="band-light">
+                            <TestimonySection />
+                        </div>
 
-                            {/* 8. Actualités / Blog */}
-                            <div className="band-light">
-                                <BlogSection posts={posts} />
-                            </div>
+                        {/* 8. Actualités / Blog */}
+                        <div className="band-light">
+                            <BlogSection posts={posts} />
+                        </div>
 
-                            {/* 9. FAQ */}
-                            <FaqSection />
+                        {/* 9. FAQ */}
+                        <FaqSection />
 
-                            {/* 10. Appel à candidature (boîte verte) */}
-                            <AppelCandidaterSection />
-                        </main>
-                        <Footer />
-                    </div>
-                </LandingProvider>
+                        {/* 10. Appel à candidature (boîte verte) */}
+                        <AppelCandidaterSection />
+                    </main>
+                    <Footer />
+                </div>
             </ThemeProvider>
         </CmsProvider>
     );

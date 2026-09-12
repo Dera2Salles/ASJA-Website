@@ -1,3 +1,6 @@
+import { Breadcrumbs } from '@/Components/Breadcrumbs';
+import { Img } from '@/Components/Img';
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, useSection, type CmsContent } from '@/lib/cms';
 import {
     formatDate,
@@ -82,9 +85,18 @@ const PostCard = ({
                     }`}
                 >
                     {image ? (
-                        <img
+                        /* La première carte, « à la une », ouvre la page :
+                           c'est elle que le navigateur doit charger sans
+                           attendre. Les suivantes restent différées. */
+                        <Img
                             src={image}
                             alt=""
+                            priority={featured}
+                            sizes={
+                                featured
+                                    ? '(min-width: 768px) 50vw, 100vw'
+                                    : '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw'
+                            }
                             className="h-full w-full object-cover"
                         />
                     ) : null}
@@ -167,7 +179,20 @@ function BlogIndexContent({ posts, filters, counts }: Omit<Props, 'cms'>) {
             <Navbar />
 
             <main className="flex-1">
-                <section className="band-light pt-16 pb-14 sm:pt-20 sm:pb-16 lg:pt-[104px] lg:pb-[72px]">
+                {/* Fil d'Ariane, avant le titre : il tient sur une ligne et
+                    laisse la page s'ouvrir sur son H1. */}
+                <div className="band-light border-border border-b">
+                    <div className="section-shell py-3.5">
+                        <Breadcrumbs
+                            items={[
+                                { label: 'Accueil', href: '/' },
+                                { label: 'Actualités' },
+                            ]}
+                        />
+                    </div>
+                </div>
+
+                <section className="band-light pt-14 pb-14 sm:pt-16 sm:pb-16 lg:pt-[80px] lg:pb-[72px]">
                     <div className="section-shell">
                         {/* Header */}
                         <div className="mb-10 text-center sm:mb-12">
@@ -304,6 +329,7 @@ export default function BlogIndex({ cms, ...props }: Props) {
     return (
         <CmsProvider content={cms}>
             <Head title="Actualités" />
+            <Seo />
             <ThemeProvider>
                 <BlogIndexContent {...props} />
             </ThemeProvider>

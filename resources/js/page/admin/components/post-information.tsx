@@ -1,4 +1,4 @@
-import logo from '@/assets/Logo/asja-logo.png';
+import { imageUrl } from '@/lib/images';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { X } from 'lucide-react';
@@ -12,7 +12,10 @@ export const PostInformation = () => {
             <header className="border-border bg-card sticky top-0 flex items-center justify-between gap-3 border-b px-5 py-4">
                 <div className="flex min-w-0 items-center gap-3">
                     <Avatar className="size-8">
-                        <AvatarImage src={logo} alt="" />
+                        <AvatarImage
+                            src={imageUrl('Logo/asja-logo', 32)}
+                            alt=""
+                        />
                     </Avatar>
                     <p className="text-foreground truncate text-sm font-medium">
                         {post?.title}

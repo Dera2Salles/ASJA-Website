@@ -1,3 +1,4 @@
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import type { PageProps } from '@/types';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
@@ -526,6 +527,7 @@ export default function ApplicationFollowUp({ application, cms }: Props) {
         <CmsProvider content={cms}>
             <ThemeProvider>
                 <Head title={`Dossier ${application.reference}`} />
+                <Seo />
 
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />

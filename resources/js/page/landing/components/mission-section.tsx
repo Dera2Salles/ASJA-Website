@@ -1,5 +1,4 @@
-import missionImage from '@/assets/Image-evenement/event-diplome_master-quality.jpg';
-import objectifImage from '@/assets/Labo.jpg';
+import { Img } from '@/Components/Img';
 import { cmsImage, cmsList, useSection } from '@/lib/cms';
 import { motion } from 'framer-motion';
 
@@ -10,7 +9,7 @@ type MissionItem = {
 };
 
 /** Visuels livrés avec le site, utilisés tant que le CMS n'en fournit pas. */
-const fallbackImages = [missionImage, objectifImage];
+const fallbackImages = ['Image-evenement/event-diplome_master-quality', 'Labo'];
 
 /* Repli affiché si `config/cms.php` ne renvoie rien pour la section : la
    section reste visible avec le texte de référence plutôt que de se réduire
@@ -43,13 +42,12 @@ const MissionCard = ({ item, index }: { item: MissionItem; index: number }) => (
         }`}
     >
         <div className="aspect-[16/10] w-full shrink-0 overflow-hidden md:aspect-auto md:min-h-[300px] md:w-2/5">
-            <img
-                src={cmsImage(
-                    item.image,
-                    fallbackImages[index % fallbackImages.length],
-                )}
+            <Img
+                src={cmsImage(item.image)}
+                source={fallbackImages[index % fallbackImages.length]}
                 alt=""
                 aria-hidden="true"
+                sizes="(min-width: 768px) 40vw, 100vw"
                 className="h-full w-full object-cover"
             />
         </div>

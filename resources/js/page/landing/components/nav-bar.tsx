@@ -1,4 +1,4 @@
-import Logo from '@/assets/Logo/asja-logo.png';
+import { Img } from '@/Components/Img';
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -121,9 +121,14 @@ export const Navbar = () => {
                         className="flex shrink-0 items-center gap-3"
                         aria-label="Accueil ASJA"
                     >
-                        <img
-                            src={Logo}
+                        {/* Le lien porte déjà « Accueil ASJA » : décrire le
+                            logo le redirait une seconde fois au lecteur
+                            d'écran. */}
+                        <Img
+                            source="Logo/asja-logo"
                             alt=""
+                            priority
+                            sizes="42px"
                             className="h-10 w-10 rounded-[10px] object-contain sm:h-[42px] sm:w-[42px]"
                         />
                         <span

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Validation\ValidationException;
+use App\Support\Seo;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -44,7 +45,15 @@ class ApplicationFollowUpController extends Controller
     /** Recherche du dossier : numéro de demande et adresse e-mail. */
     public function create(): Response
     {
-        return Inertia::render('Application/Track', $this->layout());
+        return Inertia::render('Application/Track', [
+            'seo' => Seo::make(
+                title: 'Suivi de ma demande',
+                description: "Suivez l'instruction de votre demande d'inscription à l'Université ASJA à partir de votre numéro de demande.",
+                url: route('candidature.suivi.create'),
+            )->noindex()->toArray(),
+
+            ...$this->layout(),
+        ]);
     }
 
     /**
@@ -93,6 +102,9 @@ class ApplicationFollowUpController extends Controller
         $this->grant($request, $application);
 
         return Inertia::render('Application/FollowUp', [
+            // Dossier nominatif, ouvert par lien signé : jamais indexé.
+            'seo' => Seo::make(title: 'Mon dossier')->noindex()->toArray(),
+
             'application' => $this->payload($application),
             ...$this->layout(),
         ]);

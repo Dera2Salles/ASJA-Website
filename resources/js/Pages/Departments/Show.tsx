@@ -1,3 +1,6 @@
+import { Breadcrumbs } from '@/Components/Breadcrumbs';
+import { Img } from '@/Components/Img';
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, cmsImage, type CmsContent } from '@/lib/cms';
 import { departmentLogo } from '@/lib/department-logos';
 import { Head, Link } from '@inertiajs/react';
@@ -7,7 +10,6 @@ import { useId, useState } from 'react';
 import { BandTransition } from '../../page/landing/components/band-transition';
 import { Footer } from '../../page/landing/components/footer';
 import { Navbar } from '../../page/landing/components/nav-bar';
-import { useThemeContext } from '../../page/theme/useThemeContext';
 import { ThemeProvider } from '../../page/theme/useThemeProvider';
 
 interface Program {
@@ -35,20 +37,19 @@ interface Props {
 
 /** Bandeau d'ouverture style "C Vivant" */
 const Hero = ({ department }: { department: Department }) => {
-    const { isDark } = useThemeContext();
-    const logo = cmsImage(
-        department.logo,
-        departmentLogo(department.slug, isDark),
-    );
+    const logo = cmsImage(department.logo);
+    const fallbackLogo = departmentLogo(department.slug);
     const image = cmsImage(department.hero_image);
 
     return (
         <section className="relative flex min-h-[60vh] w-full items-end overflow-hidden">
             {image ? (
-                <img
+                /* Bannière : l'élément LCP de la page de mention. */
+                <Img
                     src={image}
                     alt=""
                     aria-hidden="true"
+                    priority
                     className="absolute inset-0 h-full w-full object-cover"
                 />
             ) : (
@@ -67,15 +68,23 @@ const Hero = ({ department }: { department: Department }) => {
 
             <div className="section-shell relative pb-12 sm:pb-14 lg:pb-[56px]">
                 <div className="flex flex-col items-start gap-4">
-                    {logo ? (
-                        <motion.img
+                    {/* Le logo redit le nom de la mention, affiché juste en
+                        dessous : décoratif pour un lecteur d'écran. */}
+                    {logo || fallbackLogo ? (
+                        <motion.div
                             initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6 }}
-                            src={logo}
-                            alt=""
-                            className="h-14 w-14 rounded-xl object-contain sm:h-16 sm:w-16"
-                        />
+                        >
+                            <Img
+                                src={logo}
+                                source={fallbackLogo}
+                                alt=""
+                                priority
+                                sizes="64px"
+                                className="h-14 w-14 rounded-xl object-contain sm:h-16 sm:w-16"
+                            />
+                        </motion.div>
                     ) : null}
 
                     <motion.span
@@ -380,6 +389,7 @@ export default function DepartmentShow({ department, cms }: Props) {
     return (
         <CmsProvider content={cms}>
             <Head title={department.name} />
+            <Seo />
             <ThemeProvider>
                 <div className="square-corners flex min-h-screen flex-col overflow-x-clip">
                     <Navbar />
@@ -391,6 +401,24 @@ export default function DepartmentShow({ department, cms }: Props) {
                             découvre en blanc au fil du scroll, comme la
                             landing passe de son hero sombre au campus clair. */}
                         <BandTransition direction="dark-to-light" />
+
+                        {/* Fil d'Ariane, sous le bandeau : on arrive souvent
+                            ici d'un moteur de recherche ou d'un lien partagé,
+                            donc sans être passé par l'accueil. */}
+                        <div className="band-light border-border border-b">
+                            <div className="section-shell py-3.5">
+                                <Breadcrumbs
+                                    items={[
+                                        { label: 'Accueil', href: '/' },
+                                        {
+                                            label: 'Mentions',
+                                            href: '/#filiere',
+                                        },
+                                        { label: department.name },
+                                    ]}
+                                />
+                            </div>
+                        </div>
 
                         {department.programs.length > 0 ? (
                             <Programs programs={department.programs} />

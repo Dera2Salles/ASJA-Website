@@ -1,3 +1,4 @@
+import { Seo } from '@/Components/Seo';
 import { CmsProvider, type CmsContent } from '@/lib/cms';
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
@@ -190,6 +191,7 @@ export default function ApplicationConfirmation({
         <CmsProvider content={cms}>
             <ThemeProvider>
                 <Head title={`Demande ${application.reference}`} />
+                <Seo />
 
                 {/* Le récépissé vit hors de la page, en enfant direct de
                     `body` : à l'impression, tout le reste disparaît d'un coup
