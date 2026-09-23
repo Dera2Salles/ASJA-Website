@@ -88,17 +88,24 @@ class StoreApplicationRequest extends FormRequest
      * validation du dossier. Le déposer ici reviendrait à faire verser
      * 210 000 Ar pour une candidature qui peut encore être refusée — il est
      * donc refusé à ce formulaire comme s'il n'existait pas.
+     *
+     * Le niveau demandé compte à son tour depuis le transfert : ce qui
+     * justifie une entrée en deuxième année ne justifie pas une entrée en
+     * quatrième. Il est lu sur la requête, comme le type — le formulaire les a
+     * tous deux posés avant l'étape des pièces, et le serveur ne prend pour
+     * argent comptant ni l'un ni l'autre : chacun a sa propre règle.
      */
     private function documentRules(): array
     {
         $rules = [];
         $type = $this->input('type');
-        $required = Application::requiredDocuments($type);
+        $level = $this->input('level');
+        $required = Application::requiredDocuments($type, Application::STAGE_AT_SUBMISSION, $level);
 
         foreach (array_keys(Application::DOCUMENTS) as $name) {
             $key = 'documents.' . $name;
 
-            if (! Application::documentApplies($name, $type)) {
+            if (! Application::documentApplies($name, $type, Application::STAGE_AT_SUBMISSION, $level)) {
                 $rules[$key] = ['nullable', 'prohibited'];
 
                 continue;
@@ -151,7 +158,10 @@ class StoreApplicationRequest extends FormRequest
 
     public function messages(): array
     {
-        return $this->applicationMessages();
+        return [
+            ...$this->applicationMessages(),
+            ...$this->applicationLevelMessages($this->input('type')),
+        ];
     }
 
     /** Normalisation avant validation : l'adresse sert de clé, elle est unifiée. */

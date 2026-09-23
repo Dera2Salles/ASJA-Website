@@ -26,6 +26,7 @@ import {
     MARRIED,
     REINSCRIPTION,
     RELIGION_OTHER,
+    TRANSFERT,
     type ApplicationForm,
     type FormOptions,
 } from './types';
@@ -64,7 +65,7 @@ const STEP_DEFS: Record<StepKey, Step> = {
         title: 'Type de demande',
         short: 'Type de demande',
         description:
-            'Indiquez si vous rejoignez l’ASJA pour la première fois ou si vous poursuivez votre cursus.',
+            'Indiquez si vous rejoignez l’ASJA pour la première fois, si vous poursuivez votre cursus, ou si vous arrivez d’un autre établissement.',
     },
     identity: {
         title: 'Informations personnelles',
@@ -96,6 +97,12 @@ const STEP_DEFS: Record<StepKey, Step> = {
         description:
             'Le niveau et la mention dans lesquels vous souhaitez vous inscrire cette année.',
     },
+    origin: {
+        title: 'Parcours antérieur',
+        short: 'Parcours antérieur',
+        description:
+            'L’établissement où vous avez commencé votre cursus. Les justificatifs correspondants vous seront demandés à l’étape « Documents », selon le niveau que vous avez choisi.',
+    },
     parents: {
         title: 'Informations des parents',
         short: 'Parents',
@@ -114,6 +121,21 @@ const STEP_DEFS: Record<StepKey, Step> = {
         description:
             'Rien n’est encore envoyé. Relisez votre dossier autant de temps qu’il vous faut, revenez sur les étapes à corriger, puis confirmez l’envoi en bas de page.',
     },
+};
+
+/**
+ * Ce que chaque type recouvre, en une phrase.
+ *
+ * Les trois se ressemblent assez pour qu'un candidat se trompe : ce qui les
+ * distingue n'est pas la démarche mais d'où l'on vient — de nulle part, de
+ * l'ASJA, ou d'un autre établissement. Les intitulés viennent du serveur ; ces
+ * phrases ne font que les départager.
+ */
+const TYPE_HINTS: Record<string, string> = {
+    [REINSCRIPTION]:
+        'Vous êtes déjà étudiant à l’ASJA et poursuivez votre cursus.',
+    [TRANSFERT]:
+        'Vous venez d’un autre établissement et poursuivez ici un cursus déjà commencé.',
 };
 
 /** Clé du brouillon local — un candidat par navigateur. */
@@ -138,14 +160,18 @@ function newKey(): string {
     });
 }
 
-/* Les cinq natures de pièces, quel que soit le type : l'étape « Documents »
-   n'affiche que celles de son parcours, mais le formulaire garde une entrée
-   par pièce pour que passer d'un type à l'autre n'en laisse aucune derrière. */
+/* Toutes les natures de pièces du dépôt, quel que soit le type : l'étape
+   « Documents » n'affiche que celles de son parcours et de son niveau, mais le
+   formulaire garde une entrée par pièce pour que passer d'un type à l'autre
+   n'en laisse aucune derrière. */
 const EMPTY_DOCUMENTS = {
     bac_transcript: null,
     cin: null,
     report_card: null,
     photo: null,
+    previous_transcript_1: null,
+    previous_transcript_2: null,
+    previous_degree: null,
     payment_receipt: null,
 };
 
@@ -177,6 +203,7 @@ function blankForm(): ApplicationForm {
         mention: '',
         student_number: '',
         previous_level: '',
+        previous_institution: '',
         parent1_name: '',
         parent1_phone: '',
         parent2_name: '',
@@ -377,22 +404,58 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
 
     const isMarried = data.marital_status === MARRIED;
 
-    /* Les pièces suivent le type de demande : une réinscription ne dépose ni
-       relevé de baccalauréat ni CIN — l'un et l'autre sont déjà au dossier —
-       mais un bulletin de notes et une photo d'identité. Le serveur refuse
-       d'ailleurs toute pièce hors de cette liste. */
+    /* Les pièces suivent le type de demande et, pour un transfert, le niveau
+       demandé : une réinscription ne dépose ni relevé de baccalauréat ni CIN —
+       l'un et l'autre sont déjà au dossier — mais un bulletin de notes et une
+       photo d'identité ; un transfert justifie son parcours par les relevés des
+       années suivies ailleurs, ou par le diplôme qui clôt la licence. Le
+       serveur refuse d'ailleurs toute pièce hors de cette liste. */
     const documents = useMemo(
-        () => documentsFor(options, data.type),
-        [options, data.type],
+        () => documentsFor(options, data.type, data.level),
+        [options, data.type, data.level],
     );
 
     const required = useMemo(
-        () => requiredDocuments(options, data.type),
-        [options, data.type],
+        () => requiredDocuments(options, data.type, data.level),
+        [options, data.type, data.level],
     );
+
+    /* Un fichier choisi pour un niveau puis abandonné en changeant de niveau ne
+       doit pas partir quand même : le serveur le refuserait — il n'est pas
+       demandé à ce niveau-là — et le candidat verrait une erreur sur une pièce
+       que le formulaire ne lui montre plus. On le retire dès que la liste
+       change, sans toucher à celles qui restent demandées. */
+    useEffect(() => {
+        setData((current) => {
+            const shown = new Set(
+                documentsFor(options, current.type, current.level).map(
+                    (spec) => spec.type,
+                ),
+            );
+
+            const stale = Object.keys(current.documents).filter(
+                (type) => current.documents[type] && !shown.has(type),
+            );
+
+            if (stale.length === 0) return current;
+
+            const documents = { ...current.documents };
+            stale.forEach((type) => {
+                documents[type] = null;
+            });
+
+            return { ...current, documents };
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data.type, data.level, options]);
 
     /** Frais du type choisi : ils viennent du serveur, déjà mis en forme. */
     const fees = options.fees[data.type];
+
+    /* Niveaux ouverts au type choisi : un transfert n'entre pas en première
+       année — ce serait une première inscription. La liste vient du serveur,
+       qui applique la même à l'envoi. */
+    const levels = options.levelsByType[data.type] ?? options.levels;
 
     const uploadState: UploadState = !processing
         ? 'idle'
@@ -425,7 +488,17 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
     /* Changer de type change le parcours : les écrans déjà franchis ne sont
        plus les mêmes, et le sommaire ne doit plus laisser sauter en avant. */
     const chooseType = (value: string) => {
-        setData('type', value);
+        /* Le niveau ne survit pas à un changement de type qui le refuse : une
+           L1 choisie en première inscription n'a pas cours dans un transfert,
+           et la garder ferait échouer l'envoi sur une étape déjà franchie. */
+        const allowed = options.levelsByType[value] ?? options.levels;
+
+        setData((current) => ({
+            ...current,
+            type: value,
+            level: allowed.includes(current.level) ? current.level : '',
+        }));
+
         setFurthest(0);
         setStepErrors({});
         setConfirmed(false);
@@ -663,10 +736,11 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                             (type) => ({
                                                                 ...type,
                                                                 description:
-                                                                    type.value ===
-                                                                    REINSCRIPTION
-                                                                        ? 'Vous êtes déjà étudiant à l’ASJA et poursuivez votre cursus.'
-                                                                        : 'Vous rejoignez l’ASJA pour la première fois.',
+                                                                    TYPE_HINTS[
+                                                                        type
+                                                                            .value
+                                                                    ] ??
+                                                                    'Vous rejoignez l’ASJA pour la première fois.',
                                                             }),
                                                         )}
                                                     />
@@ -678,6 +752,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                     <Requirements
                                                         options={options}
                                                         type={data.type}
+                                                        level={data.level}
                                                     />
                                                 </>
                                             )}
@@ -1234,7 +1309,7 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                                 value,
                                                             )
                                                         }
-                                                        options={options.levels.map(
+                                                        options={levels.map(
                                                             (level) => ({
                                                                 value: level,
                                                                 label: level,
@@ -1263,6 +1338,76 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                         )}
                                                     />
                                                 </div>
+                                            )}
+
+                                            {/* ── Transfert : parcours antérieur ── */}
+                                            {stepKey === 'origin' && (
+                                                <>
+                                                    <TextField
+                                                        id="previous_institution"
+                                                        label="Établissement d’origine"
+                                                        required
+                                                        hint="Nom complet de l’établissement où vous avez suivi les années précédentes."
+                                                        value={
+                                                            data.previous_institution
+                                                        }
+                                                        error={errorFor(
+                                                            'previous_institution',
+                                                        )}
+                                                        onChange={(value) =>
+                                                            setData(
+                                                                'previous_institution',
+                                                                value,
+                                                            )
+                                                        }
+                                                    />
+
+                                                    {/* Le candidat vient de
+                                                        choisir son niveau : lui
+                                                        dire ici ce qu'il devra
+                                                        joindre lui évite de
+                                                        découvrir la liste deux
+                                                        étapes plus loin. */}
+                                                    {documents.length > 0 && (
+                                                        <div className="border-border bg-card border p-4">
+                                                            <p className="text-muted-foreground text-[13.5px] leading-relaxed">
+                                                                Pour une entrée
+                                                                en{' '}
+                                                                <strong className="text-foreground">
+                                                                    {data.level}
+                                                                </strong>
+                                                                , les
+                                                                justificatifs
+                                                                suivants vous
+                                                                seront demandés
+                                                                à l’étape
+                                                                «&nbsp;Documents&nbsp;»&nbsp;:
+                                                            </p>
+                                                            <ul className="mt-2 space-y-1">
+                                                                {documents.map(
+                                                                    (spec) => (
+                                                                        <li
+                                                                            key={
+                                                                                spec.type
+                                                                            }
+                                                                            className="text-foreground flex items-start gap-2 text-[13.5px]"
+                                                                        >
+                                                                            <Check
+                                                                                size={
+                                                                                    14
+                                                                                }
+                                                                                className="text-primary mt-[3px] shrink-0"
+                                                                            />
+                                                                            {
+                                                                                spec.label
+                                                                            }
+                                                                        </li>
+                                                                    ),
+                                                                )}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </>
                                             )}
 
                                             {/* ── 6. Parents ── */}
@@ -1681,6 +1826,23 @@ export default function ApplicationCreate({ options, prefill, cms }: Props) {
                                                                 label="Mention"
                                                                 value={
                                                                     mentionName
+                                                                }
+                                                            />
+                                                        </RecapBlock>
+                                                    )}
+
+                                                    {shows('origin') && (
+                                                        <RecapBlock
+                                                            title="Parcours antérieur"
+                                                            step={stepIndex(
+                                                                'origin',
+                                                            )}
+                                                            onEdit={goTo}
+                                                        >
+                                                            <Recap
+                                                                label="Établissement d’origine"
+                                                                value={
+                                                                    data.previous_institution
                                                                 }
                                                             />
                                                         </RecapBlock>

@@ -26,6 +26,13 @@ export interface DocumentSpec {
     requiredFor: string[];
     /** Formats acceptés par cette pièce — une photo n'accepte pas le PDF. */
     extensions: string[];
+    /**
+     * Niveaux auxquels la pièce est demandée, ou `null` quand elle l'est à
+     * tous. C'est ce qui permet au formulaire de refaire sa liste dès que le
+     * candidat change de niveau : un transfert en 2e année justifie ses notes
+     * de 1re année, un transfert en 4e son diplôme de licence.
+     */
+    levels: string[] | null;
 }
 
 /** Une ligne de frais, déjà mise en forme par le serveur : « 20 000 Ar ». */
@@ -73,6 +80,8 @@ export interface FormOptions {
     bacSeries: Option[];
     bacMentions: Option[];
     levels: string[];
+    /** Niveaux ouverts à chaque type : un transfert n'entre pas en 1re année. */
+    levelsByType: Record<string, string[]>;
     mentions: Mention[];
     documents: DocumentSpec[];
     fees: Fees;
@@ -115,6 +124,7 @@ export interface ApplicationForm {
     mention: string;
     student_number: string;
     previous_level: string;
+    previous_institution: string;
 
     parent1_name: string;
     parent1_phone: string;
@@ -125,6 +135,9 @@ export interface ApplicationForm {
 }
 
 export const REINSCRIPTION = 'reinscription';
+
+/** Miroir de `Application::TYPE_TRANSFERT` : arrivée d'un autre établissement. */
+export const TRANSFERT = 'transfert';
 
 /** Seule situation qui ouvre la saisie de la CIN du conjoint. */
 export const MARRIED = 'marie';

@@ -34,13 +34,13 @@
         <link href="https://fonts.bunny.net/css?family=archivo:500,600,700,800,900|inter:400,500,600,700,800|jetbrains-mono:400,500&display=swap" rel="stylesheet" />
 
         <!-- CSS du build -->
-        <link rel="stylesheet" href="{{ asset('build/assets/app-Bc7LUJiM.css') }}">
+        <link rel="stylesheet" href="{{ asset('build/assets/app-CRLRyfn3.css') }}">
 
         <!-- Scripts -->
         @routes
 
         <!-- JS du build : les pages sont chargées à la demande par Inertia. -->
-        <script type="module" src="{{ asset('build/assets/app-CBJ6ztvE.js') }}"></script>
+        <script type="module" src="{{ asset('build/assets/app-XMEXp5A3.js') }}"></script>
 
         @inertiaHead
     </head>

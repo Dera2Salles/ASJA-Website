@@ -27,9 +27,22 @@ class Application extends Model
 
     public const TYPE_REINSCRIPTION = 'reinscription';
 
+    /**
+     * Étudiant venu d'un autre établissement.
+     *
+     * Ce n'est ni l'un ni l'autre des deux précédents : il n'a jamais été
+     * inscrit ici — sa demande est donc un dossier complet, comme une première
+     * inscription — mais il a déjà un parcours universitaire ailleurs, qu'il
+     * entre en cours de cursus et qu'il doit justifier. Ce sont ces
+     * justificatifs, et le niveau visé qui les décide, qui font le troisième
+     * parcours.
+     */
+    public const TYPE_TRANSFERT = 'transfert';
+
     public const TYPES = [
         self::TYPE_PREMIERE => 'Première inscription',
         self::TYPE_REINSCRIPTION => 'Réinscription',
+        self::TYPE_TRANSFERT => 'Transfert',
     ];
 
     /* --- Statut du dossier ---------------------------------------------- */
@@ -143,19 +156,37 @@ class Application extends Model
      * refusé à l'envoi — une requête forgée ne doit pas réécrire un état civil
      * que le candidat n'a pas été invité à revoir.
      */
-    public const FIELDS = [
-        self::TYPE_PREMIERE => [
-            'last_name', 'first_name', 'gender', 'nationality', 'birth_date',
-            'birth_place', 'phone', 'email', 'marital_status', 'religion',
-            'religion_other',
-            'cin_number', 'cin_issued_place', 'cin_issued_at',
-            'cin_duplicate_at', 'spouse_cin_number',
-            'bac_year', 'bac_series', 'bac_number', 'bac_mention',
-            'level', 'mention',
-            'parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone',
-        ],
-        self::TYPE_REINSCRIPTION => ['student_number', 'email'],
+    private const PREMIERE_FIELDS = [
+        'last_name', 'first_name', 'gender', 'nationality', 'birth_date',
+        'birth_place', 'phone', 'email', 'marital_status', 'religion',
+        'religion_other',
+        'cin_number', 'cin_issued_place', 'cin_issued_at',
+        'cin_duplicate_at', 'spouse_cin_number',
+        'bac_year', 'bac_series', 'bac_number', 'bac_mention',
+        'level', 'mention',
+        'parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone',
     ];
+
+    public const FIELDS = [
+        self::TYPE_PREMIERE => self::PREMIERE_FIELDS,
+        self::TYPE_REINSCRIPTION => ['student_number', 'email'],
+
+        /* Un transfert déclare tout ce que déclare une première inscription —
+           l'établissement ne sait rien de lui — plus l'établissement d'où il
+           vient : c'est la seule chose que son dossier ait de plus, et celle
+           sans laquelle ses relevés de notes ne se rattachent à rien. */
+        self::TYPE_TRANSFERT => [...self::PREMIERE_FIELDS, 'previous_institution'],
+    ];
+
+    /**
+     * Niveaux ouverts au transfert.
+     *
+     * La première année en est absente, et c'est tout l'objet du type : entrer
+     * en L1 sans parcours antérieur, c'est une première inscription. Un
+     * transfert entre forcément en cours de cursus, et c'est ce niveau qui
+     * décide des justificatifs à fournir.
+     */
+    public const TRANSFER_LEVELS = ['L2', 'L3', 'M1', 'M2'];
 
     /**
      * De quoi réafficher un champ hors du formulaire de dépôt.
@@ -193,6 +224,7 @@ class Application extends Model
         'mention' => ['label' => 'Mention', 'input' => 'select', 'options' => 'mentions'],
         'student_number' => ['label' => 'Numéro matricule', 'input' => 'text'],
         'previous_level' => ['label' => 'Niveau précédent', 'input' => 'select', 'options' => 'levels'],
+        'previous_institution' => ['label' => 'Établissement d\'origine', 'input' => 'text'],
         'parent1_name' => ['label' => 'Nom et prénom du père', 'input' => 'text'],
         'parent1_phone' => ['label' => 'Téléphone du père', 'input' => 'tel'],
         'parent2_name' => ['label' => 'Nom et prénom de la mère', 'input' => 'text'],
@@ -221,8 +253,20 @@ class Application extends Model
      *
      * `extensions` restreint les formats quand la nature de la pièce l'impose :
      * une photo d'identité n'est pas un PDF.
+     *
+     * `levels` restreint enfin la pièce à certains niveaux demandés. Elle n'a
+     * de sens que là où le niveau change ce qu'il y a à justifier — le
+     * transfert : entrer en deuxième année se justifie par les notes de la
+     * première, entrer en quatrième par le diplôme de licence. Une pièce sans
+     * `levels` vaut pour tous les niveaux, ce qui reste le cas courant.
      */
     public const DOCUMENTS = [
+        /*
+         * Le relevé du baccalauréat n'est demandé qu'à une première
+         * inscription. Un transfert a déjà un parcours universitaire derrière
+         * lui : ce sont les années suivies ailleurs qui justifient son entrée,
+         * et le baccalauréat qu'il déclare suffit à l'établissement.
+         */
         'bac_transcript' => [
             'label' => 'Relevé de notes du Baccalauréat',
             'hint' => 'Version numérique du relevé délivré par l\'office du baccalauréat.',
@@ -232,8 +276,8 @@ class Application extends Model
         'cin' => [
             'label' => 'Photocopie de la CIN',
             'hint' => 'Recto et verso, dans un seul fichier de préférence.',
-            'for' => [self::TYPE_PREMIERE],
-            'required' => [self::TYPE_PREMIERE],
+            'for' => [self::TYPE_PREMIERE, self::TYPE_TRANSFERT],
+            'required' => [self::TYPE_PREMIERE, self::TYPE_TRANSFERT],
         ],
         'report_card' => [
             'label' => 'Photocopie du bulletin de notes',
@@ -249,13 +293,44 @@ class Application extends Model
             // Une photo est une image : le PDF n'a pas sa place ici.
             'extensions' => ['jpg', 'jpeg', 'png', 'webp'],
         ],
+        /*
+         * Parcours antérieur d'un transfert — le niveau demandé décide.
+         *
+         * L'établissement ne connaît rien de ce candidat : ce qu'il a validé
+         * ailleurs est tout ce qui justifie qu'il entre en cours de cursus.
+         * Les deux premières années se prouvent par leurs relevés de notes, le
+         * cycle master par le diplôme qui clôt la licence — un relevé de L3 ne
+         * dirait pas si le diplôme a été délivré.
+         */
+        'previous_transcript_1' => [
+            'label' => 'Relevé de notes de la 1re année',
+            'hint' => 'Bulletins ou relevé de notes de la première année suivie dans votre établissement d\'origine.',
+            'for' => [self::TYPE_TRANSFERT],
+            'required' => [self::TYPE_TRANSFERT],
+            'levels' => ['L2', 'L3'],
+        ],
+        'previous_transcript_2' => [
+            'label' => 'Relevé de notes de la 2e année',
+            'hint' => 'Bulletins ou relevé de notes de la deuxième année suivie dans votre établissement d\'origine.',
+            'for' => [self::TYPE_TRANSFERT],
+            'required' => [self::TYPE_TRANSFERT],
+            'levels' => ['L3'],
+        ],
+        'previous_degree' => [
+            'label' => 'Diplôme de Licence',
+            'hint' => 'Diplôme obtenu à l\'issue de la 3e année, délivré par votre établissement d\'origine.',
+            'for' => [self::TYPE_TRANSFERT],
+            'required' => [self::TYPE_TRANSFERT],
+            'levels' => ['M1', 'M2'],
+        ],
+
         'payment_receipt' => [
             'label' => 'Bordereau de versement',
             // Le montant dépend du type de demande : il est annoncé par les
             // frais, à côté, plutôt que figé dans ce libellé.
             'hint' => 'Preuve du versement effectué sur le compte de l\'établissement.',
-            'for' => [self::TYPE_PREMIERE, self::TYPE_REINSCRIPTION],
-            'required' => [self::TYPE_PREMIERE, self::TYPE_REINSCRIPTION],
+            'for' => [self::TYPE_PREMIERE, self::TYPE_REINSCRIPTION, self::TYPE_TRANSFERT],
+            'required' => [self::TYPE_PREMIERE, self::TYPE_REINSCRIPTION, self::TYPE_TRANSFERT],
         ],
 
         /*
@@ -264,9 +339,9 @@ class Application extends Model
          *
          * Une réinscription n'en a pas : elle verse ses frais généraux
          * d'emblée, et son bordereau est celui du dessus. Une première
-         * inscription, elle, ne verse d'abord que les frais de dossier ; les
-         * 210 000 Ar ne sont dus qu'une fois la candidature retenue, et c'est
-         * ce versement-là que cette pièce prouve.
+         * inscription et un transfert, eux, ne versent d'abord que les frais
+         * de dossier ; les 210 000 Ar ne sont dus qu'une fois la candidature
+         * retenue, et c'est ce versement-là que cette pièce prouve.
          *
          * L'étape est ce qui l'exclut du formulaire de dépôt : `stage` la
          * range après validation, et `StoreApplicationRequest` refuse tout ce
@@ -275,8 +350,8 @@ class Application extends Model
         'general_fees_receipt' => [
             'label' => 'Bordereau de versement des frais généraux',
             'hint' => 'Preuve du versement des frais généraux, effectué après la validation de votre dossier.',
-            'for' => [self::TYPE_PREMIERE],
-            'required' => [self::TYPE_PREMIERE],
+            'for' => [self::TYPE_PREMIERE, self::TYPE_TRANSFERT],
+            'required' => [self::TYPE_PREMIERE, self::TYPE_TRANSFERT],
             'stage' => self::STAGE_AFTER_VALIDATION,
         ],
     ];
@@ -329,6 +404,22 @@ class Application extends Model
                 'when' => self::FEE_AT_SUBMISSION,
             ],
         ],
+
+        /* Un transfert est une candidature, pas une reconduction : elle peut
+           être refusée, et suit donc les deux temps de la première
+           inscription. */
+        self::TYPE_TRANSFERT => [
+            [
+                'label' => 'Frais de dossier',
+                'amount' => 20000,
+                'when' => self::FEE_AT_SUBMISSION,
+            ],
+            [
+                'label' => 'Frais généraux',
+                'amount' => 210000,
+                'when' => self::FEE_AFTER_VALIDATION,
+            ],
+        ],
     ];
 
     /** Quand chaque frais est dû, en français. */
@@ -357,7 +448,7 @@ class Application extends Model
         'cin_duplicate_at', 'spouse_cin_number',
         'bac_year', 'bac_series', 'bac_number', 'bac_mention',
         'level', 'department_id', 'mention', 'mention_name',
-        'student_number', 'previous_level',
+        'student_number', 'previous_level', 'previous_institution',
         'parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone',
         'admin_note', 'submitted_at', 'receipt_sent_at',
         'requested_documents', 'requested_fields', 'completion_message',
@@ -487,7 +578,33 @@ class Application extends Model
     {
         $present = $this->documents->pluck('type')->all();
 
-        return array_values(array_diff(static::requiredDocuments($this->type), $present));
+        return array_values(array_diff(
+            static::requiredDocuments($this->type, self::STAGE_AT_SUBMISSION, $this->level),
+            $present
+        ));
+    }
+
+    /**
+     * Pièces du dépôt attendues de *ce* dossier — type et niveau compris.
+     *
+     * L'administration s'en sert pour ne proposer à la correction que ce que
+     * le candidat a réellement eu à déposer : réclamer à un transfert en 4e
+     * année le relevé d'une 1re année qu'on ne lui a jamais demandée
+     * l'enverrait vers un formulaire que la validation refuserait.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function submissionDocumentSpecs(): array
+    {
+        return array_values(array_filter(
+            static::documentSpecs(),
+            fn (array $document) => static::documentApplies(
+                $document['type'],
+                $this->type,
+                self::STAGE_AT_SUBMISSION,
+                $this->level
+            )
+        ));
     }
 
     /* --- Suivi du dossier ------------------------------------------------ */
@@ -508,7 +625,7 @@ class Application extends Model
     public function feesDocumentType(): ?string
     {
         foreach (array_keys(self::DOCUMENTS) as $type) {
-            if (static::documentApplies($type, $this->type, self::STAGE_AFTER_VALIDATION)) {
+            if (static::documentApplies($type, $this->type, self::STAGE_AFTER_VALIDATION, $this->level)) {
                 return $type;
             }
         }
@@ -530,7 +647,12 @@ class Application extends Model
     {
         return array_values(array_filter(
             $this->requested_documents ?? [],
-            fn ($type) => is_string($type) && static::documentApplies($type, $this->type)
+            fn ($type) => is_string($type) && static::documentApplies(
+                $type,
+                $this->type,
+                self::STAGE_AT_SUBMISSION,
+                $this->level
+            )
         ));
     }
 
@@ -709,6 +831,11 @@ class Application extends Model
             'bacSeries' => BacSeries::options(),
             'bacMentions' => static::labelled(self::BAC_MENTIONS),
             'levels' => StudentFile::LEVELS,
+
+            /* Les niveaux ne sont plus les mêmes pour tous : un transfert
+               n'entre pas en première année. Le formulaire prend ceux de son
+               type, et la validation applique la même liste. */
+            'levelsByType' => static::levelsByType(),
             'mentions' => StudentFile::mentions(),
             'documents' => static::documentSpecs(),
             'fees' => static::feeSpecs(),
@@ -745,6 +872,12 @@ class Application extends Model
                 'requiredFor' => $document['required'],
                 'extensions' => static::documentExtensions($type),
                 'stage' => static::documentStage($type),
+
+                /* Niveaux auxquels la pièce est demandée, ou `null` quand elle
+                   l'est à tous : le formulaire en a besoin pour refaire sa
+                   liste dès que le candidat change de niveau, sans un
+                   aller-retour au serveur. */
+                'levels' => $document['levels'] ?? null,
             ];
         }
 
@@ -891,30 +1024,66 @@ class Application extends Model
     public static function documentApplies(
         string $type,
         ?string $applicationType,
-        ?string $stage = self::STAGE_AT_SUBMISSION
+        ?string $stage = self::STAGE_AT_SUBMISSION,
+        ?string $level = null
     ): bool {
         if ($stage !== null && static::documentStage($type) !== $stage) {
             return false;
         }
 
-        return in_array($applicationType, self::DOCUMENTS[$type]['for'] ?? [], true);
+        if (! in_array($applicationType, self::DOCUMENTS[$type]['for'] ?? [], true)) {
+            return false;
+        }
+
+        /* Une pièce liée au niveau n'existe qu'aux niveaux qu'elle nomme, et
+           nulle part ailleurs — niveau inconnu compris. Le silence n'ouvre
+           rien : à défaut de niveau, la règle qui le porte a déjà de quoi le
+           dire, et une pièce hors sujet ne doit pas passer en attendant. */
+        $levels = self::DOCUMENTS[$type]['levels'] ?? null;
+
+        return $levels === null || in_array($level, $levels, true);
     }
 
     /**
-     * Pièces obligatoires pour un type de demande, à une étape donnée.
+     * Pièces obligatoires pour un type de demande, à une étape et un niveau
+     * donnés.
      *
      * @return array<int, string>
      */
     public static function requiredDocuments(
         ?string $applicationType,
-        ?string $stage = self::STAGE_AT_SUBMISSION
+        ?string $stage = self::STAGE_AT_SUBMISSION,
+        ?string $level = null
     ): array {
         return array_keys(array_filter(
             self::DOCUMENTS,
-            fn (array $document, string $type) => static::documentApplies($type, $applicationType, $stage)
+            fn (array $document, string $type) => static::documentApplies($type, $applicationType, $stage, $level)
                 && in_array($applicationType, $document['required'], true),
             ARRAY_FILTER_USE_BOTH
         ));
+    }
+
+    /**
+     * Niveaux ouverts à un type de demande.
+     *
+     * Le transfert est le seul à en retrancher : on ne se transfère pas en
+     * première année. Partout ailleurs, ce sont les niveaux du cursus.
+     *
+     * @return array<int, string>
+     */
+    public static function levelsFor(?string $applicationType): array
+    {
+        return $applicationType === self::TYPE_TRANSFERT
+            ? self::TRANSFER_LEVELS
+            : StudentFile::LEVELS;
+    }
+
+    /** Niveaux ouverts, type par type, pour le formulaire public. */
+    public static function levelsByType(): array
+    {
+        return collect(array_keys(self::TYPES))
+            ->mapWithKeys(fn (string $type) => [$type => static::levelsFor($type)])
+            ->all();
     }
 
     /** @return array<int, array{value: string, label: string}> */

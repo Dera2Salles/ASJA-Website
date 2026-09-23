@@ -6,6 +6,7 @@ use App\Mail\ApplicationReceived;
 use App\Models\Application;
 use App\Models\Department;
 use App\Models\User;
+use App\Support\StudentFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -118,6 +119,34 @@ class ApplicationTest extends TestCase
 
             ...$overrides,
         ];
+    }
+
+    /**
+     * Dossier de transfert.
+     *
+     * Le candidat n'a jamais été inscrit ici : il déclare tout ce que déclare
+     * une première inscription, plus l'établissement d'où il vient. Ses pièces,
+     * elles, dépendent du niveau visé — le dossier par défaut entre en 2e
+     * année, et justifie donc sa première année. Le relevé du baccalauréat n'en
+     * fait pas partie : c'est le parcours universitaire qui fait foi.
+     *
+     * @return array<string, mixed>
+     */
+    private function transfert(array $overrides = []): array
+    {
+        $documents = $this->dossier()['documents'];
+        unset($documents['bac_transcript']);
+
+        $documents['previous_transcript_1'] =
+            UploadedFile::fake()->create('l1.pdf', 100, 'application/pdf');
+
+        return $this->dossier([
+            'type' => Application::TYPE_TRANSFERT,
+            'level' => 'L2',
+            'previous_institution' => 'Université de Fianarantsoa',
+            'documents' => $documents,
+            ...$overrides,
+        ]);
     }
 
     /* --- Formulaire public --------------------------------------------- */
@@ -590,6 +619,192 @@ class ApplicationTest extends TestCase
         $this->assertSame('Réinscription', $application->type_label);
     }
 
+    /* --- Transfert --------------------------------------------------------
+       Un étudiant venu d'un autre établissement : dossier complet comme une
+       première inscription, plus l'établissement d'origine, et des
+       justificatifs que le seul niveau demandé décide. */
+
+    public function test_un_transfert_est_enregistre_avec_son_etablissement_dorigine(): void
+    {
+        $this->mention();
+
+        $this->post('/candidature', $this->transfert())->assertRedirect();
+
+        $application = Application::sole();
+
+        $this->assertSame(Application::TYPE_TRANSFERT, $application->type);
+        $this->assertSame('Transfert', $application->type_label);
+        $this->assertSame('L2', $application->level);
+        $this->assertSame('Université de Fianarantsoa', $application->previous_institution);
+        $this->assertSame('Rakoto', $application->last_name);
+    }
+
+    public function test_un_transfert_exige_son_etablissement_dorigine(): void
+    {
+        $this->mention();
+
+        $this->post('/candidature', $this->transfert(['previous_institution' => '']))
+            ->assertSessionHasErrors('previous_institution');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    public function test_letablissement_dorigine_est_refuse_hors_transfert(): void
+    {
+        $this->mention();
+
+        $this->post('/candidature', $this->dossier(['previous_institution' => 'Ailleurs']))
+            ->assertSessionHasErrors('previous_institution');
+
+        $this->post('/candidature', $this->reinscription(['previous_institution' => 'Ailleurs']))
+            ->assertSessionHasErrors('previous_institution');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    public function test_un_transfert_nentre_pas_en_premiere_annee(): void
+    {
+        $this->mention();
+
+        $this->post('/candidature', $this->transfert(['level' => 'L1']))
+            ->assertSessionHasErrors('level');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    /** Le niveau demandé, et lui seul, dit ce qu'il y a à justifier. */
+    public function test_les_pieces_dun_transfert_suivent_le_niveau_demande(): void
+    {
+        $this->assertSame(
+            ['cin', 'previous_transcript_1', 'payment_receipt'],
+            Application::requiredDocuments(Application::TYPE_TRANSFERT, Application::STAGE_AT_SUBMISSION, 'L2')
+        );
+
+        $this->assertSame(
+            ['cin', 'previous_transcript_1', 'previous_transcript_2', 'payment_receipt'],
+            Application::requiredDocuments(Application::TYPE_TRANSFERT, Application::STAGE_AT_SUBMISSION, 'L3')
+        );
+
+        foreach (['M1', 'M2'] as $level) {
+            $this->assertSame(
+                ['cin', 'previous_degree', 'payment_receipt'],
+                Application::requiredDocuments(Application::TYPE_TRANSFERT, Application::STAGE_AT_SUBMISSION, $level)
+            );
+        }
+    }
+
+    public function test_un_transfert_en_troisieme_annee_depose_les_deux_releves(): void
+    {
+        $this->mention();
+
+        $dossier = $this->transfert(['level' => 'L3']);
+        $dossier['documents']['previous_transcript_2'] =
+            UploadedFile::fake()->create('l2.pdf', 100, 'application/pdf');
+
+        $this->post('/candidature', $dossier)->assertRedirect();
+
+        $this->assertEqualsCanonicalizing(
+            ['cin', 'previous_transcript_1', 'previous_transcript_2', 'payment_receipt'],
+            Application::sole()->documents->pluck('type')->all()
+        );
+    }
+
+    public function test_un_transfert_en_troisieme_annee_sans_le_second_releve_est_refuse(): void
+    {
+        $this->mention();
+
+        $this->post('/candidature', $this->transfert(['level' => 'L3']))
+            ->assertSessionHasErrors('documents.previous_transcript_2');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    public function test_un_transfert_en_quatrieme_annee_depose_le_diplome(): void
+    {
+        $this->mention();
+
+        $dossier = $this->transfert(['level' => 'M1']);
+        unset($dossier['documents']['previous_transcript_1']);
+        $dossier['documents']['previous_degree'] =
+            UploadedFile::fake()->create('licence.pdf', 100, 'application/pdf');
+
+        $this->post('/candidature', $dossier)->assertRedirect();
+
+        $this->assertEqualsCanonicalizing(
+            ['cin', 'previous_degree', 'payment_receipt'],
+            Application::sole()->documents->pluck('type')->all()
+        );
+    }
+
+    public function test_un_transfert_en_quatrieme_annee_sans_diplome_est_refuse(): void
+    {
+        $this->mention();
+
+        $dossier = $this->transfert(['level' => 'M1']);
+        unset($dossier['documents']['previous_transcript_1']);
+
+        $this->post('/candidature', $dossier)
+            ->assertSessionHasErrors('documents.previous_degree');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    /**
+     * Une pièce d'un autre niveau est refusée, pas rangée au dossier : le
+     * relevé d'une 1re année n'a rien à prouver d'une entrée en 4e.
+     */
+    public function test_une_piece_dun_autre_niveau_est_refusee(): void
+    {
+        $this->mention();
+
+        $dossier = $this->transfert(['level' => 'M1']);
+        $dossier['documents']['previous_degree'] =
+            UploadedFile::fake()->create('licence.pdf', 100, 'application/pdf');
+
+        $this->post('/candidature', $dossier)
+            ->assertSessionHasErrors('documents.previous_transcript_1');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    /** Les pièces du transfert n'existent pas pour les deux autres types. */
+    public function test_les_pieces_de_transfert_sont_refusees_aux_autres_types(): void
+    {
+        $this->mention();
+
+        $dossier = $this->dossier();
+        $dossier['documents']['previous_transcript_1'] =
+            UploadedFile::fake()->create('l1.pdf', 100, 'application/pdf');
+
+        $this->post('/candidature', $dossier)
+            ->assertSessionHasErrors('documents.previous_transcript_1');
+
+        $this->assertSame(0, Application::count());
+    }
+
+    /**
+     * Comme une première inscription, un transfert peut être refusé : les
+     * frais généraux ne sont donc dus qu'après validation, et leur bordereau
+     * n'est pas une pièce du dépôt.
+     */
+    public function test_un_transfert_verse_ses_frais_en_deux_temps(): void
+    {
+        $this->assertSame(
+            Application::money(20000),
+            Application::feeDue(Application::TYPE_TRANSFERT, Application::FEE_AT_SUBMISSION)
+        );
+
+        $this->assertSame(
+            Application::money(210000),
+            Application::feeDue(Application::TYPE_TRANSFERT, Application::FEE_AFTER_VALIDATION)
+        );
+
+        $this->mention();
+        $this->post('/candidature', $this->transfert());
+
+        $this->assertSame('general_fees_receipt', Application::sole()->feesDocumentType());
+    }
+
     /* --- Doubles soumissions --------------------------------------------- */
 
     public function test_le_meme_jeton_ne_cree_pas_de_seconde_demande(): void
@@ -731,16 +946,22 @@ class ApplicationTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
                 ->component('Application/Create')
-                ->has('options.types', 2)
+                ->has('options.types', 3)
                 ->has('options.levels', 5)
-                ->has('options.documents', 5)
+                ->has('options.documents', 8)
                 ->has('options.maritalStatuses', 3)
+
+                /* Les niveaux ne sont pas les mêmes pour tous : un transfert
+                   n'entre pas en première année. */
+                ->has('options.levelsByType.' . Application::TYPE_TRANSFERT, 4)
+                ->where('options.levelsByType.' . Application::TYPE_TRANSFERT, Application::TRANSFER_LEVELS)
+                ->where('options.levelsByType.' . Application::TYPE_PREMIERE, StudentFile::LEVELS)
 
                 /* Les frais sont annoncés avant le dépôt, avec le moment où
                    chacun est dû : le candidat sait quel bordereau joindre, et
                    ce qui n'est à verser qu'ensuite. Les montants viennent du
                    serveur, jamais du front. */
-                ->has('options.fees', 2)
+                ->has('options.fees', 3)
                 ->has('options.fees.' . Application::TYPE_PREMIERE . '.lines', 2)
                 ->where('options.fees.' . Application::TYPE_PREMIERE . '.lines.0.amount', 20000)
                 ->where('options.fees.' . Application::TYPE_PREMIERE . '.lines.0.when', Application::FEE_AT_SUBMISSION)

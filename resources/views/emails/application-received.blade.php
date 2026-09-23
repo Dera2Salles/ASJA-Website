@@ -21,6 +21,8 @@
         'Type de demande' => $application->type_label,
         'Niveau demandé' => $application->level,
         'Mention' => $application->mention_name,
+        // Propre au transfert : les autres types ne le déclarent pas.
+        'Établissement d\'origine' => $application->previous_institution,
         'Adresse e-mail' => $application->email,
         'Statut' => $application->status_label,
     ], fn ($value) => filled($value));

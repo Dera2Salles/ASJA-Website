@@ -17,14 +17,29 @@ const Card = ({
     options,
     type,
     title,
+    level,
 }: {
     options: FormOptions;
     type: string;
     title: string;
+    /** Vide à l'étape du choix : les pièces liées au niveau sont alors
+     *  annoncées niveau par niveau, plutôt que passées sous silence. */
+    level: string;
 }) => {
-    const documents = documentsFor(options, type);
-    const required = requiredDocuments(options, type);
+    const documents = documentsFor(options, type, level);
+    const required = requiredDocuments(options, type, level);
     const fees = options.fees[type];
+
+    /* Pièces que ce type demande à certains niveaux seulement. Tant que le
+       niveau n'est pas choisi, aucune n'entre dans la liste ci-dessus : les
+       taire laisserait croire qu'un transfert n'a rien à justifier de son
+       parcours. */
+    const byLevel = options.documents.filter(
+        (document) =>
+            document.appliesTo.includes(type) &&
+            document.levels !== null &&
+            !documents.includes(document),
+    );
 
     return (
         <section className="border-border bg-card border p-5">
@@ -61,6 +76,31 @@ const Card = ({
                     </li>
                 ))}
             </ul>
+
+            {/* Ce qui dépendra du niveau : annoncé avant le choix, pour que le
+                candidat sache ce qu'il aura à réunir. */}
+            {byLevel.length > 0 && (
+                <>
+                    <p className="text-muted-foreground mt-4 text-[11px] font-bold tracking-[0.14em] uppercase">
+                        Selon le niveau demandé
+                    </p>
+
+                    <ul className="mt-2 space-y-1.5">
+                        {byLevel.map((document) => (
+                            <li
+                                key={document.type}
+                                className="text-muted-foreground text-[13px] leading-relaxed"
+                            >
+                                <span className="text-foreground font-semibold">
+                                    {document.levels?.join(', ')}
+                                </span>
+                                {' — '}
+                                {document.label}
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
 
             {fees && fees.lines.length > 0 && (
                 <>
@@ -115,10 +155,13 @@ const Card = ({
 export const Requirements = ({
     options,
     type,
+    level,
 }: {
     options: FormOptions;
-    /** Vide tant que le candidat n'a pas choisi : les deux dossiers s'affichent. */
+    /** Vide tant que le candidat n'a pas choisi : tous les dossiers s'affichent. */
     type: string;
+    /** Niveau déjà retenu, s'il l'est : il précise les pièces d'un transfert. */
+    level: string;
 }) => {
     const shown = type
         ? options.types.filter((option) => option.value === type)
@@ -131,7 +174,7 @@ export const Requirements = ({
             <div
                 className={
                     shown.length > 1
-                        ? 'grid gap-4 md:grid-cols-2'
+                        ? 'grid gap-4 md:grid-cols-2 xl:grid-cols-3'
                         : 'grid gap-4'
                 }
             >
@@ -141,6 +184,7 @@ export const Requirements = ({
                         options={options}
                         type={option.value}
                         title={option.label}
+                        level={level}
                     />
                 ))}
             </div>

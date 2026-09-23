@@ -86,11 +86,12 @@ class ApplicationController extends Controller
 
                 /* Ce qu'un dossier « à compléter » peut rouvrir : les pièces du
                    dépôt et les champs déclarés, tous filtrés par le type de
-                   demande. Une réinscription n'a ni CIN ni baccalauréat à
-                   corriger — les proposer serait promettre au candidat un
-                   formulaire que le serveur refuserait. */
-                'requestableDocuments' => collect(Application::documentSpecs())
-                    ->filter(fn (array $document) => in_array($application->type, $document['appliesTo'], true))
+                   demande — et, pour un transfert, par le niveau demandé. Une
+                   réinscription n'a ni CIN ni baccalauréat à corriger, un
+                   transfert en 4e année n'a jamais eu à déposer le relevé
+                   d'une 1re année : les proposer serait promettre au candidat
+                   un formulaire que le serveur refuserait. */
+                'requestableDocuments' => collect($application->submissionDocumentSpecs())
                     ->map(fn (array $document) => [
                         'value' => $document['type'],
                         'label' => $document['label'],
@@ -123,8 +124,7 @@ class ApplicationController extends Controller
      */
     public function updateStatus(Request $request, Application $application): RedirectResponse
     {
-        $documents = collect(Application::documentSpecs())
-            ->filter(fn (array $document) => in_array($application->type, $document['appliesTo'], true))
+        $documents = collect($application->submissionDocumentSpecs())
             ->pluck('type')
             ->all();
 

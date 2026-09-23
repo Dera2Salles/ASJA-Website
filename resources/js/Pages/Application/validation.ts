@@ -2,6 +2,7 @@ import {
     MARRIED,
     REINSCRIPTION,
     RELIGION_OTHER,
+    TRANSFERT,
     type ApplicationForm,
     type DocumentSpec,
     type FormOptions,
@@ -33,6 +34,7 @@ export type StepKey =
     | 'cin'
     | 'bac'
     | 'enrolment'
+    | 'origin'
     | 'parents'
     | 'documents'
     | 'summary';
@@ -66,13 +68,35 @@ const REINSCRIPTION_STEPS: StepKey[] = [
 ];
 
 /**
+ * Parcours d'un transfert.
+ *
+ * L'établissement ne sait rien de ce candidat : son dossier est celui d'une
+ * première inscription, à une étape près — le parcours antérieur, qui dit d'où
+ * il vient. C'est le niveau choisi à l'étape « Inscription » qui décide ensuite
+ * des justificatifs, et l'étape « Documents » vient donc après.
+ */
+const TRANSFERT_STEPS: StepKey[] = [
+    'type',
+    'identity',
+    'cin',
+    'bac',
+    'enrolment',
+    'origin',
+    'parents',
+    'documents',
+    'summary',
+];
+
+/**
  * Étapes du type de demande choisi.
  *
  * Tant qu'aucun type n'est retenu, le parcours le plus large est affiché :
  * le candidat voit ce qui l'attend avant de choisir.
  */
 export function stepKeysFor(type: string): StepKey[] {
-    return type === REINSCRIPTION ? REINSCRIPTION_STEPS : PREMIERE_STEPS;
+    if (type === REINSCRIPTION) return REINSCRIPTION_STEPS;
+
+    return type === TRANSFERT ? TRANSFERT_STEPS : PREMIERE_STEPS;
 }
 
 /**
@@ -112,6 +136,7 @@ export const STEP_FIELDS: Record<StepKey, string[]> = {
     ],
     bac: ['bac_year', 'bac_series', 'bac_number', 'bac_mention'],
     enrolment: ['level', 'mention'],
+    origin: ['previous_institution'],
     parents: ['parent1_name', 'parent1_phone', 'parent2_name', 'parent2_phone'],
     documents: ['documents'],
     summary: [],
@@ -193,22 +218,35 @@ export function formatSize(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
 }
 
-/** Pièces demandées pour ce type de demande, obligatoires ou non. */
+/**
+ * Pièces demandées pour ce type de demande et ce niveau, obligatoires ou non.
+ *
+ * Le niveau ne comptait pas tant qu'il n'y avait que l'inscription et la
+ * réinscription ; il décide tout d'un transfert — notes de la 1re année pour
+ * entrer en 2e, diplôme de licence pour entrer en 4e. Une pièce sans `levels`
+ * vaut pour tous les niveaux ; une pièce qui en porte n'existe qu'à ceux-là,
+ * niveau non encore choisi compris. Copie exacte de
+ * `Application::documentApplies`.
+ */
 export function documentsFor(
     options: FormOptions,
     type: string,
+    level: string,
 ): DocumentSpec[] {
-    return options.documents.filter((document) =>
-        document.appliesTo.includes(type),
+    return options.documents.filter(
+        (document) =>
+            document.appliesTo.includes(type) &&
+            (document.levels === null || document.levels.includes(level)),
     );
 }
 
-/** Pièces obligatoires pour le type de demande choisi. */
+/** Pièces obligatoires pour le type de demande et le niveau choisis. */
 export function requiredDocuments(
     options: FormOptions,
     type: string,
+    level: string,
 ): string[] {
-    return options.documents
+    return documentsFor(options, type, level)
         .filter((document) => document.requiredFor.includes(type))
         .map((document) => document.type);
 }
@@ -409,6 +447,15 @@ export function validateStep(
             set('mention', required(data.mention, 'mention'));
             break;
 
+        /* Transfert : l'établissement d'où vient le candidat. Sans lui, les
+           relevés de notes joints ne se rattachent à aucun cursus. */
+        case 'origin':
+            set(
+                'previous_institution',
+                required(data.previous_institution, 'établissement d’origine'),
+            );
+            break;
+
         case 'parents': {
             set(
                 'parent1_name',
@@ -450,15 +497,19 @@ export function validateStep(
         }
 
         case 'documents':
-            requiredDocuments(options, data.type).forEach((type) => {
-                if (!data.documents[type]) {
-                    const spec = options.documents.find((d) => d.type === type);
-                    set(
-                        `documents.${type}`,
-                        `La pièce « ${spec?.label ?? type} » est obligatoire.`,
-                    );
-                }
-            });
+            requiredDocuments(options, data.type, data.level).forEach(
+                (type) => {
+                    if (!data.documents[type]) {
+                        const spec = options.documents.find(
+                            (d) => d.type === type,
+                        );
+                        set(
+                            `documents.${type}`,
+                            `La pièce « ${spec?.label ?? type} » est obligatoire.`,
+                        );
+                    }
+                },
+            );
             break;
 
         default:

@@ -93,6 +93,7 @@ class CompleteApplicationRequest extends FormRequest
     {
         return [
             ...$this->applicationMessages(),
+            ...$this->applicationLevelMessages($this->application()->type),
             'prohibited' => 'Le champ « :attribute » n\'est pas ouvert à la correction sur ce dossier.',
             'documents.*.prohibited' => 'Cette pièce n\'a pas été réclamée : elle ne peut pas être remplacée ici.',
         ];

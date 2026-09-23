@@ -66,6 +66,8 @@ interface Application {
     mention_name: string | null;
     student_number: string | null;
     previous_level: string | null;
+    /** Transfert : l'établissement où le cursus a commencé. */
+    previous_institution: string | null;
     parent1_name: string | null;
     parent1_phone: string | null;
     parent2_name: string | null;
@@ -523,6 +525,17 @@ export default function ApplicationShow({ application, options }: Props) {
                                     label="Mention"
                                     value={application.mention_name}
                                 />
+
+                                {/* Propre au transfert : d'où vient le
+                                    candidat. La ligne ne s'affiche que là où
+                                    elle a un sens — un dossier sans parcours
+                                    antérieur n'a pas à montrer un tiret. */}
+                                {application.previous_institution && (
+                                    <Row
+                                        label="Établissement d’origine"
+                                        value={application.previous_institution}
+                                    />
+                                )}
                             </Block>
 
                             {/* Les colonnes restent `parent1_*`/`parent2_*` —

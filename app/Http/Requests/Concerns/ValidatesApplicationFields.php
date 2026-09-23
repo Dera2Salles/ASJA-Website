@@ -50,6 +50,7 @@ trait ValidatesApplicationFields
         ?string $religion
     ): array {
         $isReinscription = $type === Application::TYPE_REINSCRIPTION;
+        $isTransfert = $type === Application::TYPE_TRANSFERT;
         $isMarried = $maritalStatus === Application::MARITAL_MARRIED;
         $isOtherReligion = $religion === Application::RELIGION_OTHER;
         $cin = 'regex:/^\d{' . Application::CIN_LENGTH . '}$/';
@@ -92,14 +93,20 @@ trait ValidatesApplicationFields
             'bac_number' => ['required', 'string', 'max:30', 'regex:/^\d+$/'],
             'bac_mention' => ['required', Rule::in(array_keys(Application::BAC_MENTIONS))],
 
-            // — Inscription demandée —
-            'level' => ['required', Rule::in(StudentFile::LEVELS)],
+            /* — Inscription demandée —
+               Les niveaux ouverts dépendent du type : un transfert n'entre pas
+               en première année, et c'est le modèle qui tient cette liste. */
+            'level' => ['required', Rule::in(Application::levelsFor($type))],
             'mention' => ['required', 'string', Rule::exists(Department::class, 'slug')->where('is_visible', true)],
 
             // Propre à la réinscription : seule pièce d'identification qu'elle
             // demande, et la seule à y être obligatoire.
             'student_number' => [$isReinscription ? 'required' : 'nullable', 'string', 'max:60'],
             'previous_level' => ['nullable', Rule::in(StudentFile::LEVELS)],
+
+            /* Propre au transfert : d'où vient le candidat. Sans lui, les
+               relevés de notes qu'il joint ne se rattachent à aucun cursus. */
+            'previous_institution' => [$isTransfert ? 'required' : 'nullable', 'string', 'max:255'],
 
             /* — Parents —
                Les colonnes restent `parent1_*` / `parent2_*` : elles portent
@@ -161,6 +168,7 @@ trait ValidatesApplicationFields
             'mention' => 'mention',
             'student_number' => 'numéro matricule',
             'previous_level' => 'niveau précédent',
+            'previous_institution' => 'établissement d\'origine',
             'parent1_name' => 'nom du père',
             'parent1_phone' => 'téléphone du père',
             'parent2_name' => 'nom de la mère',
@@ -175,7 +183,25 @@ trait ValidatesApplicationFields
             'documents.photo' => 'photo d\'identité en buste',
             'documents.payment_receipt' => 'bordereau de versement',
             'documents.general_fees_receipt' => 'bordereau de versement des frais généraux',
+            'documents.previous_transcript_1' => 'relevé de notes de la 1re année',
+            'documents.previous_transcript_2' => 'relevé de notes de la 2e année',
+            'documents.previous_degree' => 'diplôme de Licence',
         ];
+    }
+
+    /**
+     * Message du niveau refusé, quand la liste dépend du type de demande.
+     *
+     * « Le niveau sélectionné est invalide » laisserait un candidat au
+     * transfert chercher ce qu'il a mal fait : la seule chose à dire est que
+     * son parcours commence en deuxième année.
+     */
+    protected function applicationLevelMessages(?string $type): array
+    {
+        return $type === Application::TYPE_TRANSFERT
+            ? ['level.in' => 'Un transfert n\'est possible qu\'à partir de la deuxième année : choisissez '
+                . implode(', ', Application::TRANSFER_LEVELS) . '.']
+            : [];
     }
 
     /**
